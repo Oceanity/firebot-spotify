@@ -1,32 +1,60 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-
-interface Params {
-  message: string;
-}
+import Store from "@utils/store";
+// import Db from "@/utils/db";
+// import { run } from "node:test";
+import Spotify from "./utils/spotify";
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
     return {
-      name: "Starter Custom Script",
-      description: "A starter custom script for build",
-      author: "SomeDev",
+      name: "Spotify Song Requests",
+      description: "Let your viewers determine your taste in music",
+      author: "Oceanity",
       version: "1.0",
       firebotVersion: "5",
     };
   },
   getDefaultParameters: () => {
     return {
-      message: {
+      spotifyClientId: {
         type: "string",
-        default: "Hello World!",
-        description: "Message",
-        secondaryDescription: "Enter a message here",
+        default: "",
+        description: "Spotify Client Id",
+        secondaryDescription:
+          "Client Id from an application registered at developer.spotify.com",
+      },
+
+      spotifyClientSecret: {
+        type: "string",
+        default: "",
+        description: "Spotify Client Secret",
+        secondaryDescription:
+          "Client Secret from an application registered at developer.spotify.com",
       },
     };
   },
-  run: (runRequest) => {
-    const { logger } = runRequest.modules;
-    logger.info(runRequest.parameters.message);
+  run: async (runRequest) => {
+    Store.Modules = runRequest.modules;
+    Store.Parameters = runRequest.parameters;
+    Store.WebserverPort = runRequest.firebot.settings.getWebServerPort();
+
+    const { logger } = Store.Modules;
+    const { spotifyClientId, spotifyClientSecret } = Store.Parameters;
+
+    if (!spotifyClientId || !spotifyClientSecret) {
+      throw new Error("Missing Spotify credentials in Script Settings");
+    }
+
+    Spotify.registerEndpoints();
+
+    //Store.SpotifyToken = (await Db.getAsync("db/spotify", "token")) ?? null;
+
+    if (!Store.SpotifyToken) {
+      logger.info(
+        `Spotify Client Id: ${spotifyClientId}, Secret: ${spotifyClientSecret}`
+      );
+      Spotify.openLoginPage();
+    }
   },
 };
 
