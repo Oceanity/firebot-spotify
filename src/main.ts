@@ -50,9 +50,9 @@ const script: Firebot.CustomScript<Params> = {
     Store.Modules = runRequest.modules;
     Store.WebserverPort = runRequest.firebot.settings.getWebServerPort();
     Store.CallbackPath = "/oauth/callback";
-    Store.RedirectUri = `http://localhost:${runRequest.firebot.settings.getWebServerPort()}/integrations/oceanitysongrequests${
-      Store.CallbackPath
-    }`;
+    Store.RedirectUri = `http://localhost:${runRequest.firebot.settings.getWebServerPort()}/integrations/${
+      Store.Prefix
+    }${Store.CallbackPath}`;
 
     Store.Modules.logger.info(Store.WebserverPort.toString());
 

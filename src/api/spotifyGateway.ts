@@ -12,6 +12,7 @@ export default class SpotifyGateway {
   }
 
   private static async requestSongHandler(req: Request, res: Response) {
+    await Spotify.refreshTokenAsync();
     const device = await Spotify.getActiveDeviceAsync();
     const track = await Spotify.findTrackAsync(req.query.q as string);
     if (!device || !track) {

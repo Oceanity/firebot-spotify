@@ -128,7 +128,7 @@ export default class Spotify {
     const params = new URLSearchParams({
       q: search,
       type: "track",
-      limit: "1",
+      limit: "10",
     }).toString();
 
     const response = await (
@@ -161,6 +161,34 @@ export default class Spotify {
       }
     );
     return response.status === 204;
+  }
+
+  public static async refreshTokenAsync() {
+    const { refreshToken } = Store.SpotifyAuth;
+    const { clientId, clientSecret } = Store.SpotifyApplication;
+    if (!refreshToken) return null;
+
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    }).toString();
+
+    const response = await fetch(`https://accounts.spotify.com/api/token`, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(
+          `${clientId}:${clientSecret}`
+        ).toString("base64")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+    const data = await response.json();
+    Store.SpotifyAuth.accessToken = data.access_token;
+    Store.SpotifyAuth.refreshToken = data.refresh_token;
+    Store.SpotifyAuth.expiresIn = data.expires_in;
+
+    return response.status === 200;
   }
 
   //#region Public Methods
