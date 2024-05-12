@@ -69,10 +69,10 @@ export default class DbUtils {
     data: T,
     override: boolean = false
   ): Promise<boolean> => {
-    const db = await this.setup(path);
     Modules.logger.info(
       `Pushing ${JSON.stringify(data)} to ${route} in ${path}`
     );
+    const db = await this.setup(path);
 
     try {
       await db.push(route, data, override);

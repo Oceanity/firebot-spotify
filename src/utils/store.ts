@@ -4,12 +4,12 @@ import {
 } from "@crowbartools/firebot-custom-scripts-types";
 
 export default class Store {
-  static Prefix: string = "oceanitysongrequests";
-  static SpotifyToken: string | null = null;
+  static Prefix: string = "oceanity/spotify";
+  static SpotifyApplication: SpotifyApplication;
+  static SpotifyAuth: SpotifyAuth = {};
   static Modules: ScriptModules;
   static WebserverPort: number;
-  static GetWebserverUrl = () =>
-    `http://localhost:${Store.WebserverPort}/integrations/${Store.Prefix}`;
-  static Parameters: RunRequestParameters<Params>;
+  static CallbackPath: string;
+  static RedirectUri: string;
   static State: string | null = null;
 }

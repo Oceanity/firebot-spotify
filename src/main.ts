@@ -3,6 +3,7 @@ import Store from "@utils/store";
 // import Db from "@/utils/db";
 // import { run } from "node:test";
 import Spotify from "./utils/spotify";
+import SpotifyGateway from "./api/spotifyGateway";
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
@@ -34,26 +35,35 @@ const script: Firebot.CustomScript<Params> = {
     };
   },
   run: async (runRequest) => {
-    Store.Modules = runRequest.modules;
-    Store.Parameters = runRequest.parameters;
-    Store.WebserverPort = runRequest.firebot.settings.getWebServerPort();
-
-    const { logger } = Store.Modules;
-    const { spotifyClientId, spotifyClientSecret } = Store.Parameters;
+    const { spotifyClientId, spotifyClientSecret } = runRequest.parameters;
+    const { logger } = runRequest.modules;
 
     if (!spotifyClientId || !spotifyClientSecret) {
       throw new Error("Missing Spotify credentials in Script Settings");
     }
 
+    // Setup globals
+    Store.SpotifyApplication = {
+      clientId: spotifyClientId,
+      clientSecret: spotifyClientSecret,
+    };
+    Store.Modules = runRequest.modules;
+    Store.WebserverPort = runRequest.firebot.settings.getWebServerPort();
+    Store.CallbackPath = "/oauth/callback";
+    Store.RedirectUri = `http://localhost:${runRequest.firebot.settings.getWebServerPort()}/integrations/oceanitysongrequests${
+      Store.CallbackPath
+    }`;
+
+    Store.Modules.logger.info(Store.WebserverPort.toString());
+
     Spotify.registerEndpoints();
+    SpotifyGateway.registerEndpoints();
 
-    //Store.SpotifyToken = (await Db.getAsync("db/spotify", "token")) ?? null;
-
-    if (!Store.SpotifyToken) {
+    if (!Store.SpotifyAuth.code) {
       logger.info(
         `Spotify Client Id: ${spotifyClientId}, Secret: ${spotifyClientSecret}`
       );
-      Spotify.openLoginPage();
+      await Spotify.openLoginPage();
     }
   },
 };

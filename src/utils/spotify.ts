@@ -3,11 +3,15 @@ import { Request, Response } from "express";
 import { RegisterAllEndpoints } from "@/utils/webServer";
 import { randomUUID } from "crypto";
 import open from "open";
-import DbUtils from "./db";
 
-export default class SpotifyUtils {
-  private static readonly authUrl: string =
-    "https://accounts.spotify.com/authorize";
+type SpotifyOptions = {
+  port: number;
+  prefix: string;
+  callbackPath: string;
+};
+
+export default class Spotify {
+  // Readonly props
   private static readonly scopes: string[] = [
     "app-remote-control",
     "streaming",
@@ -19,54 +23,165 @@ export default class SpotifyUtils {
     "user-read-private",
     "user-read-recently-played",
   ];
-  private static readonly callbackPath: string = "/oauth/callback";
 
   public static registerEndpoints() {
     RegisterAllEndpoints([
-      [this.callbackPath, "GET", this.oauthCallbackHandler],
+      [Store.CallbackPath, "GET", this.oauthCallbackHandler],
     ]);
   }
 
   //#region Endpoint Handlers
   private static async oauthCallbackHandler(req: Request, res: Response) {
+    const { RedirectUri, SpotifyApplication, SpotifyAuth } = Store;
     const { code, state } = req.query;
 
-    Store.Modules.logger.info(code as string);
-
-    if ((state as string) !== Store.State) {
-      res.status(400);
+    if (state !== SpotifyAuth.state) {
       res.send(
         "<h1>Spotify Login Failed</h1><p>The state does not match the state in the request, this could be a sign of a replay attack.</p>"
       );
       return;
     }
 
-    Store.SpotifyToken = code as string;
-    await DbUtils.push<string>("./db/spotify", "token", Store.SpotifyToken);
+    SpotifyAuth.code = code as string;
+    Store.Modules.logger.info(SpotifyAuth.code);
 
-    res.send(
-      "<h1>Spotify Login Successful!</h1><p>You may now close this window.</p>"
-    );
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      code: SpotifyAuth.code,
+      redirect_uri: RedirectUri,
+    }).toString();
+
+    fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(
+          `${SpotifyApplication.clientId}:${SpotifyApplication.clientSecret}`
+        ).toString("base64")}`,
+      },
+      body,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          res.send(
+            `<h1>Spotify Login Failed</h1><p>There was an error getting a token from the code provided.</p><p>${data.error}</p>`
+          );
+          return;
+        }
+        [
+          SpotifyAuth.accessToken,
+          SpotifyAuth.refreshToken,
+          SpotifyAuth.expiresIn,
+        ] = [data.access_token, data.refresh_token, data.expires_in];
+
+        res.send(
+          "<h1>Spotify Login Successful!</h1><p>You may now close this window.</p>"
+        );
+
+        Store.Modules.logger.info(SpotifyAuth.accessToken ?? "");
+
+        return Store.SpotifyAuth.accessToken;
+      })
+      .catch((err) => {
+        Store.Modules.logger.info(JSON.stringify(err));
+        res.send(
+          "<h1>Spotify Login Failed</h1><p>There was an error getting a token from the code provided.</p>"
+        );
+      });
+  }
+
+  private static async requestSongHandler(req: Request, res: Response) {
+    const { search } = req.query;
+    const { accessToken } = Store.SpotifyAuth;
+
+    if (!accessToken) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
+
+    res.send(true);
   }
   //#endregion
 
+  public static async getActiveDeviceAsync() {
+    const { accessToken } = Store.SpotifyAuth;
+
+    if (!accessToken) return null;
+
+    const response: SpotifyGetDevicesResponse = await (
+      await fetch("https://api.spotify.com/v1/me/player/devices", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+    ).json();
+    return response.devices.find((d) => d.is_active);
+  }
+
+  public static async findTrackAsync(search: string) {
+    const { accessToken } = Store.SpotifyAuth;
+
+    if (!accessToken) return null;
+
+    const params = new URLSearchParams({
+      q: search,
+      type: "track",
+      limit: "1",
+    }).toString();
+
+    const response = await (
+      await fetch(`https://api.spotify.com/v1/search?${params}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+    ).json();
+    return response.tracks.items[0];
+  }
+
+  public static async enqueueTrackAsync(deviceId: string, trackUri: string) {
+    const { accessToken } = Store.SpotifyAuth;
+    if (!accessToken) return null;
+
+    const response = await fetch(
+      `https://api.spotify.com/v1/me/player/queue?uri=${trackUri}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          device_id: deviceId,
+          uri: trackUri,
+        }),
+      }
+    );
+    return response.status === 204;
+  }
+
   //#region Public Methods
-  public static openLoginPage() {
-    Store.Modules.logger.info("Opening Spotify Auth Page");
+  public static async openLoginPage() {
+    const { RedirectUri } = Store;
+    const { SpotifyAuth } = Store;
+    const { clientId } = Store.SpotifyApplication;
 
-    Store.State = randomUUID();
-    const params = {
+    SpotifyAuth.state = randomUUID();
+
+    const queryString = new URLSearchParams({
       response_type: "code",
-      client_id: Store.Parameters.spotifyClientId,
-      scope: this.scopes.join(" "),
-      redirect_uri: `${Store.GetWebserverUrl()}/oauth/callback`,
-      state: Store.State,
-    };
-    const qs = new URLSearchParams(params).toString();
+      client_id: clientId,
+      scope: this.scopes.join("%20"),
+      redirect_uri: RedirectUri,
+      state: SpotifyAuth.state,
+    }).toString();
 
-    Store.Modules.logger.info(qs);
+    open(`https://accounts.spotify.com/authorize?${queryString}`);
 
-    open(`${this.authUrl}?${qs}`);
+    return;
   }
   //#endregion
 }
