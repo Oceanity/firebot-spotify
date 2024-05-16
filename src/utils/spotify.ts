@@ -144,7 +144,12 @@ export default class Spotify {
 
   public static async enqueueTrackAsync(deviceId: string, trackUri: string) {
     const { accessToken } = Store.SpotifyAuth;
-    if (!accessToken) return null;
+
+    if (!accessToken)
+      return {
+        status: 401,
+        error: "No access token",
+      };
 
     const response = await fetch(
       `https://api.spotify.com/v1/me/player/queue?uri=${trackUri}`,
@@ -183,7 +188,9 @@ export default class Spotify {
       },
       body,
     });
+
     const data = await response.json();
+
     Store.SpotifyAuth.accessToken = data.access_token;
     Store.SpotifyAuth.refreshToken = data.refresh_token;
     Store.SpotifyAuth.expiresIn = data.expires_in;

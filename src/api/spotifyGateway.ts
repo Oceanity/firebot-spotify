@@ -4,7 +4,10 @@ import { Request, Response } from "express";
 
 export default class SpotifyGateway {
   public static registerEndpoints() {
-    RegisterAllEndpoints([["/request", "GET", this.requestSongHandler]]);
+    RegisterAllEndpoints([
+      ["/request", "GET", this.requestSongHandler],
+      ["/refresh", "GET", this.refreshTokenHandler],
+    ]);
   }
 
   private static async oauthCallbackHandler(_req: Request, res: Response) {
@@ -21,5 +24,8 @@ export default class SpotifyGateway {
     }
     await Spotify.enqueueTrackAsync(device?.id as string, track?.uri as string);
     res.send(track);
+  }
+  private static async refreshTokenHandler(_req: Request, res: Response) {
+    res.send(await Spotify.refreshTokenAsync());
   }
 }
