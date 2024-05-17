@@ -90,18 +90,6 @@ export default class Spotify {
         );
       });
   }
-
-  private static async requestSongHandler(req: Request, res: Response) {
-    const { search } = req.query;
-    const { accessToken } = Store.SpotifyAuth;
-
-    if (!accessToken) {
-      res.status(401).send("Unauthorized");
-      return;
-    }
-
-    res.send(true);
-  }
   //#endregion
 
   public static async getActiveDeviceAsync() {
