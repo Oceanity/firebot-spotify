@@ -69,7 +69,7 @@ export const generateSpotifyDefinition = (): IntegrationDefinition => ({
   id: "spotify",
   name: "Spotify",
   description: "Allows for song requests",
-  connectionToggle: false,
+  connectionToggle: true,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
