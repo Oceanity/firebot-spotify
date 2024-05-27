@@ -17,6 +17,7 @@
     "downlevelIteration": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@effects*": ["./src/firebot/effects/*"],
       "@utils/*": ["./src/utils/*"],
       "ts-jest/*": ["./node_modules/ts-jest/dist/*"]
     },
