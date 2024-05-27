@@ -1,14 +1,33 @@
 {
-    "compilerOptions": {
-        "outDir": "./dist/",
-        "target": "ES6",
-        "module": "CommonJS",
-        "allowSyntheticDefaultImports": true,
-        "noImplicitAny": true,
-        "sourceMap": true,
-        "moduleResolution": "node",
-        "experimentalDecorators": true,
-        "downlevelIteration": true
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "target": "ES6",
+    "module": "CommonJS",
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@effects*": ["./src/firebot/effects/*"],
+      "@utils/*": ["./src/utils/*"],
+      "ts-jest/*": ["./node_modules/ts-jest/dist/*"]
     },
-    "include": ["./src/**/*"]
+    "lib": ["es5", "es6", "dom", "dom.iterable"],
+    "types": ["jest", "node", "node/http"],
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "./dist/**/*"],
+  "jest": {
+    "tsConfig": "tsconfig.json"
+  }
 }

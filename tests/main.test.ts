@@ -1,4 +1,7 @@
-import { RunRequest, ScriptModules } from "firebot-custom-scripts-types";
+import {
+  RunRequest,
+  ScriptModules,
+} from "@crowbartools/firebot-custom-scripts-types";
 import { ArgumentsOf } from "ts-jest/dist/utils/testing";
 import customScript from "../src/main";
 test("main default export is the custom script", () => {
@@ -14,10 +17,10 @@ test("run() calls logger.info with the message", async () => {
     ArgumentsOf<ScriptModules["logger"]["info"]>
   >();
   const expectedMessage = "foobar";
-  const runRequest = ({
+  const runRequest = {
     parameters: { message: expectedMessage },
     modules: { logger: { info: mockInfoLog } },
-  } as unknown) as RunRequest<any>;
+  } as unknown as RunRequest<any>;
 
   await customScript.run(runRequest);
 
