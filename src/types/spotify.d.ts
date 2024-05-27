@@ -95,3 +95,8 @@ type SpotifyQueueResponse = {
   currently_playing: SpotifyTrackDetails;
   queue: SpotifyTrackDetails[];
 };
+
+type FindAndEnqueueTrackResponse = {
+  success: boolean;
+  data: SpotifyTrackDetails | string;
+};

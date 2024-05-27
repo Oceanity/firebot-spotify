@@ -7,7 +7,7 @@ export default class Spotify {
   public static async findAndEnqueueTrackAsync(
     accessToken: string,
     query: string
-  ): Promise<boolean> {
+  ): Promise<FindAndEnqueueTrackResponse> {
     try {
       accessToken = await this.ensureAccessTokenIsValidAsync(accessToken);
       const deviceId = await this.getActiveDeviceIdAsync(accessToken);
@@ -15,10 +15,16 @@ export default class Spotify {
 
       await this.enqueueTrackAsync(accessToken, deviceId, track?.uri as string);
 
-      return true;
+      return {
+        success: true,
+        data: track,
+      };
     } catch (error) {
       logger.error("Error finding and enqueuing track on Spotify", error);
-      return false;
+      return {
+        success: false,
+        data: error as string,
+      };
     }
   }
 

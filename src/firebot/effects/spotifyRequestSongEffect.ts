@@ -15,6 +15,21 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
     description: "Request a song to add to your Spotify playlist",
     icon: "fab fa-spotify",
     categories: ["integrations"],
+    //@ts-expect-error ts2353
+    outputs: [
+      {
+        label: "Success status",
+        description:
+          "returns true if the message was sent successfully, false otherwise.",
+        defaultName: "spotifySuccess",
+      },
+      {
+        label: "Response Data",
+        description:
+          "Returns the track information of the enqueued track or a error message if the procedure failed.",
+        defaultName: "spotifyResponse",
+      },
+    ],
   },
 
   optionsTemplate: `
@@ -58,7 +73,19 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
 
     const spotify = integrationManager.getIntegrationById("spotify").definition;
     const accessToken = spotify.auth["access_token"];
+    const encodedQuery = encodeURIComponent(event.effect.query);
 
-    await Spotify.findAndEnqueueTrackAsync(accessToken, event.effect.query);
+    const { success, data } = await Spotify.findAndEnqueueTrackAsync(
+      accessToken,
+      encodedQuery
+    );
+
+    return {
+      success: true,
+      outputs: {
+        spotifySuccess: success,
+        spotifyResponse: data,
+      },
+    };
   },
 };
