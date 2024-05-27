@@ -163,8 +163,6 @@ export class SpotifyIntegration extends EventEmitter {
 
         const data = await response.json();
 
-        logger.info(JSON.stringify(data));
-
         const int = Store.Modules.integrationManager.getIntegrationById(
           Store.IntegrationId
         );
