@@ -1,15 +1,9 @@
-import {
-  Firebot,
-  RunRequestParameters,
-} from "@crowbartools/firebot-custom-scripts-types";
+import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Store from "@utils/store";
 import { initLogger } from "@utils/logger";
 import { generateSpotifyIntegration, integration } from "@/spotifyIntegration";
 
-import {
-  generateSpotifyDefinition,
-  SpotifyIntegration,
-} from "./spotifyIntegration";
+import { generateSpotifyDefinition } from "./spotifyIntegration";
 
 import spotifyEffects from "@effects/all";
 

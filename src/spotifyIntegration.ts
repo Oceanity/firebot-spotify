@@ -72,14 +72,14 @@ export function setScriptModules(modules: ScriptModules) {
 }
 
 export const generateSpotifyDefinition = (): IntegrationDefinition => ({
-  id: "spotify",
+  id: Store.IntegrationId,
   name: "Spotify",
   description: "Allows for song requests",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
-    id: "spotify",
+    id: Store.IntegrationId,
     name: "Spotify",
     redirectUriHost: "localhost",
     client: {
@@ -173,24 +173,21 @@ export class SpotifyIntegration extends EventEmitter {
 
   async unlink() {}
 
-  private getSpotifyAuthFromIntegration() {
-    //return Store.Modules.integrationManager.getIntegrationDefinitionById("spotify").
-  }
-
   async refreshToken(): Promise<string | null> {
     try {
       logger.info("Refreshing Spotify Token...");
 
       // @ts-ignore
       const authProvider = spotifyDefinition.authProviderDetails;
+      const auth = getSpotifyAuthFromIntegration();
 
-      logger.info(JSON.stringify(spotifyAuth));
+      logger.info(JSON.stringify(auth));
 
-      if (spotifyAuth != null) {
+      if (auth != null) {
         if (!spotifyIntegrationManager) {
           throw new Error("Required var SpotifyIntegrationManager is null");
         }
-        if (!spotifyAuth.refreshToken) {
+        if (!auth.refresh_token) {
           throw new Error("No refresh token");
         }
 
@@ -206,7 +203,7 @@ export class SpotifyIntegration extends EventEmitter {
             },
             body: new URLSearchParams({
               grant_type: "refresh_token",
-              refresh_token: spotifyAuth.refreshToken ?? "",
+              refresh_token: auth.refresh_token ?? "",
             }),
           }
         );
@@ -219,18 +216,23 @@ export class SpotifyIntegration extends EventEmitter {
 
         const data = await response.json();
 
-        const int = spotifyIntegrationManager.getIntegrationById("spotify");
+        const int = spotifyIntegrationManager.getIntegrationById(
+          Store.IntegrationId
+        );
 
-        // @ts-ignore
-        data["refresh_token"] = int.integration.auth.refresh_token;
-        int.integration.saveIntegrationAuth(int, response);
+        //@ts-expect-error ts2339
+        Store.Modules.integrationManager.saveIntegrationAuth(int, data);
         return data.access_token;
       }
     } catch (error) {
-      logError("Error Connecting to Spotify", error);
+      logger.error("Error refreshing Spotify token", error);
     }
     return null;
   }
 }
+
+const getSpotifyAuthFromIntegration = (): AuthDefinition =>
+  Store.Modules.integrationManager.getIntegrationById(Store.IntegrationId)
+    .definition.auth;
 
 export let integration: SpotifyIntegration;

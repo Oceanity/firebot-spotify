@@ -71,7 +71,9 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
       `Searching and enqueueing track matching query: ${event.effect.query}`
     );
 
-    const spotify = integrationManager.getIntegrationById("spotify").definition;
+    const spotify = integrationManager.getIntegrationById(
+      Store.IntegrationId
+    ).definition;
     const accessToken = spotify.auth["access_token"];
     const encodedQuery = encodeURIComponent(event.effect.query);
 
