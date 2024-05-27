@@ -1,4 +1,3 @@
-import { IntegrationManager } from "@crowbartools/firebot-custom-scripts-types";
 const EventEmitter = require("events");
 import { logger } from "@utils/logger";
 import {
@@ -20,7 +19,6 @@ const spotifyScopes = [
 ];
 
 let spotifyDefinition: IntegrationDefinition | null = null;
-let spotifyIntegrationManager: IntegrationManager | null = null;
 
 export type IntegrationDefinition<
   Params extends FirebotParams = FirebotParams
@@ -112,7 +110,6 @@ export class SpotifyIntegration extends EventEmitter {
   constructor() {
     super();
     spotifyDefinition = generateSpotifyDefinition();
-    spotifyIntegrationManager = Store.Modules.integrationManager;
   }
 
   init() {}
@@ -134,7 +131,7 @@ export class SpotifyIntegration extends EventEmitter {
       const auth = getSpotifyAuthFromIntegration();
 
       if (auth != null) {
-        if (!spotifyIntegrationManager) {
+        if (!Store.Modules.integrationManager) {
           throw new Error("Required var SpotifyIntegrationManager is null");
         }
         if (!auth.refresh_token) {
@@ -166,7 +163,7 @@ export class SpotifyIntegration extends EventEmitter {
 
         const data = await response.json();
 
-        const int = spotifyIntegrationManager.getIntegrationById(
+        const int = Store.Modules.integrationManager.getIntegrationById(
           Store.IntegrationId
         );
 
