@@ -1,9 +1,6 @@
-import {
-  IntegrationManager,
-  ScriptModules,
-} from "@crowbartools/firebot-custom-scripts-types";
+import { IntegrationManager } from "@crowbartools/firebot-custom-scripts-types";
 const EventEmitter = require("events");
-import { logError, logger } from "@utils/logger";
+import { logger } from "@utils/logger";
 import {
   FirebotParameterCategories,
   FirebotParams,
@@ -22,7 +19,6 @@ const spotifyScopes = [
   "user-read-recently-played",
 ];
 
-let spotifyAuth: SpotifyAuth | null = null;
 let spotifyDefinition: IntegrationDefinition | null = null;
 let spotifyIntegrationManager: IntegrationManager | null = null;
 
@@ -65,11 +61,6 @@ export type IntegrationDefinition<
     }
   | { linkType: "other" | "none" }
 );
-
-let scriptModules: ScriptModules;
-export function setScriptModules(modules: ScriptModules) {
-  scriptModules = modules;
-}
 
 export const generateSpotifyDefinition = (): IntegrationDefinition => ({
   id: Store.IntegrationId,
@@ -116,59 +107,20 @@ export async function spotifyIsConnected(
 }
 
 export class SpotifyIntegration extends EventEmitter {
-  auth: any;
-  connected: boolean;
+  connected: boolean = false;
 
   constructor() {
     super();
-    this.connected = false;
     spotifyDefinition = generateSpotifyDefinition();
     spotifyIntegrationManager = Store.Modules.integrationManager;
   }
 
   init() {}
 
-  async connect(integrationData: any) {
-    const { auth } = integrationData;
+  async connect() {}
 
-    if (!spotifyDefinition)
-      throw new Error("Could not find Spotify Definition");
-
-    logger.info("Auth: " + JSON.stringify(auth));
-
-    spotifyAuth = auth;
-    try {
-      let accessToken = auth?.access_token;
-
-      if (!(await spotifyIsConnected(accessToken))) {
-        accessToken = await this.refreshToken();
-      }
-
-      if (!accessToken || !accessToken.length) {
-        this.emit("disconnected", spotifyDefinition.id);
-        return;
-      }
-
-      this.emit("connected", spotifyDefinition.id);
-      this.connected = true;
-    } catch (error) {
-      logError("Error Connecting to Spotify", error);
-    }
-  }
-
-  async link(linkData: { auth: any }) {
-    const { auth } = linkData;
-
+  async link() {
     logger.info("Linking to Spotify Integration...");
-
-    spotifyAuth = auth;
-    let token = auth?.access_token;
-
-    logger.info("Auth: " + JSON.stringify(auth));
-
-    if (!(await spotifyIsConnected(token))) {
-      token = await this.refreshToken();
-    }
   }
 
   async unlink() {}
@@ -180,8 +132,6 @@ export class SpotifyIntegration extends EventEmitter {
       // @ts-ignore
       const authProvider = spotifyDefinition.authProviderDetails;
       const auth = getSpotifyAuthFromIntegration();
-
-      logger.info(JSON.stringify(auth));
 
       if (auth != null) {
         if (!spotifyIntegrationManager) {
