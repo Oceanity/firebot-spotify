@@ -1,6 +1,5 @@
 import { integration, spotifyIsConnected } from "@/spotifyIntegration";
 import { logger } from "@utils/logger";
-import Store from "@utils/store";
 
 export default class Spotify {
   // Public static methods
@@ -135,35 +134,5 @@ export default class Spotify {
         throw new Error("Could not refresh Spotify Access Token");
     }
     return accessToken;
-  }
-
-  private static async refreshTokenAsync() {
-    const { refreshToken } = Store.SpotifyAuth;
-    const { clientId, clientSecret } = Store.SpotifyApplication;
-    if (!refreshToken) return null;
-
-    const body = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    }).toString();
-
-    const response = await fetch(`https://accounts.spotify.com/api/token`, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${Buffer.from(
-          `${clientId}:${clientSecret}`
-        ).toString("base64")}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body,
-    });
-
-    const data = await response.json();
-
-    Store.SpotifyAuth.accessToken = data.access_token;
-    Store.SpotifyAuth.refreshToken = data.refresh_token;
-    Store.SpotifyAuth.expiresIn = data.expires_in;
-
-    return response.status === 200;
   }
 }

@@ -69,7 +69,7 @@ export const generateSpotifyDefinition = (): IntegrationDefinition => ({
   id: "spotify",
   name: "Spotify",
   description: "Allows for song requests",
-  connectionToggle: true,
+  connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
@@ -117,6 +117,7 @@ export class SpotifyIntegration extends EventEmitter {
     super();
     this.connected = false;
     this.definition = generateSpotifyDefinition();
+    this.integrationManager = Store.Modules.integrationManager;
   }
 
   init() {}
