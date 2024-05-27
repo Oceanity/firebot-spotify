@@ -30,7 +30,7 @@ module.exports = {
     }, ],
   },
   optimization: {
-    minimize: true,
+    minimize: false,
 
     minimizer: [
       new TerserPlugin({
