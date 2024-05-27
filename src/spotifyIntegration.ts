@@ -62,8 +62,8 @@ export type IntegrationDefinition<
 
 export const generateSpotifyDefinition = (): IntegrationDefinition => ({
   id: Store.IntegrationId,
-  name: "Spotify",
-  description: "Allows for song requests",
+  name: "Spotify (by Oceanity)",
+  description: "Integrations with Spotify including song requests",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
