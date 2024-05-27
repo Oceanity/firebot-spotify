@@ -1,7 +1,7 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Store from "@utils/store";
 import { initLogger } from "@utils/logger";
-import { integration } from "@/spotifyIntegration";
+import { generateSpotifyIntegration, integration } from "@/spotifyIntegration";
 
 import {
   generateSpotifyDefinition,
@@ -62,7 +62,7 @@ const script: Firebot.CustomScript<Params> = {
     };
 
     const definition = generateSpotifyDefinition();
-    const integration = new SpotifyIntegration();
+    const integration = generateSpotifyIntegration();
 
     // Register integration
     integrationManager.registerIntegration({

@@ -94,6 +94,7 @@ export const generateSpotifyDefinition = (): IntegrationDefinition => ({
 
 export function generateSpotifyIntegration() {
   integration = new SpotifyIntegration();
+  return integration;
 }
 
 export async function spotifyIsConnected(
@@ -115,24 +116,31 @@ export class SpotifyIntegration extends EventEmitter {
   constructor() {
     super();
     this.connected = false;
+    this.definition = generateSpotifyDefinition();
   }
 
   init() {}
 
   async connect(integrationData: any) {
     const { auth } = integrationData;
-    // this.auth = auth;
+
+    logger.info("Auth: " + JSON.stringify(auth));
+
+    this.auth = auth;
     try {
-      // let accessToken = auth?.access_token;
+      let accessToken = auth?.access_token;
 
-      // if (!(await spotifyIsConnected(accessToken))) {
-      //   accessToken = await this.refreshToken();
-      // }
+      if (!(await spotifyIsConnected(accessToken))) {
+        accessToken = await this.refreshToken();
+      }
 
-      // if (!accessToken || !accessToken.length) {
-      //   this.emit("disconnected", this.definition.id);
-      //   return;
-      // }
+      if (!accessToken || !accessToken.length) {
+        logger.info("hello2");
+        this.emit("disconnected", this.definition.id);
+        return;
+      }
+
+      logger.info("definition: " + JSON.stringify(this.definition));
 
       this.emit("connected", this.definition.id);
       this.connected = true;
@@ -151,6 +159,9 @@ export class SpotifyIntegration extends EventEmitter {
     this.auth = auth;
     let token = auth?.access_token;
 
+    logger.info("Access: " + token);
+    logger.info("Refresh: " + auth?.refresh_token);
+
     if (!(await spotifyIsConnected(token))) {
       token = await this.refreshToken();
     }
@@ -166,11 +177,9 @@ export class SpotifyIntegration extends EventEmitter {
       const authProvider = this.definition.authProviderDetails;
 
       if (auth != null) {
-        logger.info("Refreshing Spotify token...");
-
-        const url = `${authProvider.auth.tokenHost}${authProvider.auth.tokenPath}?client_id=${authProvider.client.id}}&grant_type=refresh_token&refresh_token=${auth.refresh_token}`;
-        const response = await (
-          await fetch(url, {
+        const response = await fetch(
+          `${authProvider.auth.tokenHost}${authProvider.auth.tokenPath}`,
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
@@ -178,16 +187,26 @@ export class SpotifyIntegration extends EventEmitter {
                 `${authProvider.client.id}:${authProvider.client.secret}`
               )}`,
             },
-          })
-        ).json();
+            body: new URLSearchParams({
+              grant_type: "refresh_token",
+              refresh_token: auth.refresh_token,
+            }),
+          }
+        );
 
-        if (response.status === 200) {
-          const int = this.integrationManager.getIntegrationById("spotify");
-          // @ts-ignore
-          response.data["refresh_token"] = int.integration.auth.refresh_token;
-          this.integrationManager.saveIntegrationAuth(int, response.data);
-          return response.data.access_token;
+        const data = await response.json();
+
+        logger.info("Access: " + data.access_token);
+
+        if (!response.ok) {
+          throw new Error("could not refresh Spotify token");
         }
+
+        const int = this.integrationManager.getIntegrationById("spotify");
+        // @ts-ignore
+        data["refresh_token"] = int.integration.auth.refresh_token;
+        this.integrationManager.saveIntegrationAuth(int, data);
+        return data.access_token;
       }
     } catch (error) {
       logger.error("Error refreshing Spotify token", error);
