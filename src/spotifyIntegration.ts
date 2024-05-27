@@ -101,8 +101,6 @@ export async function spotifyIsConnected(
 ): Promise<boolean> {
   const headers = { Authorization: "Bearer " + accessToken }; // auth header with bearer token
 
-  logger.info("Ensuring Spotify is connected", accessToken);
-
   let res = await fetch("https://api.spotify.com/v1/me", {
     method: "GET",
     headers,
@@ -123,20 +121,24 @@ export class SpotifyIntegration extends EventEmitter {
 
   async connect(integrationData: any) {
     const { auth } = integrationData;
-    this.auth = auth;
-    let token = auth?.access_token;
+    // this.auth = auth;
+    try {
+      // let accessToken = auth?.access_token;
 
-    if (!(await spotifyIsConnected(token))) {
-      token = await this.refreshToken();
+      // if (!(await spotifyIsConnected(accessToken))) {
+      //   accessToken = await this.refreshToken();
+      // }
+
+      // if (!accessToken || !accessToken.length) {
+      //   this.emit("disconnected", this.definition.id);
+      //   return;
+      // }
+
+      this.emit("connected", this.definition.id);
+      this.connected = true;
+    } catch (error) {
+      logger.error("Error connecting to Spotify", error);
     }
-
-    if (!token || !token.length) {
-      this.emit("disconnected", this.definition.id);
-      return;
-    }
-
-    this.emit("connected", this.definition.id);
-    this.connected = true;
   }
 
   disconnect() {
@@ -147,8 +149,8 @@ export class SpotifyIntegration extends EventEmitter {
   async link(linkData: { auth: any }) {
     const { auth } = linkData;
     this.auth = auth;
-
     let token = auth?.access_token;
+
     if (!(await spotifyIsConnected(token))) {
       token = await this.refreshToken();
     }
@@ -164,8 +166,20 @@ export class SpotifyIntegration extends EventEmitter {
       const authProvider = this.definition.authProviderDetails;
 
       if (auth != null) {
-        const url = `${authProvider.auth.tokenHost}${authProvider.auth.tokenPath}?client_id=${authProvider.client.id}&client_secret=${authProvider.client.secret}&grant_type=refresh_token&refresh_token=${auth.refresh_token}`;
-        const response = await axios.post(url);
+        logger.info("Refreshing Spotify token...");
+
+        const url = `${authProvider.auth.tokenHost}${authProvider.auth.tokenPath}?client_id=${authProvider.client.id}}&grant_type=refresh_token&refresh_token=${auth.refresh_token}`;
+        const response = await (
+          await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Basic ${btoa(
+                `${authProvider.client.id}:${authProvider.client.secret}`
+              )}`,
+            },
+          })
+        ).json();
 
         if (response.status === 200) {
           const int = this.integrationManager.getIntegrationById("spotify");

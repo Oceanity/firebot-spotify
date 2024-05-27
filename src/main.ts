@@ -1,6 +1,7 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Store from "@utils/store";
 import { initLogger } from "@utils/logger";
+import { integration } from "@/spotifyIntegration";
 
 import {
   generateSpotifyDefinition,
@@ -73,6 +74,9 @@ const script: Firebot.CustomScript<Params> = {
     spotifyEffects.forEach((effect) => {
       effectManager.registerEffect(effect);
     });
+  },
+  stop: () => {
+    integration.disconnect();
   },
 };
 
