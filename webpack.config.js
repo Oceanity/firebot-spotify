@@ -7,7 +7,7 @@ module.exports = {
   mode: "production",
   devtool: false,
   entry: {
-    main: "./src/main.ts",
+    main: "@/main.ts",
   },
   output: {
     libraryTarget: "commonjs2",
@@ -17,17 +17,20 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".js"],
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@utils": path.resolve(__dirname, "./src/utils"),
+      "@effects": path.resolve(__dirname, "./src/firebot/effects"),
+    },
   },
   module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        loader: "ts-loader",
-      },
-    ],
+    rules: [{
+      test: /\.ts$/,
+      loader: "ts-loader",
+    }, ],
   },
   optimization: {
-    minimize: true,
+    minimize: false,
 
     minimizer: [
       new TerserPlugin({
