@@ -1,9 +1,13 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Store from "@utils/store";
-// import Db from "@/utils/db";
-// import { run } from "node:test";
-import Spotify from "./utils/spotify";
-import SpotifyGateway from "./api/spotifyGateway";
+import { initLogger } from "@utils/logger";
+
+import {
+  generateSpotifyDefinition,
+  SpotifyIntegration,
+} from "./spotifyIntegration";
+
+import spotifyEffects from "@effects/all";
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
@@ -36,35 +40,39 @@ const script: Firebot.CustomScript<Params> = {
   },
   run: async (runRequest) => {
     const { spotifyClientId, spotifyClientSecret } = runRequest.parameters;
-    const { logger } = runRequest.modules;
+    const { effectManager, integrationManager, logger } = runRequest.modules;
 
     if (!spotifyClientId || !spotifyClientSecret) {
-      throw new Error("Missing Spotify credentials in Script Settings");
+      logger.error(
+        "Missing required Spotify Client ID or Client Secret",
+        spotifyClientId,
+        spotifyClientSecret
+      );
+      return;
     }
 
+    initLogger(logger);
+
     // Setup globals
+    Store.Modules = runRequest.modules;
     Store.SpotifyApplication = {
       clientId: spotifyClientId,
       clientSecret: spotifyClientSecret,
     };
-    Store.Modules = runRequest.modules;
-    Store.WebserverPort = runRequest.firebot.settings.getWebServerPort();
-    Store.CallbackPath = "/oauth/callback";
-    Store.RedirectUri = `http://localhost:${runRequest.firebot.settings.getWebServerPort()}/integrations/${
-      Store.Prefix
-    }${Store.CallbackPath}`;
 
-    Store.Modules.logger.info(Store.WebserverPort.toString());
+    const definition = generateSpotifyDefinition();
+    const integration = new SpotifyIntegration();
 
-    Spotify.registerEndpoints();
-    SpotifyGateway.registerEndpoints();
+    // Register integration
+    integrationManager.registerIntegration({
+      definition,
+      integration,
+    });
 
-    if (!Store.SpotifyAuth.code) {
-      logger.info(
-        `Spotify Client Id: ${spotifyClientId}, Secret: ${spotifyClientSecret}`
-      );
-      await Spotify.openLoginPage();
-    }
+    // Register effects
+    spotifyEffects.forEach((effect) => {
+      effectManager.registerEffect(effect);
+    });
   },
 };
 

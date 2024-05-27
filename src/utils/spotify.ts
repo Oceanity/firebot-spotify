@@ -1,144 +1,110 @@
+import { integration, spotifyIsConnected } from "@/spotifyIntegration";
+import { logger } from "@utils/logger";
 import Store from "@utils/store";
-import { Request, Response } from "express";
-import { RegisterAllEndpoints } from "@/utils/webServer";
-import { randomUUID } from "crypto";
-import open from "open";
-
-type SpotifyOptions = {
-  port: number;
-  prefix: string;
-  callbackPath: string;
-};
 
 export default class Spotify {
-  // Readonly props
-  private static readonly scopes: string[] = [
-    "app-remote-control",
-    "streaming",
-    "user-modify-playback-state",
-    "user-read-currently-playing",
-    "user-read-email",
-    "user-read-playback-position",
-    "user-read-playback-state",
-    "user-read-private",
-    "user-read-recently-played",
-  ];
+  // Public static methods
+  public static async findAndEnqueueTrackAsync(
+    accessToken: string,
+    query: string
+  ): Promise<boolean> {
+    try {
+      accessToken = await this.ensureAccessTokenIsValidAsync(accessToken);
+      const deviceId = await this.getActiveDeviceIdAsync(accessToken);
+      const track = await this.findTrackAsync(accessToken, query);
 
-  public static registerEndpoints() {
-    RegisterAllEndpoints([
-      [Store.CallbackPath, "GET", this.oauthCallbackHandler],
-    ]);
-  }
+      await this.enqueueTrackAsync(accessToken, deviceId, track?.uri as string);
 
-  //#region Endpoint Handlers
-  private static async oauthCallbackHandler(req: Request, res: Response) {
-    const { RedirectUri, SpotifyApplication, SpotifyAuth } = Store;
-    const { code, state } = req.query;
-
-    if (state !== SpotifyAuth.state) {
-      res.send(
-        "<h1>Spotify Login Failed</h1><p>The state does not match the state in the request, this could be a sign of a replay attack.</p>"
-      );
-      return;
+      return true;
+    } catch (error) {
+      logger.error("Error finding and enqueuing track on Spotify", error);
+      return false;
     }
-
-    SpotifyAuth.code = code as string;
-    Store.Modules.logger.info(SpotifyAuth.code);
-
-    const body = new URLSearchParams({
-      grant_type: "authorization_code",
-      code: SpotifyAuth.code,
-      redirect_uri: RedirectUri,
-    }).toString();
-
-    fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(
-          `${SpotifyApplication.clientId}:${SpotifyApplication.clientSecret}`
-        ).toString("base64")}`,
-      },
-      body,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          res.send(
-            `<h1>Spotify Login Failed</h1><p>There was an error getting a token from the code provided.</p><p>${data.error}</p>`
-          );
-          return;
-        }
-        [
-          SpotifyAuth.accessToken,
-          SpotifyAuth.refreshToken,
-          SpotifyAuth.expiresIn,
-        ] = [data.access_token, data.refresh_token, data.expires_in];
-
-        res.send(
-          "<h1>Spotify Login Successful!</h1><p>You may now close this window.</p>"
-        );
-
-        Store.Modules.logger.info(SpotifyAuth.accessToken ?? "");
-
-        return Store.SpotifyAuth.accessToken;
-      })
-      .catch((err) => {
-        Store.Modules.logger.info(JSON.stringify(err));
-        res.send(
-          "<h1>Spotify Login Failed</h1><p>There was an error getting a token from the code provided.</p>"
-        );
-      });
   }
-  //#endregion
 
-  public static async getActiveDeviceAsync() {
-    const { accessToken } = Store.SpotifyAuth;
+  // Helper functions
+  private static async getActiveDeviceIdAsync(
+    accessToken: string
+  ): Promise<string> {
+    try {
+      const response: SpotifyGetDevicesResponse = await (
+        await fetch("https://api.spotify.com/v1/me/player/devices", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+      ).json();
 
-    if (!accessToken) return null;
+      const device = response.devices.find((d) => d.is_active);
 
-    const response: SpotifyGetDevicesResponse = await (
-      await fetch("https://api.spotify.com/v1/me/player/devices", {
+      if (!device) {
+        throw new Error("Could not find Active Spotify Device");
+      }
+
+      return device.id;
+    } catch (error) {
+      logger.error("Error getting active device", error);
+      throw error;
+    }
+  }
+
+  public static async getQueueAsync(
+    accessToken: string
+  ): Promise<SpotifyQueueResponse | null> {
+    const response = (await (
+      await fetch(`https://api.spotify.com/v1/me/player/queue`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       })
-    ).json();
-    return response.devices.find((d) => d.is_active);
+    ).json()) as SpotifyQueueResponse;
+
+    return await response;
   }
 
-  public static async findTrackAsync(search: string) {
-    const { accessToken } = Store.SpotifyAuth;
+  public static async isTrackQueuedAsync(accessToken: string, songUri: string) {
+    const response = await this.getQueueAsync(accessToken);
 
-    if (!accessToken) return null;
-
-    const params = new URLSearchParams({
-      q: search,
-      type: "track",
-      limit: "10",
-    }).toString();
-
-    const response = await (
-      await fetch(`https://api.spotify.com/v1/search?${params}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    ).json();
-    return response.tracks.items[0];
+    return (
+      response?.currently_playing.uri === songUri ||
+      response?.queue.some((a) => a.uri === songUri)
+    );
   }
 
-  public static async enqueueTrackAsync(deviceId: string, trackUri: string) {
-    const { accessToken } = Store.SpotifyAuth;
+  public static async findTrackAsync(
+    accessToken: string,
+    search: string
+  ): Promise<SpotifyTrackDetails> {
+    try {
+      const params = new URLSearchParams({
+        q: search,
+        type: "track",
+        limit: "10",
+      }).toString();
 
-    if (!accessToken)
-      return {
-        status: 401,
-        error: "No access token",
-      };
+      const response = await (
+        await fetch(`https://api.spotify.com/v1/search?${params}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+      ).json();
 
+      return response.tracks.items[0];
+    } catch (error) {
+      logger.error("Error getting active device", error);
+      throw error;
+    }
+  }
+
+  private static async enqueueTrackAsync(
+    accessToken: string,
+    deviceId: string,
+    trackUri: string
+  ) {
     const response = await fetch(
       `https://api.spotify.com/v1/me/player/queue?uri=${trackUri}`,
       {
@@ -156,7 +122,16 @@ export default class Spotify {
     return response.status === 204;
   }
 
-  public static async refreshTokenAsync() {
+  private static async ensureAccessTokenIsValidAsync(accessToken: string) {
+    if (!(await spotifyIsConnected(accessToken))) {
+      accessToken = (await integration.refreshToken()) ?? "";
+      if (!accessToken.length)
+        throw new Error("Could not refresh Spotify Access Token");
+    }
+    return accessToken;
+  }
+
+  private static async refreshTokenAsync() {
     const { refreshToken } = Store.SpotifyAuth;
     const { clientId, clientSecret } = Store.SpotifyApplication;
     if (!refreshToken) return null;
@@ -185,26 +160,4 @@ export default class Spotify {
 
     return response.status === 200;
   }
-
-  //#region Public Methods
-  public static async openLoginPage() {
-    const { RedirectUri } = Store;
-    const { SpotifyAuth } = Store;
-    const { clientId } = Store.SpotifyApplication;
-
-    SpotifyAuth.state = randomUUID();
-
-    const queryString = new URLSearchParams({
-      response_type: "code",
-      client_id: clientId,
-      scope: this.scopes.join("%20"),
-      redirect_uri: RedirectUri,
-      state: SpotifyAuth.state,
-    }).toString();
-
-    open(`https://accounts.spotify.com/authorize?${queryString}`);
-
-    return;
-  }
-  //#endregion
 }
