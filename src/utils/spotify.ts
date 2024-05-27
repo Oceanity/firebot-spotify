@@ -1,5 +1,6 @@
 import { integration, spotifyIsConnected } from "@/spotifyIntegration";
 import { logger } from "@utils/logger";
+import Store from "./store";
 
 export default class Spotify {
   // Public static methods
@@ -20,6 +21,25 @@ export default class Spotify {
       };
     } catch (error) {
       logger.error("Error finding and enqueuing track on Spotify", error);
+      Store.Modules.effectRunner.processEffects({
+        trigger: {
+          type: "custom_script",
+          metadata: {
+            username: "script",
+          },
+        },
+        effects: {
+          id: Date.now(),
+          list: [
+            {
+              id: "e6bac140-1894-11ef-a992-091f0a9405f6",
+              type: "firebot:chat-feed-alert",
+              active: true,
+              message: error as string,
+            },
+          ],
+        },
+      });
       return {
         success: false,
         data: error as string,

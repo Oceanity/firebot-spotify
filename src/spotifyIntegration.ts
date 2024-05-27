@@ -1,12 +1,14 @@
-import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
+import {
+  IntegrationManager,
+  ScriptModules,
+} from "@crowbartools/firebot-custom-scripts-types";
 const EventEmitter = require("events");
 import { logger } from "@utils/logger";
 import {
   FirebotParameterCategories,
   FirebotParams,
 } from "@crowbartools/firebot-custom-scripts-types/types/modules/firebot-parameters";
-const axios = require("axios").default;
-import Store from "@/utils/store";
+import Store from "@utils/store";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -19,6 +21,10 @@ const spotifyScopes = [
   "user-read-private",
   "user-read-recently-played",
 ];
+
+let spotifyAuth: SpotifyAuth | null = null;
+let spotifyDefinition: IntegrationDefinition | null = null;
+let spotifyIntegrationManager: IntegrationManager | null = null;
 
 export type IntegrationDefinition<
   Params extends FirebotParams = FirebotParams
@@ -116,8 +122,8 @@ export class SpotifyIntegration extends EventEmitter {
   constructor() {
     super();
     this.connected = false;
-    this.definition = generateSpotifyDefinition();
-    this.integrationManager = Store.Modules.integrationManager;
+    spotifyDefinition = generateSpotifyDefinition();
+    spotifyIntegrationManager = Store.Modules.integrationManager;
   }
 
   init() {}
@@ -125,9 +131,12 @@ export class SpotifyIntegration extends EventEmitter {
   async connect(integrationData: any) {
     const { auth } = integrationData;
 
+    if (!spotifyDefinition)
+      throw new Error("Could not find Spotify Definition");
+
     logger.info("Auth: " + JSON.stringify(auth));
 
-    this.auth = auth;
+    spotifyAuth = auth;
     try {
       let accessToken = auth?.access_token;
 
@@ -136,78 +145,75 @@ export class SpotifyIntegration extends EventEmitter {
       }
 
       if (!accessToken || !accessToken.length) {
-        logger.info("hello2");
-        this.emit("disconnected", this.definition.id);
+        this.emit("disconnected", spotifyDefinition.id);
         return;
       }
 
-      logger.info("definition: " + JSON.stringify(this.definition));
-
-      this.emit("connected", this.definition.id);
+      this.emit("connected", spotifyDefinition.id);
       this.connected = true;
     } catch (error) {
       logger.error("Error connecting to Spotify", error);
     }
   }
 
-  disconnect() {
-    this.connected = false;
-    this.emit("disconnected", this.definition.id);
-  }
-
   async link(linkData: { auth: any }) {
     const { auth } = linkData;
-    this.auth = auth;
+    spotifyAuth = auth;
     let token = auth?.access_token;
-
-    logger.info("Access: " + token);
-    logger.info("Refresh: " + auth?.refresh_token);
 
     if (!(await spotifyIsConnected(token))) {
       token = await this.refreshToken();
     }
   }
 
-  unlink() {}
-
-  // Doing this here because of a bug in Firebot where it isn't refreshing automatically
   async refreshToken(): Promise<string | null> {
     try {
-      const auth = this.auth;
+      if (!spotifyAuth) {
+        throw new Error("Required var SpotifyAuth is null");
+      }
+
       // @ts-ignore
-      const authProvider = this.definition.authProviderDetails;
+      const authProvider = spotifyDefinition.authProviderDetails;
 
-      if (auth != null) {
-        const response = await fetch(
-          `${authProvider.auth.tokenHost}${authProvider.auth.tokenPath}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization: `Basic ${btoa(
-                `${authProvider.client.id}:${authProvider.client.secret}`
-              )}`,
-            },
-            body: new URLSearchParams({
-              grant_type: "refresh_token",
-              refresh_token: auth.refresh_token,
-            }),
-          }
-        );
+      if (spotifyAuth != null) {
+        if (!spotifyIntegrationManager) {
+          throw new Error("Required var SpotifyIntegrationManager is null");
+        }
+        if (!spotifyAuth.refreshToken) {
+          throw new Error("No refresh token");
+        }
 
-        const data = await response.json();
+        const response = await (
+          await fetch(
+            `${authProvider.auth.tokenHost}${authProvider.auth.tokenPath}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Authorization: `Basic ${btoa(
+                  `${authProvider.client.id}:${authProvider.client.secret}`
+                )}`,
+              },
+              body: new URLSearchParams({
+                grant_type: "refresh_token",
+                refresh_token: spotifyAuth.refreshToken ?? "",
+              }),
+            }
+          )
+        ).json();
 
-        logger.info("Access: " + data.access_token);
+        logger.info("Access: " + response.access_token);
 
-        if (!response.ok) {
+        if (!response) {
           throw new Error("could not refresh Spotify token");
         }
 
-        const int = this.integrationManager.getIntegrationById("spotify");
+        const int = spotifyIntegrationManager.getIntegrationById("spotify");
+
         // @ts-ignore
         data["refresh_token"] = int.integration.auth.refresh_token;
-        this.integrationManager.saveIntegrationAuth(int, data);
-        return data.access_token;
+        int.integration.saveIntegrationAuth(int, response);
+        return response.access_token;
       }
     } catch (error) {
       logger.error("Error refreshing Spotify token", error);
