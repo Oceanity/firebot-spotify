@@ -163,10 +163,13 @@ export class SpotifyIntegration extends EventEmitter {
 
         const data = await response.json();
 
+        logger.info(JSON.stringify(data));
+
         const int = Store.Modules.integrationManager.getIntegrationById(
           Store.IntegrationId
         );
 
+        data["refresh_token"] = auth.refresh_token;
         //@ts-expect-error ts2339
         Store.Modules.integrationManager.saveIntegrationAuth(int, data);
         return data.access_token;
