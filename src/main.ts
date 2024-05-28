@@ -1,12 +1,11 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import Store from "@utils/store";
-import { initLogger } from "@utils/logger";
 import {
   generateSpotifyIntegration,
   generateSpotifyDefinition,
 } from "@/spotifyIntegration";
 
 import spotifyEffects from "@effects/all";
+import { chatFeedAlert, initModules } from "@utils/firebot";
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
@@ -50,10 +49,10 @@ const script: Firebot.CustomScript<Params> = {
       return;
     }
 
-    initLogger(logger);
-
     // Setup globals
-    Store.Modules = runRequest.modules;
+    initModules(runRequest.modules);
+
+    chatFeedAlert("Spotify Integration Loaded");
 
     const client: ClientCredentials = {
       id: spotifyClientId,

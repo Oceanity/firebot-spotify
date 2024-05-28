@@ -1,7 +1,6 @@
 const EventEmitter = require("events");
-import { logger } from "@utils/logger";
-import Store from "@utils/store";
 import ResponseError from "@models/responseError";
+import { logger, integrationManager } from "@utils/firebot";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -46,7 +45,7 @@ export class SpotifyIntegration extends EventEmitter {
       const auth = getSpotifyAuthFromIntegration();
 
       if (auth != null) {
-        if (!Store.Modules.integrationManager) {
+        if (!integrationManager) {
           throw new Error("Required var SpotifyIntegrationManager is null");
         }
         if (!auth.refresh_token) {
@@ -140,8 +139,7 @@ export let integration: SpotifyIntegration;
 
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
-  Store.Modules.integrationManager.getIntegrationById(IntegrationId).definition
-    .auth;
+  integrationManager.getIntegrationById(IntegrationId).definition.auth;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (
@@ -157,11 +155,8 @@ const tokenPastExpiration = (expiresOn: string) =>
 
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
-    Store.Modules.integrationManager.getIntegrationById(IntegrationId);
+    integrationManager.getIntegrationById(IntegrationId);
   //@ts-expect-error ts2339
-  Store.Modules.integrationManager.saveIntegrationAuth(
-    currentIntegration,
-    data
-  );
+  integrationManager.saveIntegrationAuth(currentIntegration, data);
 }
 // #endregion

@@ -1,6 +1,5 @@
 import { getCurrentAccessTokenAsync } from "@/spotifyIntegration";
-import { logger } from "@utils/logger";
-import Store from "./store";
+import { logger, effectRunner } from "@utils/firebot";
 import ResponseError from "@/models/responseError";
 
 export default class Spotify {
@@ -28,7 +27,7 @@ export default class Spotify {
     } catch (error) {
       logger.error("Error finding and enqueuing track on Spotify", error);
 
-      Store.Modules.effectRunner.processEffects({
+      effectRunner.processEffects({
         trigger: {
           type: "custom_script",
           metadata: {

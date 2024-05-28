@@ -1,6 +1,6 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Spotify from "@utils/spotify";
-import { logger } from "@utils/logger";
+import { logger } from "@utils/firebot";
 
 export const spotifyRequestSongEffect: Firebot.EffectType<{
   query: string;
