@@ -1,5 +1,5 @@
 import { getCurrentAccessTokenAsync } from "@/spotifyIntegration";
-import { logger, effectRunner } from "@utils/firebot";
+import { logger, effectRunner, chatFeedAlert } from "@utils/firebot";
 import ResponseError from "@/models/responseError";
 
 export default class Spotify {
@@ -25,32 +25,14 @@ export default class Spotify {
         data: track,
       };
     } catch (error) {
+      let message = error instanceof Error ? error.message : (error as string);
+
+      chatFeedAlert(`Error finding and enqueuing track on Spotify: ${message}`);
       logger.error("Error finding and enqueuing track on Spotify", error);
 
-      effectRunner.processEffects({
-        trigger: {
-          type: "custom_script",
-          metadata: {
-            username: "script",
-          },
-        },
-        effects: {
-          id: Date.now(),
-          list: [
-            {
-              id: "e6bac140-1894-11ef-a992-091f0a9405f6",
-              type: "firebot:chat-feed-alert",
-              active: true,
-              message: `Error finding and enqueuing track on Spotify: ${
-                error instanceof Error ? error.message : error
-              }`,
-            },
-          ],
-        },
-      });
       return {
         success: false,
-        data: error instanceof Error ? error.message : (error as string),
+        data: message,
       };
     }
   }
@@ -60,16 +42,26 @@ export default class Spotify {
     accessToken: string
   ): Promise<string> {
     try {
-      const response: SpotifyGetDevicesResponse = await (
-        await fetch("https://api.spotify.com/v1/me/player/devices", {
+      const response = await fetch(
+        "https://api.spotify.com/v1/me/player/devices",
+        {
           method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        })
-      ).json();
+        }
+      );
 
-      const device = response.devices.find((d) => d.is_active);
+      if (!response.ok) {
+        throw new ResponseError(
+          "Could not get Active Spotify Device",
+          response
+        );
+      }
+
+      const data: SpotifyGetDevicesResponse = await response.json();
+
+      const device = data.devices.find((d) => d.is_active);
 
       if (!device) {
         throw new Error("Could not find Active Spotify Device");
