@@ -37,6 +37,10 @@ export default class Spotify {
 
       await this.enqueueTrackAsync(track?.uri as string);
 
+      track["queue_position"] = await this.getTrackPositionInQueueAsync(
+        track?.uri as string
+      );
+
       return {
         success: true,
         data: track,

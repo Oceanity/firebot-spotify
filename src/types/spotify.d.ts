@@ -47,6 +47,7 @@ type SpotifyTrackDetails = {
   type: track;
   uri: string;
   is_local: boolean;
+  queue_position?: number;
 };
 
 type SpotifyAlbumDetails = {
