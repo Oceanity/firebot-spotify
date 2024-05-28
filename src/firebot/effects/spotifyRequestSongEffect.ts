@@ -1,7 +1,6 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Spotify from "@utils/spotify";
-import { logger, logError } from "@utils/logger";
-import Store from "@utils/store";
+import { logger } from "@utils/logger";
 
 export const spotifyRequestSongEffect: Firebot.EffectType<{
   query: string;
@@ -65,20 +64,12 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
   },
 
   onTriggerEvent: async (event) => {
-    const { integrationManager } = Store.Modules;
-
     logger.info(
       `Searching and enqueueing track matching query: ${event.effect.query}`
     );
-
-    const spotify = integrationManager.getIntegrationById(
-      Store.IntegrationId
-    ).definition;
-    const accessToken = spotify.auth["access_token"];
     const encodedQuery = encodeURIComponent(event.effect.query);
 
     const { success, data } = await Spotify.findAndEnqueueTrackAsync(
-      accessToken,
       encodedQuery
     );
 

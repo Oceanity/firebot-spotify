@@ -1,26 +1,32 @@
-import { integration, spotifyIsConnected } from "@/spotifyIntegration";
-import { logError, logger } from "@utils/logger";
+import { getCurrentAccessTokenAsync } from "@/spotifyIntegration";
+import { logger } from "@utils/logger";
 import Store from "./store";
+import ResponseError from "@/models/responseError";
 
 export default class Spotify {
-  // Public static methods
+  /**
+   * Asynchronously finds a track based on the provided query and enqueues it on Spotify.
+   *
+   * @param {string} query - The search query for the track.
+   * @return {Promise<FindAndEnqueueTrackResponse>} A promise that resolves to a FindAndEnqueueTrackResponse object.
+   * The object contains a success flag indicating if the track was found and enqueued successfully,
+   * and the track details if it was found, or an error message if it was not.
+   */
   public static async findAndEnqueueTrackAsync(
-    accessToken: string,
     query: string
   ): Promise<FindAndEnqueueTrackResponse> {
     try {
-      accessToken = await this.ensureAccessTokenIsValidAsync(accessToken);
-      const deviceId = await this.getActiveDeviceIdAsync(accessToken);
+      const accessToken = await getCurrentAccessTokenAsync();
       const track = await this.findTrackAsync(accessToken, query);
 
-      await this.enqueueTrackAsync(accessToken, deviceId, track?.uri as string);
+      await this.enqueueTrackAsync(accessToken, track?.uri as string);
 
       return {
         success: true,
         data: track,
       };
     } catch (error) {
-      logError("Error finding and enqueuing track on Spotify", error);
+      logger.error("Error finding and enqueuing track on Spotify", error);
 
       Store.Modules.effectRunner.processEffects({
         trigger: {
@@ -36,14 +42,16 @@ export default class Spotify {
               id: "e6bac140-1894-11ef-a992-091f0a9405f6",
               type: "firebot:chat-feed-alert",
               active: true,
-              message: error as string,
+              message: `Error finding and enqueuing track on Spotify: ${
+                error instanceof Error ? error.message : error
+              }`,
             },
           ],
         },
       });
       return {
         success: false,
-        data: error as string,
+        data: error instanceof Error ? error.message : (error as string),
       };
     }
   }
@@ -75,9 +83,9 @@ export default class Spotify {
     }
   }
 
-  public static async getQueueAsync(
-    accessToken: string
-  ): Promise<SpotifyQueueResponse | null> {
+  public static async getQueueAsync(): Promise<SpotifyQueueResponse | null> {
+    const accessToken = await getCurrentAccessTokenAsync();
+
     const response = (await (
       await fetch(`https://api.spotify.com/v1/me/player/queue`, {
         method: "GET",
@@ -90,8 +98,8 @@ export default class Spotify {
     return await response;
   }
 
-  public static async isTrackQueuedAsync(accessToken: string, songUri: string) {
-    const response = await this.getQueueAsync(accessToken);
+  public static async isTrackQueuedAsync(songUri: string) {
+    const response = await this.getQueueAsync();
 
     return (
       response?.currently_playing.uri === songUri ||
@@ -110,16 +118,26 @@ export default class Spotify {
         limit: "10",
       }).toString();
 
-      const response = await (
-        await fetch(`https://api.spotify.com/v1/search?${params}`, {
+      const response = await fetch(
+        `https://api.spotify.com/v1/search?${params}`,
+        {
           method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        })
-      ).json();
+        }
+      );
 
-      return response.tracks.items[0];
+      if (!response.ok) {
+        throw new ResponseError(
+          `Spotify API /v1/search/ returned status ${response.status}`,
+          response
+        );
+      }
+
+      const data = await response.json();
+
+      return data.tracks.items[0];
     } catch (error) {
       logger.error("Error getting active device", error);
       throw error;
@@ -128,32 +146,34 @@ export default class Spotify {
 
   private static async enqueueTrackAsync(
     accessToken: string,
-    deviceId: string,
     trackUri: string
   ) {
-    const response = await fetch(
-      `https://api.spotify.com/v1/me/player/queue?uri=${trackUri}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          device_id: deviceId,
-          uri: trackUri,
-        }),
-      }
-    );
-    return response.status === 204;
-  }
+    try {
+      const deviceId = await this.getActiveDeviceIdAsync(accessToken);
 
-  private static async ensureAccessTokenIsValidAsync(accessToken: string) {
-    if (!(await spotifyIsConnected(accessToken))) {
-      accessToken = (await integration.refreshToken()) ?? "";
-      if (!accessToken.length)
-        throw new Error("Could not refresh Spotify Access Token");
+      const response = await fetch(
+        `https://api.spotify.com/v1/me/player/queue?uri=${trackUri}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            device_id: deviceId,
+            uri: trackUri,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Response status not ok: ${JSON.stringify(response)}`);
+      }
+
+      return true;
+    } catch (error) {
+      logger.error("Error enqueuing track on Spotify", error);
+      return false;
     }
-    return accessToken;
   }
 }
