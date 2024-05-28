@@ -5,7 +5,7 @@ import {
 } from "@/spotifyIntegration";
 
 import spotifyEffects from "@effects/all";
-import { chatFeedAlert, initModules } from "@utils/firebot";
+import { initModules } from "@utils/firebot";
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
@@ -51,8 +51,6 @@ const script: Firebot.CustomScript<Params> = {
 
     // Setup globals
     initModules(runRequest.modules);
-
-    chatFeedAlert("Spotify Integration Loaded");
 
     const client: ClientCredentials = {
       id: spotifyClientId,
