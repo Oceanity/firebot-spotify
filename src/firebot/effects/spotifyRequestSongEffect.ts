@@ -70,7 +70,8 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
     const encodedQuery = encodeURIComponent(event.effect.query);
 
     const { success, data } = await Spotify.findAndEnqueueTrackAsync(
-      encodedQuery
+      encodedQuery,
+      event.effect.allowDuplicates
     );
 
     return {
