@@ -1,10 +1,6 @@
 const EventEmitter = require("events");
-import { logger } from "@utils/logger";
-import {
-  FirebotParameterCategories,
-  FirebotParams,
-} from "@crowbartools/firebot-custom-scripts-types/types/modules/firebot-parameters";
-import Store from "@utils/store";
+import ResponseError from "@models/responseError";
+import { logger, integrationManager } from "@utils/firebot";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -18,98 +14,16 @@ const spotifyScopes = [
   "user-read-recently-played",
 ];
 
+export const IntegrationId = "oceanity-spotify";
+
 let spotifyDefinition: IntegrationDefinition | null = null;
-
-export type IntegrationDefinition<
-  Params extends FirebotParams = FirebotParams
-> = {
-  id: string;
-  name: string;
-  description: string;
-  connectionToggle?: boolean;
-  configurable?: boolean;
-  settingCategories: FirebotParameterCategories<Params>;
-} & (
-  | {
-      linkType: "id";
-      idDetails: {
-        steps: string;
-      };
-    }
-  | {
-      linkType: "auth";
-      authProviderDetails: {
-        id: string;
-        name: string;
-        redirectUriHost?: string;
-        client: {
-          id: string;
-          secret: string;
-        };
-        auth: {
-          type?: string;
-          tokenHost: string;
-          tokenPath: string;
-          authorizePath: string;
-          authorizeHost?: string;
-        };
-        autoRefreshToken?: boolean;
-        scopes: string;
-      };
-    }
-  | { linkType: "other" | "none" }
-);
-
-export const generateSpotifyDefinition = (): IntegrationDefinition => ({
-  id: Store.IntegrationId,
-  name: "Spotify (by Oceanity)",
-  description: "Integrations with Spotify including song requests",
-  connectionToggle: false,
-  linkType: "auth",
-  settingCategories: {},
-  authProviderDetails: {
-    id: Store.IntegrationId,
-    name: "Spotify",
-    redirectUriHost: "localhost",
-    client: {
-      id: Store.SpotifyApplication.clientId,
-      secret: Store.SpotifyApplication.clientSecret,
-    },
-    auth: {
-      type: "code",
-      authorizeHost: "https://accounts.spotify.com",
-      authorizePath: "/authorize",
-      tokenHost: "https://accounts.spotify.com",
-      tokenPath: "/api/token",
-    },
-    autoRefreshToken: true,
-    scopes: spotifyScopes.join(" "),
-  },
-});
-
-export function generateSpotifyIntegration() {
-  integration = new SpotifyIntegration();
-  return integration;
-}
-
-export async function spotifyIsConnected(
-  accessToken: string
-): Promise<boolean> {
-  const headers = { Authorization: "Bearer " + accessToken }; // auth header with bearer token
-
-  let res = await fetch("https://api.spotify.com/v1/me", {
-    method: "GET",
-    headers,
-  });
-  return res.ok;
-}
 
 export class SpotifyIntegration extends EventEmitter {
   connected: boolean = false;
 
-  constructor() {
+  constructor(client: ClientCredentials) {
     super();
-    spotifyDefinition = generateSpotifyDefinition();
+    spotifyDefinition = generateSpotifyDefinition(client);
   }
 
   init() {}
@@ -122,16 +36,16 @@ export class SpotifyIntegration extends EventEmitter {
 
   async unlink() {}
 
-  async refreshToken(): Promise<string | null> {
+  async refreshToken(): Promise<string> {
     try {
       logger.info("Refreshing Spotify Token...");
 
       // @ts-ignore
-      const authProvider = spotifyDefinition.authProviderDetails;
+      const { authProviderDetails: authProvider } = spotifyDefinition;
       const auth = getSpotifyAuthFromIntegration();
 
       if (auth != null) {
-        if (!Store.Modules.integrationManager) {
+        if (!integrationManager) {
           throw new Error("Required var SpotifyIntegrationManager is null");
         }
         if (!auth.refresh_token) {
@@ -156,30 +70,93 @@ export class SpotifyIntegration extends EventEmitter {
         );
 
         if (!response.ok) {
-          throw new Error(
-            `Could not refresh Spotify token, ${JSON.stringify(response)}`
-          );
+          throw new ResponseError("Could not refresh Spotify token", response);
         }
 
         const data = await response.json();
 
-        const int = Store.Modules.integrationManager.getIntegrationById(
-          Store.IntegrationId
-        );
+        data["refresh_token"] = auth.refresh_token;
+        data["expires_on"] = Date.now() + data.expires_in * 1000;
 
-        //@ts-expect-error ts2339
-        Store.Modules.integrationManager.saveIntegrationAuth(int, data);
+        updateIntegrationAuth(data);
+
         return data.access_token;
       }
     } catch (error) {
       logger.error("Error refreshing Spotify token", error);
     }
-    return null;
+    return "";
   }
 }
 
-const getSpotifyAuthFromIntegration = (): AuthDefinition =>
-  Store.Modules.integrationManager.getIntegrationById(Store.IntegrationId)
-    .definition.auth;
+export const generateSpotifyDefinition = (
+  client: ClientCredentials
+): IntegrationDefinition => ({
+  id: IntegrationId,
+  name: "Spotify (by Oceanity)",
+  description: "Integrations with Spotify including song requests",
+  connectionToggle: false,
+  linkType: "auth",
+  settingCategories: {},
+  authProviderDetails: {
+    id: IntegrationId,
+    name: "Spotify",
+    redirectUriHost: "localhost",
+    client,
+    auth: {
+      type: "code",
+      authorizeHost: "https://accounts.spotify.com",
+      authorizePath: "/authorize",
+      tokenHost: "https://accounts.spotify.com",
+      tokenPath: "/api/token",
+    },
+    autoRefreshToken: true,
+    scopes: spotifyScopes.join(" "),
+  },
+});
+
+export function generateSpotifyIntegration(client: ClientCredentials) {
+  integration = new SpotifyIntegration(client);
+  return integration;
+}
+
+export async function getCurrentAccessTokenAsync(): Promise<string> {
+  let { access_token: accessToken, expires_on: expiresOn } =
+    getSpotifyAuthFromIntegration();
+
+  if (
+    accessToken &&
+    (!tokenPastExpiration(expiresOn) ||
+      (await spotifyIsConnectedAsync(accessToken)))
+  ) {
+    return accessToken;
+  }
+
+  return await integration.refreshToken();
+}
 
 export let integration: SpotifyIntegration;
+
+// #region Helper Functions
+const getSpotifyAuthFromIntegration = (): AuthDefinition =>
+  integrationManager.getIntegrationById(IntegrationId).definition.auth;
+
+const spotifyIsConnectedAsync = async (accessToken: string) =>
+  (
+    await fetch("https://api.spotify.com/v1/me", {
+      headers: {
+        Authorization: "Bearer " + accessToken,
+      },
+    })
+  ).ok;
+
+const tokenPastExpiration = (expiresOn: string) =>
+  new Date(expiresOn).getTime() < Date.now();
+
+function updateIntegrationAuth(data: unknown) {
+  const currentIntegration =
+    integrationManager.getIntegrationById(IntegrationId);
+  //@ts-expect-error ts2339
+  integrationManager.saveIntegrationAuth(currentIntegration, data);
+}
+// #endregion
