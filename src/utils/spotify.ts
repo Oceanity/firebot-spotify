@@ -19,14 +19,20 @@ export default class Spotify {
       const accessToken = await getCurrentAccessTokenAsync();
       const track = await this.findTrackAsync(accessToken, query);
 
-      if (
-        !allowDuplicates &&
-        (await this.isTrackQueuedAsync(track?.uri as string))
-      ) {
-        return {
-          success: false,
-          data: "Track already queued",
-        };
+      if (!allowDuplicates) {
+        const trackQueuePosition = await this.getTrackPositionInQueueAsync(
+          track?.uri as string
+        );
+
+        if (trackQueuePosition !== -1) {
+          return {
+            success: false,
+            data:
+              trackQueuePosition === 0
+                ? "the track is currently playing"
+                : `the track already exists in queue, position ${trackQueuePosition}`,
+          };
+        }
       }
 
       await this.enqueueTrackAsync(accessToken, track?.uri as string);
@@ -84,26 +90,32 @@ export default class Spotify {
     }
   }
 
-  public static async getQueueAsync(): Promise<SpotifyQueueResponse | null> {
-    const accessToken = await getCurrentAccessTokenAsync();
+  public static async getQueueAsync(): Promise<SpotifyQueueResponse> {
+    try {
+      const accessToken = await getCurrentAccessTokenAsync();
 
-    const response = (await (
-      await fetch(`https://api.spotify.com/v1/me/player/queue`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-    ).json()) as SpotifyQueueResponse;
+      const response = (await (
+        await fetch(`https://api.spotify.com/v1/me/player/queue`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+      ).json()) as SpotifyQueueResponse;
 
-    return await response;
+      logger.info(`Queue length: ${response?.queue.length}`);
+
+      return await response;
+    } catch (error) {
+      logger.error("Error getting Spotify Queue", error);
+      throw error;
+    }
   }
 
-  public static async isTrackQueuedAsync(songUri: string) {
+  public static async getTrackPositionInQueueAsync(songUri: string) {
     const response = await this.getQueueAsync();
 
-    return (
-      response?.currently_playing.uri === songUri ||
-      response?.queue.some((a) => a.uri === songUri)
+    return [response.currently_playing, ...response.queue].findIndex(
+      (a) => a.uri === songUri
     );
   }
 
