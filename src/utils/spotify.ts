@@ -35,7 +35,7 @@ export default class Spotify {
         }
       }
 
-      await this.enqueueTrackAsync(accessToken, track?.uri as string);
+      await this.enqueueTrackAsync(track?.uri as string);
 
       return {
         success: true,
@@ -55,14 +55,12 @@ export default class Spotify {
   }
 
   // Helper functions
-  private static async getActiveDeviceIdAsync(
-    accessToken: string
-  ): Promise<string> {
+  private static async getActiveDeviceIdAsync(): Promise<string> {
     try {
+      const accessToken = await getCurrentAccessTokenAsync();
       const response = await fetch(
         "https://api.spotify.com/v1/me/player/devices",
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -155,12 +153,10 @@ export default class Spotify {
     }
   }
 
-  private static async enqueueTrackAsync(
-    accessToken: string,
-    trackUri: string
-  ) {
+  private static async enqueueTrackAsync(trackUri: string) {
     try {
-      const deviceId = await this.getActiveDeviceIdAsync(accessToken);
+      const accessToken = await getCurrentAccessTokenAsync();
+      const deviceId = await this.getActiveDeviceIdAsync();
 
       const response = await fetch(
         `https://api.spotify.com/v1/me/player/queue?uri=${trackUri}`,
