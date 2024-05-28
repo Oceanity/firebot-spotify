@@ -1,18 +1,16 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import Store from "@utils/store";
-import { initLogger } from "@utils/logger";
 import {
   generateSpotifyIntegration,
   generateSpotifyDefinition,
-  integration,
 } from "@/spotifyIntegration";
 
 import spotifyEffects from "@effects/all";
+import { initModules } from "@utils/firebot";
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
     return {
-      name: "Spotify Song Requests",
+      name: "Firebot Spotify Integrations",
       description: "Let your viewers determine your taste in music",
       author: "Oceanity",
       version: "1.0",
@@ -51,17 +49,18 @@ const script: Firebot.CustomScript<Params> = {
       return;
     }
 
-    initLogger(logger);
-
     // Setup globals
-    Store.Modules = runRequest.modules;
-    Store.SpotifyApplication = {
-      clientId: spotifyClientId,
-      clientSecret: spotifyClientSecret,
+    initModules(runRequest.modules);
+
+    const client: ClientCredentials = {
+      id: spotifyClientId,
+      secret: spotifyClientSecret,
     };
 
-    const definition = generateSpotifyDefinition();
-    const integration = generateSpotifyIntegration();
+    const [definition, integration] = [
+      generateSpotifyDefinition(client),
+      generateSpotifyIntegration(client),
+    ];
 
     // Register integration
     integrationManager.registerIntegration({
@@ -73,9 +72,6 @@ const script: Firebot.CustomScript<Params> = {
     spotifyEffects.forEach((effect) => {
       effectManager.registerEffect(effect);
     });
-  },
-  stop: () => {
-    integration.disconnect();
   },
 };
 
