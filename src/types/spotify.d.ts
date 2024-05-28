@@ -15,6 +15,35 @@ type SpotifyGetDevicesResponse = {
   devices: SpotifyDevice[];
 };
 
+type SpotifyPlayer = {
+  device: SpotifyDevice;
+  shuffle_state: boolean;
+  smart_shuffle: boolean;
+  repeat_state: string;
+  timestamp: number;
+  context: {
+    type: string;
+    href: string;
+    external_urls: { [platform: string]: string };
+    uri: string;
+  };
+  progress_ms: number;
+  item: SpotifyTrackDetails;
+  currently_playing_type: string;
+  currently_playing_type: string;
+  actions: {
+    disallows: {
+      resuming?: boolean;
+      skipping_prev?: boolean;
+      pausing?: boolean;
+      seeking?: boolean;
+      skipping_next?: boolean;
+      pausing?: boolean;
+    };
+  };
+  is_playing: true;
+};
+
 type SpotifyDevice = {
   id: string;
   is_active: boolean;

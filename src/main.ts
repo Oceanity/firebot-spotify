@@ -4,7 +4,6 @@ import {
   generateSpotifyDefinition,
 } from "@/spotifyIntegration";
 
-import spotifyEffects from "@effects/all";
 import { initModules } from "@utils/firebot";
 
 const script: Firebot.CustomScript<Params> = {
@@ -38,7 +37,7 @@ const script: Firebot.CustomScript<Params> = {
   },
   run: async (runRequest) => {
     const { spotifyClientId, spotifyClientSecret } = runRequest.parameters;
-    const { effectManager, integrationManager, logger } = runRequest.modules;
+    const { integrationManager, logger } = runRequest.modules;
 
     if (!spotifyClientId || !spotifyClientSecret) {
       logger.error(
@@ -66,11 +65,6 @@ const script: Firebot.CustomScript<Params> = {
     integrationManager.registerIntegration({
       definition,
       integration,
-    });
-
-    // Register effects
-    spotifyEffects.forEach((effect) => {
-      effectManager.registerEffect(effect);
     });
   },
 };

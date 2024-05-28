@@ -1,6 +1,9 @@
 import { getCurrentAccessTokenAsync } from "@/spotifyIntegration";
 import { logger, chatFeedAlert } from "@utils/firebot";
 import ResponseError from "@/models/responseError";
+import { SpotifyPlaybackState } from "@effects/spotifyChangePlaybackStateEffect";
+
+const spotifyApiBaseUrl = "https://api.spotify.com/v1";
 
 export default class Spotify {
   /**
@@ -58,34 +61,95 @@ export default class Spotify {
     }
   }
 
-  // Helper functions
-  private static async getActiveDeviceIdAsync(): Promise<string> {
+  public static async changePlyabckStateAsync(
+    playbackStateOption: SpotifyPlaybackState
+  ) {
     try {
       const accessToken = await getCurrentAccessTokenAsync();
-      const response = await fetch(
-        "https://api.spotify.com/v1/me/player/devices",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const playbackState = await this.getPlaybackStateAsync();
+      const { is_playing: isPlaying } = playbackState;
+
+      const headers = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+
+      let endpoint: string;
+
+      logger.info(`Setting playback state to ${playbackStateOption}`);
+
+      switch (playbackStateOption) {
+        case SpotifyPlaybackState.Play:
+          logger.info("Play");
+          if (isPlaying) throw new Error("Spotify is already playing");
+          endpoint = getSpotifyApiUri("/me/player/play");
+          break;
+        case SpotifyPlaybackState.Pause:
+          logger.info("Pause");
+          if (!isPlaying) throw new Error("Spotify is already paused");
+          endpoint = getSpotifyApiUri("/me/player/pause");
+          break;
+        case SpotifyPlaybackState.Toggle:
+          logger.info("Toggle");
+          endpoint = isPlaying
+            ? getSpotifyApiUri("/me/player/pause")
+            : getSpotifyApiUri("/me/player/play");
+          break;
+        default:
+          throw new Error("Invalid Playback State");
+      }
+
+      await fetch(endpoint, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({
+          device_id: playbackState.device.id,
+        }),
+      });
+
+      return true;
+    } catch (error) {
+      logger.error("Error changing playback state on Spotify", error);
+      return false;
+    }
+  }
+
+  // #region Internal Helper functions
+
+  // Getters
+
+  private static async getPlaybackStateAsync(): Promise<SpotifyPlayer> {
+    try {
+      const accessToken = await getCurrentAccessTokenAsync();
+      const response = await fetch("https://api.spotify.com/v1/me/player", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (!response.ok) {
         throw new ResponseError(
-          "Could not get Active Spotify Device",
+          "Could not get Spotify Playback State",
           response
         );
       }
 
-      const data: SpotifyGetDevicesResponse = await response.json();
-      const device = data.devices.find((d) => d.is_active);
+      const data: SpotifyPlayer = await response.json();
+      return data;
+    } catch (error) {
+      logger.error("Error getting playback state on Spotify", error);
+      throw error;
+    }
+  }
 
-      if (!device) {
+  private static async getActiveDeviceIdAsync(): Promise<string> {
+    try {
+      const playbackState = await this.getPlaybackStateAsync();
+
+      if (!playbackState.device) {
         throw new Error("Could not find Active Spotify Device");
       }
 
-      return device.id;
+      return playbackState.device.id;
     } catch (error) {
       logger.error("Error getting active device", error);
       throw error;
@@ -187,4 +251,10 @@ export default class Spotify {
       return false;
     }
   }
+
+  // #endregion
 }
+
+// #region External Helper Functions
+const getSpotifyApiUri = (path: string) => `${spotifyApiBaseUrl}${path}`;
+// #endregion
