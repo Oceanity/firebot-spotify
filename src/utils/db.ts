@@ -1,10 +1,8 @@
 import { JsonDB } from "node-json-db";
-import Store from "@utils/store";
 import { ensureDir } from "fs-extra";
+import { jsonDb, logger, utils } from "@utils/firebot";
 import { dirname, resolve } from "path";
 import Fuse, { IFuseOptions } from "fuse.js";
-
-const { Modules } = Store;
 
 type PatchResults<T> = {
   found: T;
@@ -13,20 +11,12 @@ type PatchResults<T> = {
 
 export default class DbUtils {
   static setup = async (path: string = "./db/firebotDb"): Promise<JsonDB> => {
-    const { JsonDb } = Modules;
-
-    Modules.logger.info("Hi");
-
     if (!path.includes(__dirname)) path = resolve(__dirname, path);
-
-    Modules.logger.info("This");
 
     await ensureDir(dirname(path));
 
-    Modules.logger.info("Is");
-
-    // @ts-expect-error ts2351: JsonDB is a class, not a constructor function
-    return new JsonDb(path, true, true);
+    // @ts-expect-error ts18046
+    return new jsonDb(path, true, true);
   };
 
   static getAsync = async <T>(
@@ -40,7 +30,7 @@ export default class DbUtils {
       return db.getData(route) as T;
     } catch (err) {
       if (defaults) db.push(route, defaults, true);
-      Modules.logger.error(`Failed to get "${route}" from "${path}"`);
+      logger.error(`Failed to get "${route}" from "${path}"`);
       return undefined;
     }
   };
@@ -50,12 +40,12 @@ export default class DbUtils {
     route: string,
     defaults?: T[]
   ): Promise<T | undefined> => {
-    const { getRandomInt } = Modules.utils;
+    const { getRandomInt } = utils;
 
     const choices = await this.getAsync<T[]>(path, route, defaults);
 
     if (!choices || !choices.length) {
-      Modules.logger.error(`Failed to get random "${route}" from "${path}"`);
+      logger.error(`Failed to get random "${route}" from "${path}"`);
       return undefined;
     }
 
@@ -69,16 +59,14 @@ export default class DbUtils {
     data: T,
     override: boolean = false
   ): Promise<boolean> => {
-    Modules.logger.info(
-      `Pushing ${JSON.stringify(data)} to ${route} in ${path}`
-    );
+    logger.info(`Pushing ${JSON.stringify(data)} to ${route} in ${path}`);
     const db = await this.setup(path);
 
     try {
       await db.push(route, data, override);
       return true;
     } catch (err) {
-      Modules.logger.error(`Could not push to "${route}" in "${path}"`);
+      logger.error(`Could not push to "${route}" in "${path}"`);
       return false;
     }
   };
@@ -96,7 +84,7 @@ export default class DbUtils {
       await this.push(path, route, callback(existing, data), true);
       return true;
     } catch (err) {
-      Modules.logger.error(`Could not increment "${route}" in "${path}"`);
+      logger.error(`Could not increment "${route}" in "${path}"`);
       return false;
     }
   };
@@ -116,7 +104,7 @@ export default class DbUtils {
       const results = fuse.search(search);
 
       if (!results) {
-        Modules.logger.error("Could not find item to update");
+        logger.error("Could not find item to update");
         return undefined;
       }
 
@@ -127,7 +115,7 @@ export default class DbUtils {
         replaced: replace,
       };
     } catch (err) {
-      Modules.logger.error(`Failed to update "${route}" in "${path}"`);
+      logger.error(`Failed to update "${route}" in "${path}"`);
       return undefined;
     }
   };
