@@ -1,5 +1,5 @@
 import { getCurrentAccessTokenAsync } from "@/spotifyIntegration";
-import { logger, effectRunner, chatFeedAlert } from "@utils/firebot";
+import { logger, chatFeedAlert } from "@utils/firebot";
 import ResponseError from "@/models/responseError";
 
 export default class Spotify {
@@ -12,11 +12,22 @@ export default class Spotify {
    * and the track details if it was found, or an error message if it was not.
    */
   public static async findAndEnqueueTrackAsync(
-    query: string
+    query: string,
+    allowDuplicates = false
   ): Promise<FindAndEnqueueTrackResponse> {
     try {
       const accessToken = await getCurrentAccessTokenAsync();
       const track = await this.findTrackAsync(accessToken, query);
+
+      if (
+        !allowDuplicates &&
+        (await this.isTrackQueuedAsync(track?.uri as string))
+      ) {
+        return {
+          success: false,
+          data: "Track already queued",
+        };
+      }
 
       await this.enqueueTrackAsync(accessToken, track?.uri as string);
 
@@ -60,7 +71,6 @@ export default class Spotify {
       }
 
       const data: SpotifyGetDevicesResponse = await response.json();
-
       const device = data.devices.find((d) => d.is_active);
 
       if (!device) {
@@ -79,7 +89,6 @@ export default class Spotify {
 
     const response = (await (
       await fetch(`https://api.spotify.com/v1/me/player/queue`, {
-        method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -112,7 +121,6 @@ export default class Spotify {
       const response = await fetch(
         `https://api.spotify.com/v1/search?${params}`,
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
