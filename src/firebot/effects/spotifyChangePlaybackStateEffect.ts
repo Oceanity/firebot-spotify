@@ -1,6 +1,6 @@
-import { logger } from "@utils/firebot";
 import Spotify from "@utils/spotify";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { IntegrationId } from "@/spotifyIntegration";
 
 export enum SpotifyPlaybackState {
   Play = "Play",
@@ -12,8 +12,8 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
   playState: SpotifyPlaybackState;
 }> = {
   definition: {
-    id: "spotify:change-playback-state",
-    name: "Spotify: Change Playback State",
+    id: `${IntegrationId}:change-playback-state`,
+    name: "Spotify: Change Playback State (Spotify Premium)",
     description: "Changes playback state of active Spotify Device",
     icon: "fab fa-spotify",
     categories: ["integrations"],

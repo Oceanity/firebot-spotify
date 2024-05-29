@@ -1,6 +1,7 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import Spotify from "@utils/spotify";
 import { logger } from "@utils/firebot";
+import { IntegrationId } from "@/spotifyIntegration";
 
 export const spotifyRequestSongEffect: Firebot.EffectType<{
   query: string;
@@ -9,8 +10,8 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
   allowDuplicates: boolean;
 }> = {
   definition: {
-    id: "spotify:request-song",
-    name: "Spotify: Request Song",
+    id: `${IntegrationId}:request-song`,
+    name: "Spotify: Request Song (Spotify Premium)",
     description: "Request a song to add to your Spotify playlist",
     icon: "fab fa-spotify",
     categories: ["integrations"],

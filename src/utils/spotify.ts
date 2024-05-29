@@ -65,50 +65,43 @@ export default class Spotify {
     playbackStateOption: SpotifyPlaybackState
   ) {
     try {
-      const accessToken = await getCurrentAccessTokenAsync();
+      if (await !isUserPremiumAsync()) {
+        throw new Error(
+          "This method uses the /me/player/play and /me/player/pause endpoints, which requires a premium account."
+        );
+      }
+
       const playbackState = await this.getPlaybackStateAsync();
+
+      if (!playbackState) {
+        throw new Error("No active Spotify player was found");
+      }
+
       const { is_playing: isPlaying } = playbackState;
-
-      const headers = {
-        Authorization: `Bearer ${accessToken}`,
-      };
-
-      let endpoint: string;
 
       logger.info(`Setting playback state to ${playbackStateOption}`);
 
       switch (playbackStateOption) {
         case SpotifyPlaybackState.Play:
-          logger.info("Play");
-          if (isPlaying) throw new Error("Spotify is already playing");
-          endpoint = getSpotifyApiUri("/me/player/play");
+          await resumePlaybackAsync(isPlaying);
           break;
         case SpotifyPlaybackState.Pause:
-          logger.info("Pause");
-          if (!isPlaying) throw new Error("Spotify is already paused");
-          endpoint = getSpotifyApiUri("/me/player/pause");
+          await pausePlaybackAsync(isPlaying);
           break;
         case SpotifyPlaybackState.Toggle:
-          logger.info("Toggle");
-          endpoint = isPlaying
-            ? getSpotifyApiUri("/me/player/pause")
-            : getSpotifyApiUri("/me/player/play");
+          await togglePlaybackAsync(isPlaying);
           break;
         default:
           throw new Error("Invalid Playback State");
       }
 
-      await fetch(endpoint, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({
-          device_id: playbackState.device.id,
-        }),
-      });
-
       return true;
     } catch (error) {
+      let message = error instanceof Error ? error.message : (error as string);
+
+      chatFeedAlert(`Error changing playback state on Spotify: ${message}`);
       logger.error("Error changing playback state on Spotify", error);
+
       return false;
     }
   }
@@ -117,7 +110,7 @@ export default class Spotify {
 
   // Getters
 
-  private static async getPlaybackStateAsync(): Promise<SpotifyPlayer> {
+  private static async getPlaybackStateAsync(): Promise<SpotifyPlayer | null> {
     try {
       const accessToken = await getCurrentAccessTokenAsync();
       const response = await fetch("https://api.spotify.com/v1/me/player", {
@@ -133,7 +126,12 @@ export default class Spotify {
         );
       }
 
+      if (response.status === 204) {
+        return null;
+      }
+
       const data: SpotifyPlayer = await response.json();
+
       return data;
     } catch (error) {
       logger.error("Error getting playback state on Spotify", error);
@@ -145,7 +143,7 @@ export default class Spotify {
     try {
       const playbackState = await this.getPlaybackStateAsync();
 
-      if (!playbackState.device) {
+      if (!playbackState) {
         throw new Error("Could not find Active Spotify Device");
       }
 
@@ -257,4 +255,80 @@ export default class Spotify {
 
 // #region External Helper Functions
 const getSpotifyApiUri = (path: string) => `${spotifyApiBaseUrl}${path}`;
+
+async function makeSpotifyApiRequestAsync<T>(
+  endpoint: string,
+  method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+  options?: RequestInit
+) {
+  try {
+    const accessToken = await getCurrentAccessTokenAsync();
+
+    const response = await fetch(getSpotifyApiUri(endpoint), {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new ResponseError(
+        `Spotify API /v1/${endpoint} returned status ${response.status}`,
+        response
+      );
+    }
+
+    const data: T = await response.json();
+    return data;
+  } catch (error) {
+    logger.error("Error making Spotify API request", error);
+    throw error;
+  }
+}
+
+// #region /me functions
+async function isUserPremiumAsync(): Promise<boolean> {
+  try {
+    const data: SpotifyUserProfile = await makeSpotifyApiRequestAsync("/me");
+    return data.product === "premium";
+  } catch (error) {
+    logger.error("Error getting premium status on Spotify", error);
+    throw error;
+  }
+}
+
+async function pausePlaybackAsync(isPlaying: boolean): Promise<void> {
+  try {
+    if (!isPlaying) {
+      throw new Error("Spotify is not playing");
+    }
+    await makeSpotifyApiRequestAsync("/me/player/pause", "PUT");
+  } catch (error) {
+    logger.error("Error pausing Spotify playback", error);
+    throw error;
+  }
+}
+
+async function resumePlaybackAsync(isPlaying: boolean): Promise<void> {
+  try {
+    if (isPlaying) {
+      throw new Error("Spotify is already playing");
+    }
+    await makeSpotifyApiRequestAsync("/me/player/play", "PUT");
+  } catch (error) {
+    logger.error("Error resuming Spotify playback", error);
+    throw error;
+  }
+}
+
+async function togglePlaybackAsync(isPlaying: boolean): Promise<void> {
+  if (isPlaying) {
+    await pausePlaybackAsync(isPlaying);
+  } else {
+    await resumePlaybackAsync(isPlaying);
+  }
+}
+// #endregion
+
 // #endregion
