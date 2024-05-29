@@ -11,7 +11,7 @@ export const spotifyRequestSongEffect: Firebot.EffectType<{
 }> = {
   definition: {
     id: `${IntegrationId}:request-song`,
-    name: "Spotify: Request Song (Spotify Premium)",
+    name: "Spotify Premium: Request Song",
     description: "Request a song to add to your Spotify playlist",
     icon: "fab fa-spotify",
     categories: ["integrations"],

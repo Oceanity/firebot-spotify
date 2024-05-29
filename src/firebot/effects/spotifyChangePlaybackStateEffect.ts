@@ -13,7 +13,7 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
 }> = {
   definition: {
     id: `${IntegrationId}:change-playback-state`,
-    name: "Spotify: Change Playback State (Spotify Premium)",
+    name: "Spotify Premium: Change Playback State",
     description: "Changes playback state of active Spotify Device",
     icon: "fab fa-spotify",
     categories: ["integrations"],
