@@ -2,8 +2,9 @@ const EventEmitter = require("events");
 import ResponseError from "@models/responseError";
 import { logger, integrationManager, effectManager } from "@utils/firebot";
 import { spotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
-import { spotifyRequestSongEffect } from "@effects/spotifyRequestSongEffect";
+import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
 import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
+import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -31,9 +32,10 @@ export class SpotifyIntegration extends EventEmitter {
 
   init() {
     logger.info("Initializing Spotify Integration...");
-    effectManager.registerEffect(spotifyRequestSongEffect);
+    effectManager.registerEffect(spotifyFindAndEnqueueTrackEffect);
     effectManager.registerEffect(spotifyChangePlaybackStateEffect);
     effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
+    effectManager.registerEffect(spotifySkipTrackEffect);
   }
 
   async connect() {}

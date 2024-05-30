@@ -1,6 +1,5 @@
 import Spotify from "@utils/spotify";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { IntegrationId } from "@/spotifyIntegration";
 
 export enum SpotifyPlaybackState {
   Play = "Play",
@@ -12,18 +11,18 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
   playState: SpotifyPlaybackState;
 }> = {
   definition: {
-    id: `${IntegrationId}:change-playback-state`,
+    id: "oceanity-spotify:change-playback-state",
     name: "Spotify Premium: Change Playback State",
-    description: "Changes playback state of active Spotify Device",
+    description: "Changes playback state of active Spotify device",
     icon: "fab fa-spotify",
     categories: ["integrations"],
     //@ts-expect-error ts2353
     outputs: [
       {
-        label: "Success status",
+        label: "Playback state was changed",
         description:
-          "Returns true if the playback state was changed successfully, otherwise false.",
-        defaultName: "spotifySuccess",
+          "Will be true if the playback state was changed successfully, false if not.",
+        defaultName: "playbackStateChanged",
       },
     ],
   },
@@ -63,7 +62,7 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
   onTriggerEvent: async (event) => {
     const { playState } = event.effect;
 
-    const spotifySuccess = await Spotify.changePlyabckStateAsync(
+    const spotifySuccess = await Spotify.changePlaybackStateAsync(
       playState ?? SpotifyPlaybackState.Play
     );
 

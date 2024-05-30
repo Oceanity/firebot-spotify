@@ -1,14 +1,13 @@
 import Spotify from "@utils/spotify";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { IntegrationId } from "@/spotifyIntegration";
 
 export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {
-    id: `${IntegrationId}:change-playback-volume`,
+    id: "oceanity-spotify:change-playback-volume",
     name: "Spotify Premium: Change Playback Volume",
-    description: "Changes playback volume of active Spotify Device",
+    description: "Changes playback volume of active Spotify device",
     icon: "fab fa-spotify",
     categories: ["integrations"],
     //@ts-expect-error ts2353
@@ -16,7 +15,7 @@ export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
       {
         label: "Volume was changed",
         description:
-          "Returns true if the playback volume was changed successfully, otherwise false.",
+          "Will be true if the playback volume was changed successfully, false if not.",
         defaultName: "volumeChanged",
       },
     ],

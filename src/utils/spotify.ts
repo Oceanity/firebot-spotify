@@ -2,10 +2,11 @@ import { getCurrentAccessTokenAsync } from "@/spotifyIntegration";
 import { logger, chatFeedAlert } from "@utils/firebot";
 import ResponseError from "@/models/responseError";
 import { SpotifyPlaybackState } from "@effects/spotifyChangePlaybackStateEffect";
+import { SpotifySkipTarget } from "@/firebot/effects/spotifySkipTrackEffect";
 
 const spotifyApiBaseUrl = "https://api.spotify.com/v1";
 
-export default class Spotify {
+export default class SpotifyApi {
   /**
    * Asynchronously finds a track based on the provided query and enqueues it on Spotify.
    *
@@ -60,7 +61,7 @@ export default class Spotify {
     }
   }
 
-  public static async changePlyabckStateAsync(
+  public static async changePlaybackStateAsync(
     playbackStateOption: SpotifyPlaybackState
   ) {
     try {
@@ -77,8 +78,6 @@ export default class Spotify {
       }
 
       const { is_playing: isPlaying } = playbackState;
-
-      logger.info(`Setting playback state to ${playbackStateOption}`);
 
       switch (playbackStateOption) {
         case SpotifyPlaybackState.Play:
@@ -126,7 +125,35 @@ export default class Spotify {
     }
   }
 
-  // #region Internal Helper functions
+  public static async skipTrackAsync(target: SpotifySkipTarget) {
+    try {
+      if (await !isUserPremiumAsync()) {
+        throw new Error(
+          "This method uses the /me/player/next and /me/player/previous endpoints, which requires a premium account."
+        );
+      }
+
+      switch (target) {
+        case SpotifySkipTarget.Next:
+          await skipToNextTrackAsync();
+          break;
+        case SpotifySkipTarget.Previous:
+          await skipToPreviousTrackAsync();
+          break;
+        default:
+          throw new Error("Invalid Skip Target");
+      }
+
+      return true;
+    } catch (error) {
+      let message = error instanceof Error ? error.message : (error as string);
+
+      chatFeedAlert(`Error skipping to next track on Spotify: ${message}`);
+      logger.error("Error skipping to next track on Spotify", error);
+
+      return false;
+    }
+  }
 
   // getTrackPositionInQueueAsync
   public static async getTrackPositionInQueueAsync(songUri: string) {
@@ -136,8 +163,6 @@ export default class Spotify {
       (a) => a.uri === songUri
     );
   }
-
-  // #endregion
 }
 
 // #region External Helper Functions
@@ -186,7 +211,7 @@ async function makeSpotifyApiRequestAsync<T>(
   }
 }
 
-// #region Spotify API /me methods
+// #region Spotify /me methods
 async function getUserProfileAsync(): Promise<SpotifyUserProfile> {
   try {
     const response = await makeSpotifyApiRequestAsync<SpotifyUserProfile>(
@@ -256,6 +281,24 @@ async function togglePlaybackAsync(isPlaying: boolean): Promise<void> {
   }
 }
 
+async function skipToNextTrackAsync(): Promise<void> {
+  try {
+    await makeSpotifyApiRequestAsync("/me/player/next", "POST");
+  } catch (error) {
+    logger.error("Error skipping to next track on Spotify", error);
+    throw error;
+  }
+}
+
+async function skipToPreviousTrackAsync(): Promise<void> {
+  try {
+    await makeSpotifyApiRequestAsync("/me/player/previous", "POST");
+  } catch (error) {
+    logger.error("Error skipping to previous track on Spotify", error);
+    throw error;
+  }
+}
+
 async function setPlaybackVolumeAsync(volume: number): Promise<void> {
   try {
     const deviceId = (await getPlaybackStateAsync())?.device.id;
@@ -318,7 +361,7 @@ async function enqueueTrackAsync(trackUri: string) {
 }
 // #endregion
 
-// #region Spotify API /search methods
+// #region Spotify /search methods
 
 async function findTrackAsync(search: string): Promise<SpotifyTrackDetails> {
   try {
