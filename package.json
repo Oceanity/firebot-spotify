@@ -1,6 +1,6 @@
 {
   "name": "firebot-song-requests",
-  "scriptOutputName": "spotifySongRequests",
+  "scriptOutputName": "oceanityFirebotIntegration",
   "version": "1.0.0",
   "description": "Adds Spotify Song Requests to Firebot",
   "main": "",

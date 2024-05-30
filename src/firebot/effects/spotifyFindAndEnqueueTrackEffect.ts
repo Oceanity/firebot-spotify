@@ -74,7 +74,7 @@ export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
     return {
       success: true,
       outputs: {
-        trackWasQueued: success,
+        trackWasEnqueued: success,
         spotifyResponse: data,
       },
     };
