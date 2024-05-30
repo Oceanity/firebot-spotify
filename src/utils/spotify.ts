@@ -105,6 +105,27 @@ export default class Spotify {
     }
   }
 
+  public static async changePlaybackVolumeAsync(volume: number) {
+    try {
+      if (await !isUserPremiumAsync()) {
+        throw new Error(
+          "This method uses the /me/player/volume endpoint, which requires a premium account."
+        );
+      }
+
+      await setPlaybackVolumeAsync(volume);
+
+      return true;
+    } catch (error) {
+      let message = error instanceof Error ? error.message : (error as string);
+
+      chatFeedAlert(`Error changing playback volume on Spotify: ${message}`);
+      logger.error("Error changing playback volume on Spotify", error);
+
+      return false;
+    }
+  }
+
   // #region Internal Helper functions
 
   // getTrackPositionInQueueAsync
@@ -125,7 +146,7 @@ const getSpotifyApiUri = (path: string) => `${spotifyApiBaseUrl}${path}`;
 async function makeSpotifyApiRequestAsync<T>(
   endpoint: string,
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
-  options?: RequestInit
+  options?: any
 ) {
   try {
     const accessToken = await getCurrentAccessTokenAsync();
@@ -227,6 +248,36 @@ async function resumePlaybackAsync(isPlaying: boolean): Promise<void> {
   }
 }
 
+async function togglePlaybackAsync(isPlaying: boolean): Promise<void> {
+  if (isPlaying) {
+    await pausePlaybackAsync(isPlaying);
+  } else {
+    await resumePlaybackAsync(isPlaying);
+  }
+}
+
+async function setPlaybackVolumeAsync(volume: number): Promise<void> {
+  try {
+    const deviceId = (await getPlaybackStateAsync())?.device.id;
+    const clampedVolume = Math.floor(Math.max(0, Math.min(100, volume)));
+    if (!deviceId) {
+      throw new Error("Could not find Active Spotify Device");
+    }
+    await makeSpotifyApiRequestAsync(
+      `/me/player/volume?volume_percent=${clampedVolume}`,
+      "PUT",
+      {
+        body: {
+          device_id: deviceId,
+        },
+      }
+    );
+  } catch (error) {
+    logger.error("Error setting Spotify volume", error);
+    throw error;
+  }
+}
+
 async function getQueueAsync(): Promise<SpotifyQueueResponse> {
   try {
     const response = await makeSpotifyApiRequestAsync<SpotifyQueueResponse>(
@@ -263,14 +314,6 @@ async function enqueueTrackAsync(trackUri: string) {
   } catch (error) {
     logger.error("Error enqueuing track on Spotify", error);
     throw error;
-  }
-}
-
-async function togglePlaybackAsync(isPlaying: boolean): Promise<void> {
-  if (isPlaying) {
-    await pausePlaybackAsync(isPlaying);
-  } else {
-    await resumePlaybackAsync(isPlaying);
   }
 }
 // #endregion
