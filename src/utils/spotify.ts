@@ -227,15 +227,8 @@ async function getUserProfileAsync(): Promise<SpotifyUserProfile> {
   }
 }
 
-async function isUserPremiumAsync(): Promise<boolean> {
-  try {
-    const profile = await getUserProfileAsync();
-    return profile.product === "premium";
-  } catch (error) {
-    logger.error("Error getting premium status on Spotify", error);
-    throw error;
-  }
-}
+const isUserPremiumAsync = async () =>
+  (await getUserProfileAsync()).product === "premium";
 
 async function getPlaybackStateAsync(): Promise<SpotifyPlayer | null> {
   try {
@@ -249,37 +242,40 @@ async function getPlaybackStateAsync(): Promise<SpotifyPlayer | null> {
   }
 }
 
-async function pausePlaybackAsync(isPlaying: boolean): Promise<void> {
+async function pausePlaybackAsync(isPlaying: boolean): Promise<boolean> {
   try {
     if (!isPlaying) {
       throw new Error("Spotify is not playing");
     }
+
     await makeSpotifyApiRequestAsync("/me/player/pause", "PUT");
+
+    return true;
   } catch (error) {
     logger.error("Error pausing Spotify playback", error);
-    throw error;
+    return false;
   }
 }
 
-async function resumePlaybackAsync(isPlaying: boolean): Promise<void> {
+async function resumePlaybackAsync(isPlaying: boolean): Promise<boolean> {
   try {
     if (isPlaying) {
       throw new Error("Spotify is already playing");
     }
+
     await makeSpotifyApiRequestAsync("/me/player/play", "PUT");
+
+    return true;
   } catch (error) {
     logger.error("Error resuming Spotify playback", error);
-    throw error;
+    return false;
   }
 }
 
-async function togglePlaybackAsync(isPlaying: boolean): Promise<void> {
-  if (isPlaying) {
-    await pausePlaybackAsync(isPlaying);
-  } else {
-    await resumePlaybackAsync(isPlaying);
-  }
-}
+const togglePlaybackAsync = async (isPlaying: boolean): Promise<boolean> =>
+  isPlaying
+    ? await pausePlaybackAsync(isPlaying)
+    : await resumePlaybackAsync(isPlaying);
 
 async function skipToNextTrackAsync(): Promise<void> {
   try {

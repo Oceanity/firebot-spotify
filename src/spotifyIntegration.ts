@@ -5,6 +5,7 @@ import { spotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlayback
 import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
 import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
 import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
+import { integrationId } from "@/main";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -18,8 +19,6 @@ const spotifyScopes = [
   "user-read-recently-played",
 ];
 
-export const IntegrationId = "oceanity-spotify";
-
 let spotifyDefinition: IntegrationDefinition | null = null;
 
 export class SpotifyIntegration extends EventEmitter {
@@ -32,6 +31,8 @@ export class SpotifyIntegration extends EventEmitter {
 
   init() {
     logger.info("Initializing Spotify Integration...");
+
+    // Premium Effects
     effectManager.registerEffect(spotifyFindAndEnqueueTrackEffect);
     effectManager.registerEffect(spotifyChangePlaybackStateEffect);
     effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
@@ -102,14 +103,14 @@ export class SpotifyIntegration extends EventEmitter {
 export const generateSpotifyDefinition = (
   client: ClientCredentials
 ): IntegrationDefinition => ({
-  id: IntegrationId,
+  id: integrationId,
   name: "Spotify (by Oceanity)",
   description: "Integrations with Spotify including song requests",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
-    id: IntegrationId,
+    id: integrationId,
     name: "Spotify",
     redirectUriHost: "localhost",
     client,
@@ -149,7 +150,7 @@ export let integration: SpotifyIntegration;
 
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
-  integrationManager.getIntegrationById(IntegrationId).definition.auth;
+  integrationManager.getIntegrationById(integrationId).definition.auth;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (
@@ -165,7 +166,7 @@ const tokenPastExpiration = (expiresOn: string) =>
 
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
-    integrationManager.getIntegrationById(IntegrationId);
+    integrationManager.getIntegrationById(integrationId);
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }

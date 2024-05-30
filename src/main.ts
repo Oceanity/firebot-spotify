@@ -6,6 +6,8 @@ import {
 
 import { initModules } from "@utils/firebot";
 
+export const integrationId = "oceanity-spotify";
+
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
     return {

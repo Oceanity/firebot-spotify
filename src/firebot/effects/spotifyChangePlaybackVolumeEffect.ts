@@ -1,11 +1,12 @@
 import Spotify from "@utils/spotify";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { integrationId } from "@/main";
 
 export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {
-    id: "oceanity-spotify:change-playback-volume",
+    id: `${integrationId}:change-playback-volume`,
     name: "Spotify Premium: Change Playback Volume",
     description: "Changes playback volume of active Spotify device",
     icon: "fab fa-spotify",
