@@ -9,7 +9,7 @@ export enum SpotifyRepeatState {
 }
 
 export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
-  repeatState: SpotifyRepeatState;
+  repeatState: [SpotifyRepeatState, string];
 }> = {
   definition: {
     id: "oceanity-spotify:change-repeat-state",
@@ -35,20 +35,20 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
   },
 
   optionsTemplate: `
-    <eos-container header="Looping Mode">
+    <eos-container header="Repeat Mode">
       <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="list-effect-type">{{effect.repeatState ? effect.repeatState : 'Looping Mode...'}}</span> <span class="caret"></span>
+          <span class="list-effect-type">{{effect.repeatState ? effect.repeatState[1] : 'Repeat Mode...'}}</span> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li ng-click="effect.repeatState = 'off'">
+          <li ng-click="effect.repeatState = ['off', 'Off']">
             <a href>Off</a>
           </li>
-          <li ng-click="effect.repeatState = 'track'">
+          <li ng-click="effect.repeatState = ['track', 'Track']">
             <a href>Track</a>
           </li>
-          <li ng-click="effect.repeatState = 'context'">
-            <a href>Context</a>
+          <li ng-click="effect.repeatState = ['context', 'All']">
+            <a href>All</a>
           </li>
         </ul>
       </div>
@@ -72,7 +72,7 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
     try {
       const { repeatState } = event.effect;
 
-      await spotify.player.setRepeatStateAsync(repeatState);
+      await spotify.player.setRepeatStateAsync(repeatState[0]);
 
       return {
         success: true,

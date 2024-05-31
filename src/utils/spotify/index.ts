@@ -33,7 +33,9 @@ export class SpotifyService {
     offset: number = 0
   ) {
     try {
-      types = [...types] as SpotifySearchType[];
+      if (!(types instanceof Array)) {
+        types = [types];
+      }
 
       const encodedQuery = encodeURIComponent(query);
 

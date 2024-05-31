@@ -82,9 +82,7 @@ export default class SpotifyPlayerService {
   public async playPauseAsync(): Promise<void> {
     const isPlaying = (await this.getPlaybackStateAsync()).is_playing;
 
-    const method = isPlaying ? this.pauseAsync : this.playAsync;
-
-    return await method();
+    return isPlaying ? await this.pauseAsync() : await this.playAsync();
   }
 
   /**
