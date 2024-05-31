@@ -1,4 +1,4 @@
-import { integrationId, spotify } from "@/main";
+import { spotify } from "@/main";
 import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
@@ -11,7 +11,7 @@ export const spotifySkipTrackEffect: Firebot.EffectType<{
   target: SpotifySkipTarget;
 }> = {
   definition: {
-    id: `${integrationId}:skip-track`,
+    id: "oceanity-spotify:skip-track",
     name: "Spotify Premium: Skip Track",
     description: "Skip current track on active Spotify device",
     icon: "fab fa-spotify",
