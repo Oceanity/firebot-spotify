@@ -1,8 +1,3 @@
-type SpotifyApplication = {
-  clientId: string;
-  clientSecret: string;
-};
-
 type SpotifyAuth = {
   code?: string;
   accessToken?: string;
@@ -11,8 +6,58 @@ type SpotifyAuth = {
   state?: string;
 };
 
+type SpotifyUserProfile = {
+  country: string;
+  display_name: string;
+  email: string;
+  explicit_content: {
+    filter_enabled: boolean;
+    filter_locked: boolean;
+  };
+  external_urls: { [platform: string]: string };
+  followers: {
+    href: string;
+    total: number;
+  };
+  href: string;
+  id: string;
+  images: SpotifyImage[];
+  product: string;
+  type: string;
+  uri: string;
+};
+
 type SpotifyGetDevicesResponse = {
   devices: SpotifyDevice[];
+};
+
+type SpotifyPlayer = {
+  device: SpotifyDevice;
+  shuffle_state: boolean;
+  smart_shuffle: boolean;
+  repeat_state: string;
+  timestamp: number;
+  context: {
+    type: string;
+    href: string;
+    external_urls: { [platform: string]: string };
+    uri: string;
+  };
+  progress_ms: number;
+  item: SpotifyTrackDetails;
+  currently_playing_type: string;
+  currently_playing_type: string;
+  actions: {
+    disallows: {
+      resuming?: boolean;
+      skipping_prev?: boolean;
+      pausing?: boolean;
+      seeking?: boolean;
+      skipping_next?: boolean;
+      pausing?: boolean;
+    };
+  };
+  is_playing: true;
 };
 
 type SpotifyDevice = {
@@ -26,6 +71,23 @@ type SpotifyDevice = {
   volume_percent: number;
 };
 
+type SpotifyImage = {
+  url: string;
+  height: number;
+  width: number;
+};
+
+type SpotifyQueueResponse = {
+  currently_playing: SpotifyTrackDetails;
+  queue: SpotifyTrackDetails[];
+};
+
+type FindAndEnqueueTrackResponse = {
+  success: boolean;
+  data: SpotifyTrackDetails | string;
+};
+
+//#region Spotify API /search types
 type SpotifyTrackDetails = {
   album: SpotifyAlbumDetails;
   artists: SpotifyArtistDetails[];
@@ -50,29 +112,6 @@ type SpotifyTrackDetails = {
   queue_position?: number;
 };
 
-type SpotifyAlbumDetails = {
-  album_type: string;
-  total_tracks: number;
-  available_markets: string[];
-  external_urls: { [platform: string]: string };
-  href: string;
-  id: string;
-  images: SpotifyImage[];
-  name: string;
-  release_date: string;
-  release_date_precision: string;
-  restrictions: { reason?: string };
-  type: string;
-  uri: string;
-  artists: SpotifyAlbumArtistDetails[];
-};
-
-type SpotifyImage = {
-  url: string;
-  height: number;
-  width: number;
-};
-
 type SpotifyAlbumArtistDetails = {
   external_urls: { [source: string]: string };
   href: string;
@@ -92,12 +131,40 @@ type SpotifyArtistDetails = SpotifyAlbumArtistDetails & {
   popularity: number;
 };
 
-type SpotifyQueueResponse = {
-  currently_playing: SpotifyTrackDetails;
-  queue: SpotifyTrackDetails[];
+type SpotifyAlbumDetails = {
+  album_type: string;
+  total_tracks: number;
+  available_markets: string[];
+  external_urls: { [platform: string]: string };
+  href: string;
+  id: string;
+  images: SpotifyImage[];
+  name: string;
+  release_date: string;
+  release_date_precision: string;
+  restrictions: { reason?: string };
+  type: string;
+  uri: string;
+  artists: SpotifyAlbumArtistDetails[];
 };
 
-type FindAndEnqueueTrackResponse = {
-  success: boolean;
-  data: SpotifyTrackDetails | string;
+type SpotifySearchCategory<T> = {
+  href: string;
+  limit: number;
+  next: string;
+  offset: number;
+  previous: string;
+  total: number;
+  items: T[];
 };
+
+type SpotifySearchResponse = {
+  tracks: SpotifySearchCategory<SpotifyTrackDetails>;
+  artists: SpotifySearchCategory<SpotifyArtistDetails>;
+  albums: SpotifySearchCategory<SpotifyAlbumDetails>;
+  playlists: SpotifySearchCategory<SpotifyPlaylistDetails>;
+  shows: SpotifySearchCategory<SpotifyShowDetials>;
+  episodes: SpotifySearchCategory<SpotifyEpisodeDetails>;
+  audiobooks: SpotifySearchCategory<SpotifyAudiobookDetails>;
+};
+//#endregion

@@ -1,6 +1,12 @@
 const EventEmitter = require("events");
 import ResponseError from "@models/responseError";
-import { logger, integrationManager } from "@utils/firebot";
+import { logger, integrationManager, effectManager } from "@utils/firebot";
+import { spotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
+import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
+import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
+import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
+import { integrationId } from "@/main";
+import { spotifyChangeRepeatStateEffect } from "./firebot/effects/spotifyChangeRepeatStateEffect";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -14,8 +20,6 @@ const spotifyScopes = [
   "user-read-recently-played",
 ];
 
-export const IntegrationId = "oceanity-spotify";
-
 let spotifyDefinition: IntegrationDefinition | null = null;
 
 export class SpotifyIntegration extends EventEmitter {
@@ -26,7 +30,16 @@ export class SpotifyIntegration extends EventEmitter {
     spotifyDefinition = generateSpotifyDefinition(client);
   }
 
-  init() {}
+  init() {
+    logger.info("Initializing Spotify Integration...");
+
+    // Premium Effects
+    effectManager.registerEffect(spotifyFindAndEnqueueTrackEffect);
+    effectManager.registerEffect(spotifyChangePlaybackStateEffect);
+    effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
+    effectManager.registerEffect(spotifySkipTrackEffect);
+    effectManager.registerEffect(spotifyChangeRepeatStateEffect);
+  }
 
   async connect() {}
 
@@ -92,14 +105,14 @@ export class SpotifyIntegration extends EventEmitter {
 export const generateSpotifyDefinition = (
   client: ClientCredentials
 ): IntegrationDefinition => ({
-  id: IntegrationId,
+  id: integrationId,
   name: "Spotify (by Oceanity)",
   description: "Integrations with Spotify including song requests",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
-    id: IntegrationId,
+    id: integrationId,
     name: "Spotify",
     redirectUriHost: "localhost",
     client,
@@ -139,7 +152,7 @@ export let integration: SpotifyIntegration;
 
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
-  integrationManager.getIntegrationById(IntegrationId).definition.auth;
+  integrationManager.getIntegrationById(integrationId).definition.auth;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (
@@ -155,7 +168,7 @@ const tokenPastExpiration = (expiresOn: string) =>
 
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
-    integrationManager.getIntegrationById(IntegrationId);
+    integrationManager.getIntegrationById(integrationId);
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }
