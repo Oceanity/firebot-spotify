@@ -1,7 +1,17 @@
+import { logger } from "@utils/firebot";
 import SpotifyApiService from "@utils/spotify/api";
 import SpotifyAuthService from "@utils/spotify/auth";
 import SpotifyPlayerService from "@utils/spotify/player";
 import SpotifyProfileService from "@utils/spotify/me";
+
+type SpotifySearchType =
+  | "album"
+  | "artist"
+  | "playlist"
+  | "track"
+  | "show"
+  | "episode"
+  | "audiobook";
 
 export class SpotifyService {
   public readonly api: SpotifyApiService;
@@ -14,5 +24,38 @@ export class SpotifyService {
     this.auth = new SpotifyAuthService(this);
     this.me = new SpotifyProfileService(this);
     this.player = new SpotifyPlayerService(this);
+  }
+
+  public async searchAsync(
+    query: string,
+    types: SpotifySearchType[] | SpotifySearchType,
+    limit: number = 20,
+    offset: number = 0
+  ) {
+    try {
+      types = [...types] as SpotifySearchType[];
+
+      const encodedQuery = encodeURIComponent(query);
+
+      const params = new URLSearchParams({
+        q: encodedQuery,
+        type: types.join(","),
+        limit: limit.toString(),
+        offset: offset.toString(),
+      }).toString();
+
+      const response = await this.api.fetch<SpotifySearchResponse>(
+        `/search?${params}`
+      );
+
+      if (!response.data) {
+        throw new Error("Could not retrieve Spotify track");
+      }
+
+      return response.data;
+    } catch (error) {
+      logger.error("Error performing search on Spotify", error);
+      throw error;
+    }
   }
 }
