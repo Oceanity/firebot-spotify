@@ -12,7 +12,7 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
   repeatState: SpotifyRepeatState;
 }> = {
   definition: {
-    id: "oceanity-spotify:change-playback-state",
+    id: "oceanity-spotify:change-repeat-state",
     name: "Spotify Premium: Change Repeat Mode",
     description: "Changes repeat mode of active Spotify device",
     icon: "fab fa-spotify",
