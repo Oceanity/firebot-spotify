@@ -3,6 +3,7 @@ import { logger, chatFeedAlert } from "@utils/firebot";
 import ResponseError from "@/models/responseError";
 import { SpotifyPlaybackState } from "@effects/spotifyChangePlaybackStateEffect";
 import { SpotifySkipTarget } from "@/firebot/effects/spotifySkipTrackEffect";
+import { SpotifyRepeatState } from "@/firebot/effects/spotifyChangeRepeatStateEffect";
 
 const spotifyApiBaseUrl = "https://api.spotify.com/v1";
 
@@ -163,6 +164,21 @@ export default class SpotifyApi {
       (a) => a.uri === songUri
     );
   }
+
+  public static async changeRepeatStateAsync(repeatState: SpotifyRepeatState) {
+    try {
+      await changeRepeatStateAsync(repeatState);
+
+      return true;
+    } catch (error) {
+      let message = error instanceof Error ? error.message : (error as string);
+
+      chatFeedAlert(`Error changing repeat state on Spotify: ${message}`);
+      logger.error("Error changing repeat state on Spotify", error);
+
+      return false;
+    }
+  }
 }
 
 // #region External Helper Functions
@@ -277,6 +293,26 @@ const togglePlaybackAsync = async (isPlaying: boolean): Promise<boolean> =>
     ? await pausePlaybackAsync(isPlaying)
     : await resumePlaybackAsync(isPlaying);
 
+async function changeRepeatStateAsync(
+  repeatState: SpotifyRepeatState
+): Promise<void> {
+  try {
+    const oldRepeatState = (await getPlaybackStateAsync())
+      ?.repeat_state as SpotifyRepeatState;
+
+    if (oldRepeatState === repeatState) {
+      throw new Error(`Repeat state is already set to ${repeatState}`);
+    }
+
+    await makeSpotifyApiRequestAsync(
+      `/me/player/repeat?state=${repeatState}`,
+      "PUT"
+    );
+  } catch (error) {
+    logger.error("Error toggling Spotify playback", error);
+  }
+}
+
 async function skipToNextTrackAsync(): Promise<void> {
   try {
     await makeSpotifyApiRequestAsync("/me/player/next", "POST");
@@ -355,6 +391,7 @@ async function enqueueTrackAsync(trackUri: string) {
     throw error;
   }
 }
+
 // #endregion
 
 // #region Spotify /search methods

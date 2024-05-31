@@ -6,6 +6,7 @@ import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueue
 import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
 import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
 import { integrationId } from "@/main";
+import { spotifyChangeRepeatStateEffect } from "./firebot/effects/spotifyChangeRepeatStateEffect";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -37,6 +38,7 @@ export class SpotifyIntegration extends EventEmitter {
     effectManager.registerEffect(spotifyChangePlaybackStateEffect);
     effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
     effectManager.registerEffect(spotifySkipTrackEffect);
+    effectManager.registerEffect(spotifyChangeRepeatStateEffect);
   }
 
   async connect() {}
