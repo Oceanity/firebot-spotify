@@ -1,12 +1,12 @@
-import Spotify from "@utils/spotify";
+import { spotify } from "@/main";
+import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { integrationId } from "@/main";
 
 export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {
-    id: `${integrationId}:change-playback-volume`,
+    id: "oceanity-spotify:change-playback-volume",
     name: "Spotify Premium: Change Playback Volume",
     description: "Changes playback volume of active Spotify device",
     icon: "fab fa-spotify",
@@ -18,6 +18,12 @@ export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
         description:
           "Will be true if the playback volume was changed successfully, false if not.",
         defaultName: "volumeChanged",
+      },
+      {
+        label: "Error Message",
+        description:
+          "If the playback volume was not changed successfully, will contain an error message.",
+        defaultName: "error",
       },
     ],
   },
@@ -49,13 +55,24 @@ export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
   onTriggerEvent: async (event) => {
     const { volume } = event.effect;
 
-    const volumeChanged = await Spotify.changePlaybackVolumeAsync(volume);
+    try {
+      await spotify.player.setVolumeAsync(volume);
 
-    return {
-      success: true,
-      outputs: {
-        volumeChanged,
-      },
-    };
+      return {
+        success: true,
+        outputs: {
+          volumeChanged: true,
+          error: null,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        outputs: {
+          volumeChanged: false,
+          error: getErrorMessage(error),
+        },
+      };
+    }
   },
 };

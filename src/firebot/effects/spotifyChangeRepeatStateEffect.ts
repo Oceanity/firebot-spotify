@@ -1,18 +1,12 @@
-import Spotify from "@utils/spotify";
+import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { integrationId } from "@/main";
-
-export enum SpotifyRepeatState {
-  Track = "track",
-  Context = "context",
-  Off = "off",
-}
+import { getErrorMessage } from "@/utils/errors";
 
 export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
-  repeatState: SpotifyRepeatState;
+  repeatState: [SpotifyRepeatState, string];
 }> = {
   definition: {
-    id: `${integrationId}:change-playback-state`,
+    id: "oceanity-spotify:change-repeat-state",
     name: "Spotify Premium: Change Repeat Mode",
     description: "Changes repeat mode of active Spotify device",
     icon: "fab fa-spotify",
@@ -25,24 +19,30 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
           "Will be true if the repeat mode was changed successfully, false if not.",
         defaultName: "repeatModeChanged",
       },
+      {
+        label: "Error Message",
+        description:
+          "If the repeat mode was not changed successfully, will contain an error message.",
+        defaultName: "error",
+      },
     ],
   },
 
   optionsTemplate: `
-    <eos-container header="Looping Mode">
+    <eos-container header="Repeat Mode">
       <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="list-effect-type">{{effect.repeatState ? effect.repeatState : 'Looping Mode...'}}</span> <span class="caret"></span>
+          <span class="list-effect-type">{{effect.repeatState ? effect.repeatState[1] : 'Repeat Mode...'}}</span> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li ng-click="effect.repeatState = 'off'">
+          <li ng-click="effect.repeatState = ['off', 'Off']">
             <a href>Off</a>
           </li>
-          <li ng-click="effect.repeatState = 'track'">
+          <li ng-click="effect.repeatState = ['track', 'Track']">
             <a href>Track</a>
           </li>
-          <li ng-click="effect.repeatState = 'context'">
-            <a href>Context</a>
+          <li ng-click="effect.repeatState = ['context', 'All']">
+            <a href>All</a>
           </li>
         </ul>
       </div>
@@ -63,15 +63,25 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
   },
 
   onTriggerEvent: async (event) => {
-    const { repeatState } = event.effect;
+    try {
+      const { repeatState } = event.effect;
 
-    const repeatModeChanged = await Spotify.changeRepeatStateAsync(repeatState);
+      await spotify.player.setRepeatStateAsync(repeatState[0]);
 
-    return {
-      success: true,
-      outputs: {
-        repeatModeChanged,
-      },
-    };
+      return {
+        success: true,
+        outputs: {
+          repeatModeChanged: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        outputs: {
+          repeatModeChanged: false,
+          error: getErrorMessage(error),
+        },
+      };
+    }
   },
 };

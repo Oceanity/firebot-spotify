@@ -1,6 +1,6 @@
+import { spotify } from "@/main";
+import { getErrorMessage } from "@/utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import Spotify from "@utils/spotify";
-import { integrationId } from "@/main";
 
 export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   query: string;
@@ -9,7 +9,7 @@ export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   allowDuplicates: boolean;
 }> = {
   definition: {
-    id: `${integrationId}:request-song`,
+    id: "oceanity-spotify:request-song",
     name: "Spotify Premium: Find and Enqueue Track",
     description: "Searches for a track to add to your Spotify queue",
     icon: "fab fa-spotify",
@@ -64,19 +64,34 @@ export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   },
 
   onTriggerEvent: async (event) => {
-    const encodedQuery = encodeURIComponent(event.effect.query);
+    const { query, queuedBy, allowDuplicates } = event.effect;
 
-    const { success, data } = await Spotify.findAndEnqueueTrackAsync(
-      encodedQuery,
-      event.effect.allowDuplicates
-    );
+    try {
+      const track = (await spotify.searchAsync(query, "track")).tracks.items[0];
 
-    return {
-      success: true,
-      outputs: {
-        trackWasEnqueued: success,
-        spotifyResponse: data,
-      },
-    };
+      if (!track) throw new Error("Track not found");
+
+      await spotify.player.queue.pushAsync(track.uri, allowDuplicates);
+
+      track.queue_position = await spotify.player.queue.findIndexAsync(
+        track.uri
+      );
+
+      return {
+        success: true,
+        outputs: {
+          trackWasEnqueued: true,
+          spotifyResponse: track,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        outputs: {
+          trackWasEnqueued: false,
+          error: getErrorMessage(error),
+        },
+      };
+    }
   },
 };

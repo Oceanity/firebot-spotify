@@ -1,6 +1,6 @@
-import Spotify from "@utils/spotify";
+import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { integrationId } from "@/main";
+import { getErrorMessage } from "@utils/errors";
 
 export enum SpotifyPlaybackState {
   Play = "Play",
@@ -12,7 +12,7 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
   playState: SpotifyPlaybackState;
 }> = {
   definition: {
-    id: `${integrationId}:change-playback-state`,
+    id: "oceanity-spotify:change-playback-state",
     name: "Spotify Premium: Change Playback State",
     description: "Changes playback state of active Spotify device",
     icon: "fab fa-spotify",
@@ -24,6 +24,12 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
         description:
           "Will be true if the playback state was changed successfully, false if not.",
         defaultName: "playbackStateChanged",
+      },
+      {
+        label: "Error Message",
+        description:
+          "If the playback volume was not changed successfully, will contain an error message.",
+        defaultName: "error",
       },
     ],
   },
@@ -63,15 +69,34 @@ export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
   onTriggerEvent: async (event) => {
     const { playState } = event.effect;
 
-    const spotifySuccess = await Spotify.changePlaybackStateAsync(
-      playState ?? SpotifyPlaybackState.Play
-    );
+    try {
+      switch (playState) {
+        case SpotifyPlaybackState.Play:
+          await spotify.player.playAsync();
+          break;
+        case SpotifyPlaybackState.Pause:
+          await spotify.player.pauseAsync();
+          break;
+        case SpotifyPlaybackState.Toggle:
+          await spotify.player.playPauseAsync();
+          break;
+      }
 
-    return {
-      success: true,
-      outputs: {
-        spotifySuccess,
-      },
-    };
+      return {
+        success: true,
+        outputs: {
+          playbackStateChanged: true,
+          error: null,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        outputs: {
+          playbackStateChanged: false,
+          error: getErrorMessage(error),
+        },
+      };
+    }
   },
 };
