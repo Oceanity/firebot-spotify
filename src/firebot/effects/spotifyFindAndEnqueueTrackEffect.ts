@@ -1,4 +1,4 @@
-import { integrationId, spotify } from "@/main";
+import { spotify } from "@/main";
 import { getErrorMessage } from "@/utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
@@ -9,7 +9,7 @@ export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   allowDuplicates: boolean;
 }> = {
   definition: {
-    id: `${integrationId}:request-song`,
+    id: "oceanity-spotify:request-song",
     name: "Spotify Premium: Find and Enqueue Track",
     description: "Searches for a track to add to your Spotify queue",
     icon: "fab fa-spotify",

@@ -1,5 +1,5 @@
+import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { integrationId, spotify } from "@/main";
 import { getErrorMessage } from "@/utils/errors";
 
 export enum SpotifyRepeatState {
@@ -12,7 +12,7 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
   repeatState: SpotifyRepeatState;
 }> = {
   definition: {
-    id: `${integrationId}:change-playback-state`,
+    id: "oceanity-spotify:change-playback-state",
     name: "Spotify Premium: Change Repeat Mode",
     description: "Changes repeat mode of active Spotify device",
     icon: "fab fa-spotify",
