@@ -1,4 +1,4 @@
-import { SpotifyService } from "@utils/spotify/index";
+import { SpotifyService } from "@utils/spotify";
 
 export default class SpotifyProfileService {
   private spotify: SpotifyService;

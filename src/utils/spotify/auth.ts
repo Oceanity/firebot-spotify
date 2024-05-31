@@ -1,7 +1,7 @@
 import { integrationManager } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
-import { SpotifyService } from "@utils/spotify/index";
+import { SpotifyService } from "@utils/spotify";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;

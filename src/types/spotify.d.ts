@@ -1,3 +1,7 @@
+//#region Unique Vars
+type SpotifyRepeatState = "track" | "context" | "off";
+//#endregion
+
 type SpotifyAuth = {
   code?: string;
   accessToken?: string;
@@ -35,7 +39,7 @@ type SpotifyPlayer = {
   device: SpotifyDevice;
   shuffle_state: boolean;
   smart_shuffle: boolean;
-  repeat_state: string;
+  repeat_state: SpotifyRepeatState;
   timestamp: number;
   context: {
     type: string;
@@ -85,6 +89,35 @@ type SpotifyQueueResponse = {
 type FindAndEnqueueTrackResponse = {
   success: boolean;
   data: SpotifyTrackDetails | string;
+};
+
+type SpotifyCurrentlyPlaying = {
+  device: SpotifyDevice;
+  repeat_state: SpotifyRepeatState;
+  shuffle_state: boolean;
+  context: {
+    type: string;
+    href: string;
+    external_urls: { [platform: string]: string };
+    uri: string;
+  };
+  timestamp: number;
+  progress_ms: number;
+  is_playing: boolean;
+  item: SpotifyTrackDetails;
+  currently_playing_type: string;
+  actions: {
+    interrupting_playback?: boolean;
+    pausing?: boolean;
+    resuming?: boolean;
+    seeking?: boolean;
+    skipping_prev?: boolean;
+    skipping_next?: boolean;
+    toggling_repeat?: boolean;
+    toggling_shuffle?: boolean;
+    toggling_repeat_context?: boolean;
+    transferring_playback?: boolean;
+  };
 };
 
 //#region Spotify API /search types

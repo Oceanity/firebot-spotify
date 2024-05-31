@@ -61,7 +61,7 @@ export const spotifySkipTrackEffect: Firebot.EffectType<{
     try {
       switch (target) {
         case SpotifySkipTarget.Previous:
-          await spotify.player.prevAsync();
+          await spotify.player.previousAsync();
           break;
         case SpotifySkipTarget.Next:
           await spotify.player.nextAsync();

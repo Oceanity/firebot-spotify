@@ -1,7 +1,6 @@
 import { logger } from "@utils/firebot";
-import { SpotifyService } from "@utils/spotify/index";
+import { SpotifyService } from "@utils/spotify";
 import SpotifyQueueService from "./queue";
-import { SpotifyRepeatState } from "@effects/spotifyChangeRepeatStateEffect";
 
 export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
@@ -33,6 +32,23 @@ export default class SpotifyPlayerService {
       return response.data;
     } catch (error) {
       logger.error("Error getting playback state on Spotify", error);
+      throw error;
+    }
+  }
+
+  public async getCurrentlyPlaying(): Promise<SpotifyCurrentlyPlaying> {
+    try {
+      const response = await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
+        "/me/player/currently-playing"
+      );
+
+      if (!response.data) {
+        throw new Error("No active Spotify player was found");
+      }
+
+      return response.data;
+    } catch (error) {
+      logger.error("Error getting currently playing on Spotify", error);
       throw error;
     }
   }
@@ -109,12 +125,12 @@ export default class SpotifyPlayerService {
    * @return {Promise<void>} A promise that resolves when the previous track is successfully skipped.
    * @throws {Error} If the Spotify user is not premium or if there is an error skipping to the previous track.
    */
-  public async prevAsync() {
+  public async previousAsync() {
     try {
       if (!(await this.spotify.me.isUserPremiumAsync()))
         throw new Error("Spotify Premium required to skip tracks");
 
-      await this.spotify.api.fetch("/me/player/prev", "POST");
+      await this.spotify.api.fetch("/me/player/previous", "POST");
     } catch (error) {
       logger.error("Error skipping to previous track on Spotify", error);
       throw error;

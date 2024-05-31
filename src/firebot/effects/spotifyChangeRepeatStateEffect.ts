@@ -2,12 +2,6 @@ import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import { getErrorMessage } from "@/utils/errors";
 
-export enum SpotifyRepeatState {
-  Track = "track",
-  Context = "context",
-  Off = "off",
-}
-
 export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
   repeatState: [SpotifyRepeatState, string];
 }> = {
