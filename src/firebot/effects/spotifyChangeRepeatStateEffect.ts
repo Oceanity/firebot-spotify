@@ -1,6 +1,6 @@
-import Spotify from "@utils/spotify";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { integrationId } from "@/main";
+import { integrationId, spotify } from "@/main";
+import { getErrorMessage } from "@/utils/errors";
 
 export enum SpotifyRepeatState {
   Track = "track",
@@ -24,6 +24,12 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
         description:
           "Will be true if the repeat mode was changed successfully, false if not.",
         defaultName: "repeatModeChanged",
+      },
+      {
+        label: "Error Message",
+        description:
+          "If the repeat mode was not changed successfully, will contain an error message.",
+        defaultName: "error",
       },
     ],
   },
@@ -63,15 +69,25 @@ export const spotifyChangeRepeatStateEffect: Firebot.EffectType<{
   },
 
   onTriggerEvent: async (event) => {
-    const { repeatState } = event.effect;
+    try {
+      const { repeatState } = event.effect;
 
-    const repeatModeChanged = await Spotify.changeRepeatStateAsync(repeatState);
+      await spotify.player.setRepeatStateAsync(repeatState);
 
-    return {
-      success: true,
-      outputs: {
-        repeatModeChanged,
-      },
-    };
+      return {
+        success: true,
+        outputs: {
+          repeatModeChanged: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        outputs: {
+          repeatModeChanged: false,
+          error: getErrorMessage(error),
+        },
+      };
+    }
   },
 };

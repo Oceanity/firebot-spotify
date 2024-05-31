@@ -1,6 +1,6 @@
-import Spotify from "@utils/spotify";
+import { integrationId, spotify } from "@/main";
+import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { integrationId } from "@/main";
 
 export enum SpotifySkipTarget {
   Previous = "Previous",
@@ -31,7 +31,7 @@ export const spotifySkipTrackEffect: Firebot.EffectType<{
     <eos-container header="Skip Direction">
       <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="list-effect-type">{{effect.target ? effect.target : 'Next'}}</span> <span class="caret"></span>
+          <span class="list-effect-type">{{effect.target ? effect.target : 'Skip Direction...'}}</span> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
           <li ng-click="effect.target = 'Next'">
@@ -48,20 +48,41 @@ export const spotifySkipTrackEffect: Firebot.EffectType<{
   // @ts-expect-error ts6133: Variables must be named consistently
   optionsController: ($scope: any, backendCommunicator: any, $q: any) => {},
 
-  optionsValidator: () => [],
+  optionsValidator: (effect) => {
+    var errors = [];
+    if (!effect.target) {
+      errors.push("Skip Direction is required");
+    }
+    return errors;
+  },
 
   onTriggerEvent: async (event) => {
     const { target } = event.effect;
-
-    const spotifySuccess = await Spotify.skipTrackAsync(
-      target ?? SpotifySkipTarget.Next
-    );
-
-    return {
-      success: true,
-      outputs: {
-        spotifySuccess,
-      },
-    };
+    try {
+      switch (target) {
+        case SpotifySkipTarget.Previous:
+          await spotify.player.prevAsync();
+          break;
+        case SpotifySkipTarget.Next:
+          await spotify.player.nextAsync();
+          break;
+        default:
+          throw new Error("Invalid Skip Direction");
+      }
+      return {
+        success: true,
+        outputs: {
+          trackWasSkipped: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        outputs: {
+          trackWasSkipped: false,
+          error: getErrorMessage(error),
+        },
+      };
+    }
   },
 };

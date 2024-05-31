@@ -1,6 +1,6 @@
-import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import Spotify from "@utils/spotify";
 import { integrationId } from "@/main";
+import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { SpotifyApi } from "@utils/spotify";
 
 export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   query: string;
@@ -66,7 +66,7 @@ export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   onTriggerEvent: async (event) => {
     const encodedQuery = encodeURIComponent(event.effect.query);
 
-    const { success, data } = await Spotify.findAndEnqueueTrackAsync(
+    const { success, data } = await SpotifyApi.findAndEnqueueTrackAsync(
       encodedQuery,
       event.effect.allowDuplicates
     );
