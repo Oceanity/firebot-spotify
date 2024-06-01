@@ -12,7 +12,7 @@ export default class SpotifyPlayerService {
 
   private readonly secondsToCacheNowPlaying: number = 5;
   private nowPlaying: SpotifyTrackDetails | null = null;
-  private lastNowPlayingPollTime: number | null = null;
+  private cachedNowPlayingExpires: number | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -102,6 +102,8 @@ export default class SpotifyPlayerService {
             "/me/player/currently-playing"
           )
         )?.data?.item ?? null;
+      this.cachedNowPlayingExpires =
+        Date.now() + this.secondsToCacheNowPlaying * 1000;
 
       return this.nowPlaying;
     } catch (error) {
@@ -277,15 +279,15 @@ export default class SpotifyPlayerService {
 
   //#region Helper Methods
   private useCachedDeviceId = () =>
-    this.activeDeviceId &&
-    this.lastDevicePollTime &&
+    this.activeDeviceId != null &&
+    this.lastDevicePollTime != null &&
     Date.now() - this.lastDevicePollTime <
       this.minutesToCacheDeviceId * 60 * 1000;
 
   private useCachedNowPlaying = () =>
-    this.nowPlaying &&
-    this.lastNowPlayingPollTime &&
-    Date.now() - this.lastNowPlayingPollTime <
+    this.nowPlaying != null &&
+    this.cachedNowPlayingExpires != null &&
+    Date.now() - this.cachedNowPlayingExpires <
       this.secondsToCacheNowPlaying * 1000;
   //#endregion
 }
