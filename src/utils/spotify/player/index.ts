@@ -51,7 +51,7 @@ export default class SpotifyPlayerService {
     try {
       if (this.useCachedDeviceId()) return this.activeDeviceId!;
 
-      const deviceId = await this.getActiveDeviceIdAsync();
+      const deviceId = (await this.getPlaybackStateAsync()).device.id;
 
       this.activeDeviceId = deviceId;
       this.lastDevicePollTime = Date.now();
