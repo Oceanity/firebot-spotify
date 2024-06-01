@@ -137,14 +137,12 @@ export const generateSpotifyDefinition = (
   client: ClientCredentials
 ): IntegrationDefinition => ({
   id: integrationId,
-  id: integrationId,
   name: "Spotify (by Oceanity)",
   description: "Integrations with Spotify including song requests",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
-    id: integrationId,
     id: integrationId,
     name: "Spotify",
     redirectUriHost: "localhost",
