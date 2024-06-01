@@ -47,6 +47,8 @@ This script adds the following features to Firebot
   - spotifyIsPlaying: `bool`
   - spotifyNowPlayingTitle: `string`
   - spotifyNowPlayingArtist: `string`
+  - spotifyNowPlayingArtists: `string[]`
+  - spotifyNowPlayingAlbum: `string`
   - spotifyNowPlayingAlbumArtUrl: `string`
   - spotifyNowPlayingUrl: `string`
 - Events
