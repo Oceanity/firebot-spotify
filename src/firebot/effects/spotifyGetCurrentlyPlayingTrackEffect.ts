@@ -2,7 +2,7 @@ import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import { getErrorMessage } from "@/utils/errors";
 
-export const spotifyGetCurrentlyPlayingEffect: Firebot.EffectType<{}> = {
+export const SpotifyGetCurrentlyPlayingEffect: Firebot.EffectType<{}> = {
   definition: {
     id: "oceanity-spotify:get-currently-playing-track",
     name: "Spotify: Get Now Playing",

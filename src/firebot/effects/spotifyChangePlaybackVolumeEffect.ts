@@ -2,7 +2,7 @@ import { spotify } from "@/main";
 import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
-export const spotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
+export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {

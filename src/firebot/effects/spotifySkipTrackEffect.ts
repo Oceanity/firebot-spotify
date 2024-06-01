@@ -7,7 +7,7 @@ export enum SpotifySkipTarget {
   Next = "Next",
 }
 
-export const spotifySkipTrackEffect: Firebot.EffectType<{
+export const SpotifySkipTrackEffect: Firebot.EffectType<{
   target: SpotifySkipTarget;
 }> = {
   definition: {

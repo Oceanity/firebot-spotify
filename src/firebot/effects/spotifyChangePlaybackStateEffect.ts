@@ -8,7 +8,7 @@ export enum SpotifyPlaybackState {
   Toggle = "Toggle",
 }
 
-export const spotifyChangePlaybackStateEffect: Firebot.EffectType<{
+export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<{
   playState: SpotifyPlaybackState;
 }> = {
   definition: {

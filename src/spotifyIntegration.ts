@@ -1,13 +1,13 @@
 const EventEmitter = require("events");
 import ResponseError from "@models/responseError";
 import { logger, integrationManager, effectManager } from "@utils/firebot";
-import { spotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
-import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
-import { spotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStateEffect";
-import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
-import { spotifyGetCurrentlyPlayingEffect } from "@effects/spotifyGetCurrentlyPlayingTrackEffect";
-import { spotifySeekToPositionEffect } from "@effects/spotifySeekToPositionEffect";
-import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
+import { SpotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
+import { SpotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
+import { SpotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStateEffect";
+import { SpotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
+import { SpotifyGetCurrentlyPlayingEffect } from "@effects/spotifyGetCurrentlyPlayingTrackEffect";
+import { SpotifySeekToPositionEffect } from "@effects/spotifySeekToPositionEffect";
+import { SpotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
 import { integrationId } from "@/main";
 
 const spotifyScopes = [
@@ -36,15 +36,15 @@ export class SpotifyIntegration extends EventEmitter {
     logger.info("Initializing Spotify Integration...");
 
     // Free Effects
-    effectManager.registerEffect(spotifyGetCurrentlyPlayingEffect);
+    effectManager.registerEffect(SpotifyGetCurrentlyPlayingEffect);
 
     // Premium Effects
-    effectManager.registerEffect(spotifyFindAndEnqueueTrackEffect);
-    effectManager.registerEffect(spotifyChangePlaybackStateEffect);
-    effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
-    effectManager.registerEffect(spotifyChangeRepeatStateEffect);
-    effectManager.registerEffect(spotifySeekToPositionEffect);
-    effectManager.registerEffect(spotifySkipTrackEffect);
+    effectManager.registerEffect(SpotifyFindAndEnqueueTrackEffect);
+    effectManager.registerEffect(SpotifyChangePlaybackStateEffect);
+    effectManager.registerEffect(SpotifyChangePlaybackVolumeEffect);
+    effectManager.registerEffect(SpotifyChangeRepeatStateEffect);
+    effectManager.registerEffect(SpotifySeekToPositionEffect);
+    effectManager.registerEffect(SpotifySkipTrackEffect);
   }
 
   async connect() {}

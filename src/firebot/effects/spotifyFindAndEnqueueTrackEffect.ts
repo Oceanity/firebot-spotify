@@ -2,7 +2,7 @@ import { spotify } from "@/main";
 import { getErrorMessage } from "@/utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
-export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
+export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   query: string;
   queuedBy: string;
   playlistId: string;

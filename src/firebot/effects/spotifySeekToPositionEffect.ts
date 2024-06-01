@@ -2,7 +2,7 @@ import { spotify } from "@/main";
 import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
-export const spotifySeekToPositionEffect: Firebot.EffectType<{
+export const SpotifySeekToPositionEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {
