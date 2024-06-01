@@ -41,6 +41,21 @@ export default class SpotifyPlayerService {
   }
 
   /**
+   * Checks if the user's Spotify player is currently playing.
+   *
+   * @return {Promise<boolean>} A promise that resolves to a boolean indicating
+   * whether the Spotify player is currently playing.
+   * @throws {Error} If an error occurs while fetching the playback state.
+   */
+  public async isPlayingAsync(): Promise<boolean> {
+    try {
+      return (await this.getPlaybackStateAsync()).is_playing;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Gets the active device ID of the user's Spotify player if an active device is found.
    *
    * @return {Promise<string>} A promise that resolves to a string representing the
@@ -70,7 +85,7 @@ export default class SpotifyPlayerService {
    * representing the current playback state, or null if no active player is found.
    * @throws {Error} If an error occurs while fetching the currently playing state.
    */
-  public async getCurrentlyPlaying(): Promise<SpotifyCurrentlyPlaying> {
+  public async getCurrentlyPlaying(): Promise<SpotifyTrackDetails> {
     try {
       const response = await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
         "/me/player/currently-playing"
@@ -80,7 +95,7 @@ export default class SpotifyPlayerService {
         throw new Error("No active Spotify player was found");
       }
 
-      return response.data;
+      return response.data.item;
     } catch (error) {
       logger.error("Error getting currently playing on Spotify", error);
       throw error;
@@ -96,9 +111,8 @@ export default class SpotifyPlayerService {
    */
   public async playAsync(): Promise<void> {
     try {
-      const isPlaying = (await this.getPlaybackStateAsync()).is_playing;
-
-      if (isPlaying) throw new Error("Spotify is already playing");
+      if (await this.isPlayingAsync())
+        throw new Error("Spotify is already playing");
 
       await this.spotify.api.fetch("/me/player/play", "PUT");
     } catch (error) {
@@ -115,9 +129,8 @@ export default class SpotifyPlayerService {
    */
   public async pauseAsync(): Promise<void> {
     try {
-      const isPlaying = (await this.getPlaybackStateAsync()).is_playing;
-
-      if (!isPlaying) throw new Error("Spotify is not playing");
+      if (await this.isPlayingAsync())
+        throw new Error("Spotify is not playing");
 
       await this.spotify.api.fetch("/me/player/pause", "PUT");
     } catch (error) {
@@ -133,9 +146,9 @@ export default class SpotifyPlayerService {
    * @throws {Error} If there is an error while toggling the playback state.
    */
   public async playPauseAsync(): Promise<void> {
-    const isPlaying = (await this.getPlaybackStateAsync()).is_playing;
-
-    return isPlaying ? await this.pauseAsync() : await this.playAsync();
+    return (await this.isPlayingAsync())
+      ? await this.pauseAsync()
+      : await this.playAsync();
   }
 
   /**

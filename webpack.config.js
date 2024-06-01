@@ -21,7 +21,9 @@ module.exports = {
       "@": path.resolve(__dirname, "./src"),
       "@models": path.resolve(__dirname, "./src/models"),
       "@utils": path.resolve(__dirname, "./src/utils"),
+      "@shared": path.resolve(__dirname, "./src/shared"),
       "@effects": path.resolve(__dirname, "./src/firebot/effects"),
+      "@variables": path.resolve(__dirname, "./src/firebot/variables"),
     },
   },
   module: {

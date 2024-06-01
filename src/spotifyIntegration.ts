@@ -1,14 +1,21 @@
 const EventEmitter = require("events");
 import ResponseError from "@models/responseError";
-import { logger, integrationManager, effectManager } from "@utils/firebot";
+import {
+  logger,
+  integrationManager,
+  effectManager,
+  variableManager,
+} from "@utils/firebot";
 import { SpotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
 import { SpotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
 import { SpotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStateEffect";
 import { SpotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
-import { SpotifyGetCurrentlyPlayingEffect } from "@effects/spotifyGetCurrentlyPlayingTrackEffect";
 import { SpotifySeekToPositionEffect } from "@effects/spotifySeekToPositionEffect";
 import { SpotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
 import { integrationId } from "@/main";
+import { SpotifyNowPlayingTitleVariable } from "@variables/spotifyNowPlayingTitleVariable";
+import { SpotifyNowPlayingArtistVariable } from "@variables/spotifyNowPlayingArtistVariable";
+import { SpotifyIsPlayingVariable } from "@variables/spotifyIsPlayingVariable";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -35,9 +42,6 @@ export class SpotifyIntegration extends EventEmitter {
   init() {
     logger.info("Initializing Spotify Integration...");
 
-    // Free Effects
-    effectManager.registerEffect(SpotifyGetCurrentlyPlayingEffect);
-
     // Premium Effects
     effectManager.registerEffect(SpotifyFindAndEnqueueTrackEffect);
     effectManager.registerEffect(SpotifyChangePlaybackStateEffect);
@@ -45,6 +49,11 @@ export class SpotifyIntegration extends EventEmitter {
     effectManager.registerEffect(SpotifyChangeRepeatStateEffect);
     effectManager.registerEffect(SpotifySeekToPositionEffect);
     effectManager.registerEffect(SpotifySkipTrackEffect);
+
+    // Free Replace Variables
+    variableManager.registerReplaceVariable(SpotifyIsPlayingVariable);
+    variableManager.registerReplaceVariable(SpotifyNowPlayingTitleVariable);
+    variableManager.registerReplaceVariable(SpotifyNowPlayingArtistVariable);
   }
 
   async connect() {}
