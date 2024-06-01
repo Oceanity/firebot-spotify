@@ -45,11 +45,11 @@ This script adds the following features to Firebot
 
 - Replace Variables
   - spotifyIsPlaying: `bool`
-  - spotifyNowPlayingTitle: `string`
-  - spotifyNowPlayingArtist: `string`
-  - spotifyNowPlayingArtists: `string[]`
   - spotifyNowPlayingAlbum: `string`
   - spotifyNowPlayingAlbumArtUrl: `string`
+  - spotifyNowPlayingArtist: `string`
+  - spotifyNowPlayingArtists: `string[]`
+  - spotifyNowPlayingTitle: `string`
   - spotifyNowPlayingUrl: `string`
 - Events
   - Track Changed
