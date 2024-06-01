@@ -12,7 +12,7 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
 - Log in to your Spotify Account on https://developer.spotify.com/ and click "Create app"
   - App name and description can be whatever you want
   - Website is optional, also doesn't matter what you use here
-  - Callback Url must be http://localhost:7472/api/v1/auth/callback
+  - Callback Url must be `http://localhost:7472/api/v1/auth/callback`
   - API/SDKs to use are Web API and Web Playback API
   - Click checkbox to agree with Spotify's TOS and Design Guidelines
 - Take note of the Client ID and Client Secret, these are required to use this script
