@@ -22,6 +22,7 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
 - Click Add New Script
 - Click the "scripts folder" link to open the Scripts Folder and place `oceanitySpotifyIntegration.js` there
 - Refresh the list of scripts and pick `oceanitySpotifyIntegration.js` from the dropdown
+- In Client Id and Client Secret fields, copy in the two codes from earlier
 - Go to Settings > Integrations and click Link next to Spotify (by Oceanity)
 
 <div id="Features" />
