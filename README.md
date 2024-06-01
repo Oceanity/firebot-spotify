@@ -1,18 +1,53 @@
-# Starter Firebot Custom Script in Typescript
+# Spotify Integration by Oceanity
+
+This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup.
+
+1. [Setup](#Setup)
+2. [Features](#Features)
+
+<div id="Setup" />
 
 ### Setup
-1. Create a new repo based off this template (Click "Use this Template" above) or simply fork it
-2. `npm install`
 
-### Building
-Dev:
-1. `npm run build:dev`
-- Automatically copies the compiled .js to Firebot's scripts folder.
+- Log in to your Spotify Account on https://developer.spotify.com/ and click "Create app"
+  - App name and description can be whatever you want
+  - Website is optional, also doesn't matter what you use here
+  - Callback Url must be `http://localhost:7472/api/v1/auth/callback`
+  - API/SDKs to use are Web API and Web Playback API
+  - Click checkbox to agree with Spotify's TOS and Design Guidelines
+- Take note of the Client ID and Client Secret, these are required to use this script
+- In Firebot, go to Settings > Scripts
+  - Enable Custom Scripts if they are not currently enabled
+- Click Manage Startup Scripts
+- Click Add New Script
+- Click the "scripts folder" link to open the Scripts Folder and place `oceanitySpotifyIntegration.js` there
+- Refresh the list of scripts and pick `oceanitySpotifyIntegration.js` from the dropdown
+- In Client Id and Client Secret fields, copy in the two codes from earlier
+- Go to Settings > Integrations and click Link next to Spotify (by Oceanity)
+- You should now have the ability to use this script's Effects, Events and Replace Variables in Firebot
 
-Release:
-1. `npm run build`
-- Copy .js from `/dist`
+<div id="Features" />
 
-### Note
-- Keep the script definition object (that contains the `run`, `getScriptManifest`, and `getDefaultParameters` funcs) in the `main.ts` file as it's important those function names don't get minimized.
-- Edit the `"scriptOutputName"` property in `package.json` to change the filename of the outputted script.
+### Features
+
+This script adds the following features to Firebot
+
+**Spotify Premium Required**
+
+- Effects
+  - Find and Enqueue Track
+  - Play/Pause active Spotify device
+  - Change volume
+  - Change repeat mode
+  - Change shuffle mode
+
+**Any Spotify Account**
+
+- Replace Variables
+  - spotifyIsPlaying: `bool`
+  - spotifyNowPlayingTitle: `string`
+  - spotifyNowPlayingArtist: `string`
+  - spotifyNowPlayingAlbumArtUrl: `string`
+  - spotifyNowPlayingUrl: `string`
+- Events
+  - Track Changed
