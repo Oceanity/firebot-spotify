@@ -1,4 +1,5 @@
 import { integrationId } from "@/main";
+import { integrationId } from "@/main";
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 
 export let logger: ScriptModules["logger"];
@@ -30,6 +31,7 @@ export function chatFeedAlert(message: string) {
       },
     },
     effects: {
+      id: `${integrationId}-${Date.now()}`,
       id: `${integrationId}-${Date.now()}`,
       list: [
         {

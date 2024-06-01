@@ -137,12 +137,14 @@ export const generateSpotifyDefinition = (
   client: ClientCredentials
 ): IntegrationDefinition => ({
   id: integrationId,
+  id: integrationId,
   name: "Spotify (by Oceanity)",
   description: "Integrations with Spotify including song requests",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
+    id: integrationId,
     id: integrationId,
     name: "Spotify",
     redirectUriHost: "localhost",
@@ -184,6 +186,7 @@ export let integration: SpotifyIntegration;
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
   integrationManager.getIntegrationById(integrationId).definition.auth;
+integrationManager.getIntegrationById(integrationId).definition.auth;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (
@@ -200,6 +203,7 @@ const tokenPastExpiration = (expiresOn: string) =>
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
     integrationManager.getIntegrationById(integrationId);
+  integrationManager.getIntegrationById(integrationId);
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }
