@@ -40,7 +40,7 @@ export const spotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
       <p class="muted">Search query for track to add to your Spotify Queue</p>
       <input ng-model="effect.query" type="text" class="form-control" id="chat-text-setting" placeholder="Search Query" menu-position="under" replace-variables/>
       <div style="display: flex; flex-direction: row; margin: 15px 0;">
-        <firebot-checkbox label="Allow duplicate tracks" tooltip="Allow users to queue songs that are already in the queue" model="effect.allowduplicates" style="margin: 0px 15px 0px 0px" class="ng-isolate-scope">
+        <firebot-checkbox label="Allow duplicate tracks" tooltip="Allow users to queue songs that are already in the queue" model="effect.allowDuplicates" style="margin: 0px 15px 0px 0px" class="ng-isolate-scope">
           <label class="control-fb control--checkbox ng-binding" style="margin: 0px 15px 0px 0px"> Send as reply <!-- ngIf: $ctrl.tooltip --><tooltip ng-if="$ctrl.tooltip" text="$ctrl.tooltip" placement="" class="ng-scope ng-isolate-scope">
             <i class="fal fa-question-circle" style="" ng-class="{'fa-question-circle': $ctrl.type === 'question', 'fa-info-circle': $ctrl.type === 'info' }" uib-tooltip="Allow duplicate songs to be added to the queue" tooltip-placement="" tooltip-append-to-body="true" aria-hidden="true"></i>
           </tooltip><!-- end ngIf: $ctrl.tooltip -->
