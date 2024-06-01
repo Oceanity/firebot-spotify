@@ -27,15 +27,11 @@ export default class SpotifyPlayerService {
    * representing the current playback state, or null if no active player is found.
    * @throws {Error} If an error occurs while fetching the player state.
    */
-  public async getPlaybackStateAsync(): Promise<SpotifyPlayer> {
+  public async getPlaybackStateAsync(): Promise<SpotifyPlayer | null> {
     try {
       const response = await this.spotify.api.fetch<SpotifyPlayer>(
         "/me/player"
       );
-
-      if (!response.data) {
-        throw new Error("No active Spotify player was found");
-      }
 
       return response.data;
     } catch (error) {
@@ -55,7 +51,8 @@ export default class SpotifyPlayerService {
     try {
       if (this.useCachedIsPlaying()) return this.isPlaying!;
 
-      this.isPlaying = (await this.getPlaybackStateAsync()).is_playing;
+      this.isPlaying =
+        (await this.getPlaybackStateAsync())?.is_playing || false;
       this.lastIsPlayingPollTime = Date.now();
 
       return this.isPlaying;
@@ -75,7 +72,12 @@ export default class SpotifyPlayerService {
     try {
       if (this.useCachedDeviceId()) return this.activeDeviceId!;
 
-      this.activeDeviceId = (await this.getPlaybackStateAsync()).device.id;
+      const playbackState = await this.getPlaybackStateAsync();
+      if (!playbackState) {
+        throw new Error("No active Spotify player was found");
+      }
+
+      this.activeDeviceId = playbackState.device.id;
       this.lastDevicePollTime = Date.now();
 
       return this.activeDeviceId;
@@ -92,17 +94,13 @@ export default class SpotifyPlayerService {
    * representing the current playback state, or null if no active player is found.
    * @throws {Error} If an error occurs while fetching the currently playing state.
    */
-  public async getCurrentlyPlaying(): Promise<SpotifyTrackDetails> {
+  public async getCurrentlyPlaying(): Promise<SpotifyTrackDetails | null> {
     try {
       const response = await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
         "/me/player/currently-playing"
       );
 
-      if (!response.data) {
-        throw new Error("No active Spotify player was found");
-      }
-
-      return response.data.item;
+      return response.data ? response.data.item : null;
     } catch (error) {
       logger.error("Error getting currently playing on Spotify", error);
       throw error;

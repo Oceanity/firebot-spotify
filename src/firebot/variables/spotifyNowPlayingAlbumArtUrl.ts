@@ -13,9 +13,11 @@ export const SpotifyNowPlayingAlbumArtUrlVariable: ReplaceVariable = {
     try {
       if (!(await spotify.player.isPlayingAsync())) return "";
 
-      return (await spotify.player.getCurrentlyPlaying()).album.images.sort(
-        (a, b) => b.width - a.width
-      );
+      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
+
+      return currentlyPlaying
+        ? currentlyPlaying.album.images.sort((a, b) => b.width - a.width)
+        : "";
     } catch (error) {
       return "";
     }

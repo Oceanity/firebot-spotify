@@ -13,7 +13,9 @@ export const SpotifyNowPlayingTitleVariable: ReplaceVariable = {
     try {
       if (!(await spotify.player.isPlayingAsync())) return "";
 
-      return (await spotify.player.getCurrentlyPlaying()).name;
+      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
+
+      return currentlyPlaying ? currentlyPlaying.name : "";
     } catch (error) {
       return "";
     }

@@ -13,7 +13,11 @@ export const SpotifyNowPlayingUrlVariable: ReplaceVariable = {
     try {
       if (!(await spotify.player.isPlayingAsync())) return "";
 
-      return (await spotify.player.getCurrentlyPlaying()).external_urls.spotify;
+      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
+
+      return currentlyPlaying
+        ? currentlyPlaying.artists[0].external_urls.spotify
+        : "";
     } catch (error) {
       return "";
     }

@@ -7,19 +7,11 @@ import {
   variableManager,
   eventManager,
 } from "@utils/firebot";
-import { SpotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
-import { SpotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
-import { SpotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStateEffect";
-import { SpotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
-import { SpotifySeekToPositionEffect } from "@effects/spotifySeekToPositionEffect";
-import { SpotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
 import { integrationId, spotify } from "@/main";
-import { SpotifyNowPlayingTitleVariable } from "@variables/spotifyNowPlayingTitleVariable";
-import { SpotifyNowPlayingArtistVariable } from "@variables/spotifyNowPlayingArtistVariable";
-import { SpotifyIsPlayingVariable } from "@variables/spotifyIsPlayingVariable";
-import { SpotifyNowPlayingAlbumArtUrlVariable } from "@variables/spotifyNowPlayingAlbumArtUrl";
-import { SpotifyNowPlayingUrlVariable } from "@variables/spotifyNowPlayingUrl";
-import { SpotifyEventSource } from "@utils/spotify/spotifyEventSource";
+import { AllSpotifyEffects } from "./firebot/effects";
+import { AllSpotifyReplaceVariables } from "./firebot/variables";
+import { SpotifyEventSource } from "./utils/spotify/spotifyEventSource";
+import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -48,25 +40,20 @@ export class SpotifyIntegration extends EventEmitter {
   init() {
     logger.info("Initializing Spotify Integration...");
 
-    // Premium Effects
-    effectManager.registerEffect(SpotifyFindAndEnqueueTrackEffect);
-    effectManager.registerEffect(SpotifyChangePlaybackStateEffect);
-    effectManager.registerEffect(SpotifyChangePlaybackVolumeEffect);
-    effectManager.registerEffect(SpotifyChangeRepeatStateEffect);
-    effectManager.registerEffect(SpotifySeekToPositionEffect);
-    effectManager.registerEffect(SpotifySkipTrackEffect);
-
-    // Free Events
-    eventManager.registerEventSource(SpotifyEventSource);
+    // Register Effects
+    for (const effect of AllSpotifyEffects) {
+      effectManager.registerEffect(
+        effect as Effects.EffectType<{ [key: string]: any }>
+      );
+    }
 
     // Free Replace Variables
-    variableManager.registerReplaceVariable(SpotifyIsPlayingVariable);
-    variableManager.registerReplaceVariable(SpotifyNowPlayingTitleVariable);
-    variableManager.registerReplaceVariable(SpotifyNowPlayingArtistVariable);
-    variableManager.registerReplaceVariable(
-      SpotifyNowPlayingAlbumArtUrlVariable
-    );
-    variableManager.registerReplaceVariable(SpotifyNowPlayingUrlVariable);
+    for (const variable of AllSpotifyReplaceVariables) {
+      variableManager.registerReplaceVariable(variable);
+    }
+
+    // Register Events
+    eventManager.registerEventSource(SpotifyEventSource);
 
     // Regularly check for track change
     setInterval(async () => {
@@ -75,7 +62,7 @@ export class SpotifyIntegration extends EventEmitter {
 
         const activeTrack = await spotify.player.getCurrentlyPlaying();
 
-        if (activeTrack.uri != this.currentTrack?.uri) {
+        if (activeTrack?.uri != this.currentTrack?.uri) {
           this.currentTrack = activeTrack;
           eventManager.triggerEvent("oceanity-spotify", "track-changed", {});
         }
