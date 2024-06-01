@@ -18,13 +18,13 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
 - Take note of the Client ID and Client Secret, these are required to use this script
 - In Firebot, go to Settings > Scripts
   - Enable Custom Scripts if they are not currently enabled
-- Click Manage Startup Scripts
-- Click Add New Script
-- Click the "scripts folder" link to open the Scripts Folder and place `oceanitySpotifyIntegration.js` there
-- Refresh the list of scripts and pick `oceanitySpotifyIntegration.js` from the dropdown
-- In Client Id and Client Secret fields, copy in the two codes from earlier
+  - Click Manage Startup Scripts
+  - Click Add New Script
+  - Click the "scripts folder" link to open the Scripts Folder and place `oceanitySpotifyIntegration.js` there
+  - Refresh the list of scripts and pick `oceanitySpotifyIntegration.js` from the dropdown
+  - In Client Id and Client Secret fields, copy in the two codes from earlier
 - Go to Settings > Integrations and click Link next to Spotify (by Oceanity)
-- Log in and authorize on the page that pops up
+  - Log in and authorize on the page that pops up
 - You should now have the ability to use this script's Effects, Events and Replace Variables in Firebot
 
 ---
