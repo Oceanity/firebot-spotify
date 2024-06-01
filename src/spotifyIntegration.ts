@@ -5,6 +5,7 @@ import {
   integrationManager,
   effectManager,
   variableManager,
+  eventManager,
 } from "@utils/firebot";
 import { SpotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
 import { SpotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
@@ -12,12 +13,13 @@ import { SpotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStat
 import { SpotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
 import { SpotifySeekToPositionEffect } from "@effects/spotifySeekToPositionEffect";
 import { SpotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
-import { integrationId } from "@/main";
+import { integrationId, spotify } from "@/main";
 import { SpotifyNowPlayingTitleVariable } from "@variables/spotifyNowPlayingTitleVariable";
 import { SpotifyNowPlayingArtistVariable } from "@variables/spotifyNowPlayingArtistVariable";
 import { SpotifyIsPlayingVariable } from "@variables/spotifyIsPlayingVariable";
-import { SpotifyNowPlayingAlbumArtUrlVariable } from "./firebot/variables/spotifyNowPlayingAlbumArtUrl";
-import { SpotifyNowPlayingUrlVariable } from "./firebot/variables/spotifyNowPlayingUrl";
+import { SpotifyNowPlayingAlbumArtUrlVariable } from "@variables/spotifyNowPlayingAlbumArtUrl";
+import { SpotifyNowPlayingUrlVariable } from "@variables/spotifyNowPlayingUrl";
+import { SpotifyEventSource } from "@utils/spotify/spotifyEventSource";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -35,6 +37,8 @@ let spotifyDefinition: IntegrationDefinition | null = null;
 
 export class SpotifyIntegration extends EventEmitter {
   connected: boolean = false;
+  currentTrack: SpotifyTrackDetails | null = null;
+  private readonly secondsToCheckNowPlaying: number = 5;
 
   constructor(client: ClientCredentials) {
     super();
@@ -52,6 +56,9 @@ export class SpotifyIntegration extends EventEmitter {
     effectManager.registerEffect(SpotifySeekToPositionEffect);
     effectManager.registerEffect(SpotifySkipTrackEffect);
 
+    // Free Events
+    eventManager.registerEventSource(SpotifyEventSource);
+
     // Free Replace Variables
     variableManager.registerReplaceVariable(SpotifyIsPlayingVariable);
     variableManager.registerReplaceVariable(SpotifyNowPlayingTitleVariable);
@@ -60,6 +67,22 @@ export class SpotifyIntegration extends EventEmitter {
       SpotifyNowPlayingAlbumArtUrlVariable
     );
     variableManager.registerReplaceVariable(SpotifyNowPlayingUrlVariable);
+
+    // Regularly check for track change
+    setInterval(async () => {
+      try {
+        if (!(await spotify.player.isPlayingAsync())) return;
+
+        const activeTrack = await spotify.player.getCurrentlyPlaying();
+
+        if (activeTrack.uri != this.currentTrack?.uri) {
+          this.currentTrack = activeTrack;
+          eventManager.triggerEvent("oceanity-spotify", "track-changed", {});
+        }
+      } catch (error) {
+        logger.error("Error checking track change on Spotify", error);
+      }
+    }, this.secondsToCheckNowPlaying * 1000);
   }
 
   async connect() {}
