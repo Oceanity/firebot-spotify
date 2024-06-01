@@ -1,4 +1,4 @@
-import { integrationManager } from "@utils/firebot";
+import { integrationManager, logger } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
@@ -17,14 +17,9 @@ export default class SpotifyAuthService {
    * @return {Promise<string>} The current access token.
    */
   public async getCurrentAccessTokenAsync(): Promise<string> {
-    const { access_token: accessToken, expires_on: expiresOn } =
-      this.getSpotifyAuthFromIntegration();
+    const { access_token: accessToken } = this.getSpotifyAuthFromIntegration();
 
-    if (
-      accessToken &&
-      (!this.tokenExpired(parseInt(expiresOn)) ||
-        (await this.spotifyIsConnectedAsync(accessToken)))
-    ) {
+    if (!(await this.tokenExpiredAsync(accessToken))) {
       return accessToken;
     }
 
@@ -35,7 +30,17 @@ export default class SpotifyAuthService {
   private getSpotifyAuthFromIntegration = (): AuthDefinition =>
     integrationManager.getIntegrationById(integrationId).definition.auth;
 
-  private tokenExpired = (expiresOn: number) => expiresOn < Date.now();
+  private async tokenExpiredAsync(accessToken: string | undefined) {
+    if (!accessToken) return true;
+
+    const { expires_on: expiresOn } = this.getSpotifyAuthFromIntegration();
+
+    if (
+      (expiresOn && parseInt(expiresOn) < Date.now()) ||
+      !(await this.spotifyIsConnectedAsync(accessToken))
+    )
+      return true;
+  }
 
   private spotifyIsConnectedAsync = async (accessToken: string) =>
     (

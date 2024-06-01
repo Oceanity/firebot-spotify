@@ -58,6 +58,8 @@ export class SpotifyIntegration extends EventEmitter {
     // Regularly check for track change
     setInterval(async () => {
       try {
+        if (!isLinked()) return;
+
         if (!(await spotify.player.isPlayingAsync())) return;
 
         const activeTrack = await spotify.player.getCurrentlyPlaying();
@@ -122,6 +124,10 @@ export class SpotifyIntegration extends EventEmitter {
         data["refresh_token"] = auth.refresh_token;
         data["expires_on"] = Date.now() + data.expires_in * 1000;
 
+        logger.info(
+          `New Token expires on ${new Date(data.expires_on).toDateString()}`
+        );
+
         updateIntegrationAuth(data);
 
         return data.access_token;
@@ -184,7 +190,9 @@ export let integration: SpotifyIntegration;
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
   integrationManager.getIntegrationById(integrationId).definition.auth;
-integrationManager.getIntegrationById(integrationId).definition.auth;
+
+const isLinked = () =>
+  integrationManager.getIntegrationById(integrationId).definition.linked;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (
@@ -201,7 +209,6 @@ const tokenPastExpiration = (expiresOn: string) =>
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
     integrationManager.getIntegrationById(integrationId);
-  integrationManager.getIntegrationById(integrationId);
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }
