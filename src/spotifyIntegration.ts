@@ -6,6 +6,7 @@ import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybac
 import { spotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStateEffect";
 import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
 import { spotifyGetCurrentlyPlayingEffect } from "@effects/spotifyGetCurrentlyPlayingTrackEffect";
+import { spotifySeekToPositionEffect } from "@effects/spotifySeekToPositionEffect";
 import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
 import { integrationId } from "@/main";
 
@@ -41,8 +42,9 @@ export class SpotifyIntegration extends EventEmitter {
     effectManager.registerEffect(spotifyFindAndEnqueueTrackEffect);
     effectManager.registerEffect(spotifyChangePlaybackStateEffect);
     effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
-    effectManager.registerEffect(spotifySkipTrackEffect);
     effectManager.registerEffect(spotifyChangeRepeatStateEffect);
+    effectManager.registerEffect(spotifySeekToPositionEffect);
+    effectManager.registerEffect(spotifySkipTrackEffect);
   }
 
   async connect() {}

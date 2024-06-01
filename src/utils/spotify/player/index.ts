@@ -89,6 +89,7 @@ export default class SpotifyPlayerService {
 
   /**
    * Resumes the current playback of the user's Spotify player if it is currently paused.
+   * *Requires Spotify Premium
    *
    * @return {Promise<void>} A promise that resolves when the Spotify playback is successfully resumed.
    * @throws {Error} If the Spotify player is already playing.
@@ -107,6 +108,7 @@ export default class SpotifyPlayerService {
 
   /**
    * Pauses the current playback of the user's Spotify player if it is currently playing.
+   * *Requires Spotify Premium
    *
    * @return {Promise<boolean>} A promise that resolves when the Spotify playback is successfully paused.
    * @throws {Error} If the Spotify player is not currently playing.
@@ -125,6 +127,7 @@ export default class SpotifyPlayerService {
 
   /**
    * Toggles the playback of the user's Spotify player between playing and paused states.
+   * *Requires Spotify Premium
    *
    * @return {Promise<void>} A promise that resolves when the Spotify playback is successfully toggled.
    * @throws {Error} If there is an error while toggling the playback state.
@@ -137,6 +140,7 @@ export default class SpotifyPlayerService {
 
   /**
    * Skips to the next track in the user's Spotify player.
+   * *Requires Spotify Premium
    *
    * @return {Promise<void>} A promise that resolves when the next track is successfully skipped.
    * @throws {Error} If the Spotify user is not premium or if there is an error skipping to the next track.
@@ -155,6 +159,7 @@ export default class SpotifyPlayerService {
 
   /**
    * Skips to the previous track in the user's Spotify player.
+   * *Requires Spotify Premium
    *
    * @return {Promise<void>} A promise that resolves when the previous track is successfully skipped.
    * @throws {Error} If the Spotify user is not premium or if there is an error skipping to the previous track.
@@ -172,7 +177,40 @@ export default class SpotifyPlayerService {
   }
 
   /**
+   * Seeks to a specific position in the user's Spotify player.
+   * *Requires Spotify Premium
+   *
+   * @param {number} positionMS - The position in milliseconds to seek to. Must be greater than 0.
+   * @return {Promise<void>} A promise that resolves when the seek is successfully completed.
+   * @throws {Error} If the position is not greater than 0 or if the Spotify user is not premium.
+   */
+  public async seekToPositionAsync(positionMS: number) {
+    try {
+      if (positionMS < 0) throw new Error("Position must be greater than 0");
+
+      if (!(await this.spotify.me.isUserPremiumAsync()))
+        throw new Error("Spotify Premium required to seek");
+
+      const deviceId = await this.spotify.player.getActiveDeviceIdAsync();
+
+      await this.spotify.api.fetch(
+        `/me/player/seek?position_ms=${positionMS}`,
+        "POST",
+        {
+          body: {
+            device_id: deviceId,
+          },
+        }
+      );
+    } catch (error) {
+      logger.error("Error seeking to position on Spotify", error);
+      throw error;
+    }
+  }
+
+  /**
    * Sets the volume of the user's Spotify player.
+   * *Requires Spotify Premium
    *
    * @param {number} volume - The volume to set. Must be a number between 0 and 100.
    * @return {Promise<void>} A promise that resolves when the volume is successfully set.
@@ -194,6 +232,7 @@ export default class SpotifyPlayerService {
 
   /**
    * Sets the repeat state of the user's Spotify player.
+   * *Requires Spotify Premium
    *
    * @param {SpotifyRepeatState} repeatState - The repeat state to set.
    * @return {Promise<void>} A promise that resolves when the repeat state is successfully set.
