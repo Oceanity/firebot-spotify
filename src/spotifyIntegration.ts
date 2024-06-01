@@ -1,13 +1,17 @@
 const EventEmitter = require("events");
 import ResponseError from "@models/responseError";
-import { logger, integrationManager, effectManager } from "@utils/firebot";
-import { spotifyChangePlaybackStateEffect } from "@effects/spotifyChangePlaybackStateEffect";
-import { spotifyChangePlaybackVolumeEffect } from "@effects/spotifyChangePlaybackVolumeEffect";
-import { spotifyChangeRepeatStateEffect } from "@effects/spotifyChangeRepeatStateEffect";
-import { spotifyFindAndEnqueueTrackEffect } from "@effects/spotifyFindAndEnqueueTrackEffect";
-import { spotifyGetCurrentlyPlayingEffect } from "@effects/spotifyGetCurrentlyPlayingTrackEffect";
-import { spotifySkipTrackEffect } from "@effects/spotifySkipTrackEffect";
-import { integrationId } from "@/main";
+import {
+  logger,
+  integrationManager,
+  effectManager,
+  variableManager,
+  eventManager,
+} from "@utils/firebot";
+import { integrationId, spotify } from "@/main";
+import { AllSpotifyEffects } from "./firebot/effects";
+import { AllSpotifyReplaceVariables } from "./firebot/variables";
+import { SpotifyEventSource } from "./utils/spotify/spotifyEventSource";
+import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -25,6 +29,8 @@ let spotifyDefinition: IntegrationDefinition | null = null;
 
 export class SpotifyIntegration extends EventEmitter {
   connected: boolean = false;
+  currentTrack: SpotifyTrackDetails | null = null;
+  private readonly secondsToCheckNowPlaying: number = 5;
 
   constructor(client: ClientCredentials) {
     super();
@@ -34,15 +40,36 @@ export class SpotifyIntegration extends EventEmitter {
   init() {
     logger.info("Initializing Spotify Integration...");
 
-    // Free Effects
-    effectManager.registerEffect(spotifyGetCurrentlyPlayingEffect);
+    // Register Effects
+    for (const effect of AllSpotifyEffects) {
+      effectManager.registerEffect(
+        effect as Effects.EffectType<{ [key: string]: any }>
+      );
+    }
 
-    // Premium Effects
-    effectManager.registerEffect(spotifyFindAndEnqueueTrackEffect);
-    effectManager.registerEffect(spotifyChangePlaybackStateEffect);
-    effectManager.registerEffect(spotifyChangePlaybackVolumeEffect);
-    effectManager.registerEffect(spotifySkipTrackEffect);
-    effectManager.registerEffect(spotifyChangeRepeatStateEffect);
+    // Free Replace Variables
+    for (const variable of AllSpotifyReplaceVariables) {
+      variableManager.registerReplaceVariable(variable);
+    }
+
+    // Register Events
+    eventManager.registerEventSource(SpotifyEventSource);
+
+    // Regularly check for track change
+    setInterval(async () => {
+      try {
+        if (!(await spotify.player.isPlayingAsync())) return;
+
+        const activeTrack = await spotify.player.getCurrentlyPlaying();
+
+        if (activeTrack?.uri != this.currentTrack?.uri) {
+          this.currentTrack = activeTrack;
+          eventManager.triggerEvent("oceanity-spotify", "track-changed", {});
+        }
+      } catch (error) {
+        logger.error("Error checking track change on Spotify", error);
+      }
+    }, this.secondsToCheckNowPlaying * 1000);
   }
 
   async connect() {}

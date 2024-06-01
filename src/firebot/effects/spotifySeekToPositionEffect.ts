@@ -2,36 +2,53 @@ import { spotify } from "@/main";
 import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
-export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
+export const SpotifySeekToPositionEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {
-    id: "oceanity-spotify:change-playback-volume",
-    name: "Spotify Premium: Change Playback Volume",
-    description: "Changes playback volume of active Spotify device",
+    id: "oceanity-spotify:seek-to-position",
+    name: "Spotify Premium: Seek To Position",
+    description: "Seeks to position in track",
     icon: "fab fa-spotify",
     categories: ["integrations"],
     //@ts-expect-error ts2353
     outputs: [
       {
-        label: "Volume was changed",
-        description:
-          "Will be true if the playback volume was changed successfully, false if not.",
-        defaultName: "volumeChanged",
+        label: "Seek was successful",
+        description: "Will be true if the seek was successful, false if not.",
+        defaultName: "seekSuccessful",
       },
       {
         label: "Error Message",
         description:
-          "If the playback volume was not changed successfully, will contain an error message.",
+          "If the seek was not successful, will contain an error message.",
         defaultName: "error",
       },
     ],
   },
 
   optionsTemplate: `
-    <eos-container header="Playback Volume" pad-top="true">
+    <eos-container header="Seek Position (ms)" pad-top="true">
       <p class="muted">Playback Volume (must be integer between 0-100)</p>
       <input ng-model="effect.volume" type="text" class="form-control" id="chat-text-setting" placeholder="Volume" menu-position="under" replace-variables/>
+    </eos-container>
+    <eos-container header="Playback State">
+      <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="list-effect-type">{{effect.playState ? effect.playState : 'Play'}}</span> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li ng-click="effect.playState = 'Play'">
+            <a href>Play</a>
+          </li>
+          <li ng-click="effect.playState = 'Pause'">
+            <a href>Pause</a>
+          </li>
+          <li ng-click="effect.playState = 'Toggle'">
+            <a href>Toggle</a>
+          </li>
+        </ul>
+      </div>
     </eos-container>
   `,
 
