@@ -10,9 +10,9 @@ export default class SpotifyPlayerService {
   private activeDeviceId: string | null = null;
   private lastDevicePollTime: number | null = null;
 
-  private readonly secondsToCacheIsPlaying: number = 5;
-  private isPlaying: boolean | null = null;
-  private lastIsPlayingPollTime: number | null = null;
+  private readonly secondsToCacheNowPlaying: number = 5;
+  private nowPlaying: SpotifyTrackDetails | null = null;
+  private lastNowPlayingPollTime: number | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -49,13 +49,11 @@ export default class SpotifyPlayerService {
    */
   public async isPlayingAsync(): Promise<boolean> {
     try {
-      if (this.useCachedIsPlaying()) return this.isPlaying!;
+      const playbackState = await this.getPlaybackStateAsync();
 
-      this.isPlaying =
-        (await this.getPlaybackStateAsync())?.is_playing || false;
-      this.lastIsPlayingPollTime = Date.now();
+      if (!playbackState) return false;
 
-      return this.isPlaying;
+      return playbackState.is_playing;
     } catch (error) {
       return false;
     }
@@ -96,11 +94,16 @@ export default class SpotifyPlayerService {
    */
   public async getCurrentlyPlaying(): Promise<SpotifyTrackDetails | null> {
     try {
-      const response = await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
-        "/me/player/currently-playing"
-      );
+      if (this.useCachedNowPlaying()) return this.nowPlaying!;
 
-      return response.data ? response.data.item : null;
+      this.nowPlaying =
+        (
+          await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
+            "/me/player/currently-playing"
+          )
+        )?.data?.item ?? null;
+
+      return this.nowPlaying;
     } catch (error) {
       logger.error("Error getting currently playing on Spotify", error);
       throw error;
@@ -134,7 +137,7 @@ export default class SpotifyPlayerService {
    */
   public async pauseAsync(): Promise<void> {
     try {
-      if (await this.isPlayingAsync())
+      if (!(await this.isPlayingAsync()))
         throw new Error("Spotify is not playing");
 
       await this.spotify.api.fetch("/me/player/pause", "PUT");
@@ -204,7 +207,7 @@ export default class SpotifyPlayerService {
    */
   public async seekToPositionAsync(positionMS: number) {
     try {
-      if (positionMS < 0) throw new Error("Position must be greater than 0");
+      if (positionMS < 0) positionMS = 0;
 
       if (!(await this.spotify.me.isUserPremiumAsync()))
         throw new Error("Spotify Premium required to seek");
@@ -213,7 +216,7 @@ export default class SpotifyPlayerService {
 
       await this.spotify.api.fetch(
         `/me/player/seek?position_ms=${positionMS}`,
-        "POST",
+        "PUT",
         {
           body: {
             device_id: deviceId,
@@ -279,10 +282,10 @@ export default class SpotifyPlayerService {
     Date.now() - this.lastDevicePollTime <
       this.minutesToCacheDeviceId * 60 * 1000;
 
-  private useCachedIsPlaying = () =>
-    this.isPlaying &&
-    this.lastIsPlayingPollTime &&
-    Date.now() - this.lastIsPlayingPollTime <
-      this.secondsToCacheIsPlaying * 1000;
+  private useCachedNowPlaying = () =>
+    this.nowPlaying &&
+    this.lastNowPlayingPollTime &&
+    Date.now() - this.lastNowPlayingPollTime <
+      this.secondsToCacheNowPlaying * 1000;
   //#endregion
 }

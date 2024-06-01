@@ -1,4 +1,4 @@
-import { integrationManager, logger } from "@utils/firebot";
+import { integrationManager } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";

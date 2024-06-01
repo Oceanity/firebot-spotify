@@ -60,11 +60,10 @@ export class SpotifyIntegration extends EventEmitter {
       try {
         if (!isLinked()) return;
 
-        if (!(await spotify.player.isPlayingAsync())) return;
-
         const activeTrack = await spotify.player.getCurrentlyPlaying();
+        if (!activeTrack) return;
 
-        if (activeTrack?.uri != this.currentTrack?.uri) {
+        if (!this.currentTrack || activeTrack.uri != this.currentTrack.uri) {
           this.currentTrack = activeTrack;
           eventManager.triggerEvent("oceanity-spotify", "track-changed", {});
         }
