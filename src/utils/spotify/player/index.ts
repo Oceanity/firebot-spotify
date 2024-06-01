@@ -6,6 +6,10 @@ export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
   public readonly queue: SpotifyQueueService;
 
+  private activeDeviceId: string | null = null;
+  private lastDevicePollTime: number | null = null;
+  private readonly minutesToCacheDeviceId: number = 15;
+
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
 
@@ -36,6 +40,36 @@ export default class SpotifyPlayerService {
     }
   }
 
+  /**
+   * Gets the active device ID of the user's Spotify player if an active device is found.
+   *
+   * @return {Promise<string>} A promise that resolves to a string representing the
+   * active device ID, or null if no active player is found.
+   * @throws {Error} If an error occurs while fetching the active device ID.
+   */
+  public async getActiveDeviceIdAsync(): Promise<string> {
+    try {
+      if (this.useCachedDeviceId()) return this.activeDeviceId!;
+
+      const deviceId = await this.getActiveDeviceIdAsync();
+
+      this.activeDeviceId = deviceId;
+      this.lastDevicePollTime = Date.now();
+
+      return deviceId;
+    } catch (error) {
+      logger.error("Error getting active device ID on Spotify", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets the current playback state of the user's Spotify player if an active device is found.
+   *
+   * @return {Promise<SpotifyCurrentlyPlaying>} A promise that resolves to a SpotifyCurrentlyPlaying object
+   * representing the current playback state, or null if no active player is found.
+   * @throws {Error} If an error occurs while fetching the currently playing state.
+   */
   public async getCurrentlyPlaying(): Promise<SpotifyCurrentlyPlaying> {
     try {
       const response = await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
@@ -180,4 +214,10 @@ export default class SpotifyPlayerService {
       logger.error("Error toggling Spotify playback", error);
     }
   }
+
+  private useCachedDeviceId = () =>
+    this.activeDeviceId &&
+    this.lastDevicePollTime &&
+    Date.now() - this.lastDevicePollTime <
+      this.minutesToCacheDeviceId * 60 * 1000;
 }
