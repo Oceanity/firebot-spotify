@@ -6,9 +6,13 @@ export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
   public readonly queue: SpotifyQueueService;
 
+  private readonly minutesToCacheDeviceId: number = 15;
   private activeDeviceId: string | null = null;
   private lastDevicePollTime: number | null = null;
-  private readonly minutesToCacheDeviceId: number = 15;
+
+  private readonly secondsToCacheIsPlaying: number = 5;
+  private isPlaying: boolean | null = null;
+  private lastIsPlayingPollTime: number | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -49,7 +53,12 @@ export default class SpotifyPlayerService {
    */
   public async isPlayingAsync(): Promise<boolean> {
     try {
-      return (await this.getPlaybackStateAsync()).is_playing;
+      if (this.useCachedIsPlaying()) return this.isPlaying!;
+
+      this.isPlaying = (await this.getPlaybackStateAsync()).is_playing;
+      this.lastIsPlayingPollTime = Date.now();
+
+      return this.isPlaying;
     } catch (error) {
       return false;
     }
@@ -66,12 +75,10 @@ export default class SpotifyPlayerService {
     try {
       if (this.useCachedDeviceId()) return this.activeDeviceId!;
 
-      const deviceId = (await this.getPlaybackStateAsync()).device.id;
-
-      this.activeDeviceId = deviceId;
+      this.activeDeviceId = (await this.getPlaybackStateAsync()).device.id;
       this.lastDevicePollTime = Date.now();
 
-      return deviceId;
+      return this.activeDeviceId;
     } catch (error) {
       logger.error("Error getting active device ID on Spotify", error);
       throw error;
@@ -267,9 +274,17 @@ export default class SpotifyPlayerService {
     }
   }
 
+  //#region Helper Methods
   private useCachedDeviceId = () =>
     this.activeDeviceId &&
     this.lastDevicePollTime &&
     Date.now() - this.lastDevicePollTime <
       this.minutesToCacheDeviceId * 60 * 1000;
+
+  private useCachedIsPlaying = () =>
+    this.isPlaying &&
+    this.lastIsPlayingPollTime &&
+    Date.now() - this.lastIsPlayingPollTime <
+      this.secondsToCacheIsPlaying * 1000;
+  //#endregion
 }

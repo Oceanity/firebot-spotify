@@ -16,6 +16,8 @@ import { integrationId } from "@/main";
 import { SpotifyNowPlayingTitleVariable } from "@variables/spotifyNowPlayingTitleVariable";
 import { SpotifyNowPlayingArtistVariable } from "@variables/spotifyNowPlayingArtistVariable";
 import { SpotifyIsPlayingVariable } from "@variables/spotifyIsPlayingVariable";
+import { SpotifyNowPlayingAlbumArtUrlVariable } from "./firebot/variables/spotifyNowPlayingAlbumArtUrl";
+import { SpotifyNowPlayingUrlVariable } from "./firebot/variables/spotifyNowPlayingUrl";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -54,6 +56,10 @@ export class SpotifyIntegration extends EventEmitter {
     variableManager.registerReplaceVariable(SpotifyIsPlayingVariable);
     variableManager.registerReplaceVariable(SpotifyNowPlayingTitleVariable);
     variableManager.registerReplaceVariable(SpotifyNowPlayingArtistVariable);
+    variableManager.registerReplaceVariable(
+      SpotifyNowPlayingAlbumArtUrlVariable
+    );
+    variableManager.registerReplaceVariable(SpotifyNowPlayingUrlVariable);
   }
 
   async connect() {}
