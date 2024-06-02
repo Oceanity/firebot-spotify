@@ -15,6 +15,16 @@ export const SpotifyEventSource = {
       },
     },
     {
+      id: "playback-state-changed",
+      name: "Playback State Changed",
+      description: "Spotify playback state changed",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify playback state changed",
+      },
+    },
+    {
       id: "track-changed",
       name: "Track Changed",
       description: "Currently playing Spotify track changed",

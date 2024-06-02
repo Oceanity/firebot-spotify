@@ -12,7 +12,6 @@ export default class SpotifyApiService {
   }
 
   public readonly baseUrl = "https://api.spotify.com/v1";
-
   public getUrlFromPath = (path: string): string => `${baseUrl}${path}`;
 
   public async fetch<T>(
@@ -38,19 +37,10 @@ export default class SpotifyApiService {
         );
       }
 
-      // If no data response, return to avoid throwing an error
-      if (response.status === 204) {
-        return {
-          status: response.status,
-          data: null,
-        };
-      }
-
-      const data: T = await response.json();
-
       return {
         status: response.status,
-        data,
+        ok: response.ok,
+        data: response.status === 204 ? null : ((await response.json()) as T),
       };
     } catch (error) {
       logger.error("Error making Spotify API request", error);

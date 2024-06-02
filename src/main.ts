@@ -16,7 +16,7 @@ const script: Firebot.CustomScript<Params> = {
       name: "Firebot Spotify Integrations",
       description: "Let your viewers determine your taste in music",
       author: "Oceanity",
-      version: "0.5.0",
+      version: "0.6.0",
       firebotVersion: "5",
     };
   },

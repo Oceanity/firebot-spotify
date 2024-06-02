@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity
+# Spotify Integration by Oceanity <sub style="color:gray">v0.6</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
@@ -38,21 +38,29 @@ This script adds the following features to Firebot
 **Spotify Premium Required**
 
 - Effects
+  - Change Playback State
+  - Change Repeat Mode
+  - Change Volume
   - Find and Enqueue Track
-  - Play/Pause active Spotify device
-  - Change volume
-  - Change repeat mode
-  - Change shuffle mode
+  - Seek to Position
+  - Skip Track
 
 **Any Spotify Account**
 
 - Replace Variables
   - spotifyIsPlaying: `bool`
-  - spotifyNowPlayingAlbum: `string`
-  - spotifyNowPlayingAlbumArtUrl: `string`
-  - spotifyNowPlayingArtist: `string`
-  - spotifyNowPlayingArtists: `string[]`
-  - spotifyNowPlayingTitle: `string`
-  - spotifyNowPlayingUrl: `string`
+  - spotifyTrackAlbum: `string`
+  - spotifyTrackAlbumArtUrl: `string`
+  - spotifyTrackArtist: `string`
+  - spotifyTrackArtists: `string[]`
+  - spotifyTrackDuration: `string`
+  - spotifyTrackDurationMs: `number`
+  - spotifyTrackPosition: `string`
+  - spotifyTrackPositionMs: `number`
+  - spotifyTrackRelativePosition: `float`
+  - spotifyTrackTitle: `string`
+  - spotifyTrackUrl: `string`
 - Events
+  - Spotify Tick
+  - Playback State Changed
   - Track Changed

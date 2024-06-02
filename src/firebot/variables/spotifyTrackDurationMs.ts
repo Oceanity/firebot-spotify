@@ -1,14 +1,14 @@
 import { spotify } from "@/main";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
-export const SpotifyNowPlayingPositionMsVariable: ReplaceVariable = {
+export const SpotifyTrackDurationMsVariable: ReplaceVariable = {
   definition: {
-    handle: "spotifyNowPlayingPositionMs",
+    handle: "spotifyTrackDurationMs",
     description:
       "Gets total length of playing track on Spotify as milliseconds or -1 if not playing",
-    usage: "spotifyNowPlayingPositionMs",
+    usage: "spotifyTrackDurationMs",
     possibleDataOutput: ["number"],
   },
   evaluator: async () =>
-    spotify.player.track ? spotify.player.track.positionMs : -1,
+    spotify.player.track ? spotify.player.track.durationMs : -1,
 };

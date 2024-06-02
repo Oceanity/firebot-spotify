@@ -1,12 +1,12 @@
 import { spotify } from "@/main";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
-export const SpotifyNowPlayingTitleVariable: ReplaceVariable = {
+export const SpotifyTrackTitleVariable: ReplaceVariable = {
   definition: {
-    handle: "spotifyNowPlayingTitle",
+    handle: "spotifyTrackTitle",
     description:
       "Gets the title of the currently playing track on Spotify or empty string if not playing",
-    usage: "spotifyNowPlayingTitle",
+    usage: "spotifyTrackTitle",
     possibleDataOutput: ["text"],
   },
   evaluator: async () => spotify.player.track?.title ?? "",

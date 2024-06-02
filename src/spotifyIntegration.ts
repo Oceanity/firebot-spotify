@@ -10,7 +10,7 @@ import {
 import { integrationId, spotify } from "@/main";
 import { AllSpotifyEffects } from "./firebot/effects";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
-import { SpotifyEventSource } from "./utils/spotify/spotifyEventSource";
+import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 
 const spotifyScopes = [
