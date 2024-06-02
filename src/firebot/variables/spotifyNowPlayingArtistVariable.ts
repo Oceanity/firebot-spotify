@@ -9,15 +9,5 @@ export const SpotifyNowPlayingArtistVariable: ReplaceVariable = {
     usage: "spotifyNowPlayingArtist",
     possibleDataOutput: ["text"],
   },
-  async evaluator() {
-    try {
-      if (!(await spotify.player.isPlayingAsync())) return "";
-
-      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
-
-      return currentlyPlaying ? currentlyPlaying.artists[0].name : "";
-    } catch (error) {
-      return "";
-    }
-  },
+  evaluator: async () => spotify.player.track?.artists[0] ?? "",
 };

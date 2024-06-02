@@ -4,7 +4,12 @@ import { SpotifyNowPlayingArtistsVariable } from "./spotifyNowPlayingArtistsVari
 import { SpotifyNowPlayingAlbumVariable } from "./spotifyNowPlayingAlbum";
 import { SpotifyNowPlayingAlbumArtUrlVariable } from "./spotifyNowPlayingAlbumArtUrl";
 import { SpotifyNowPlayingTitleVariable } from "./spotifyNowPlayingTitleVariable";
-import { SpotifyNowPlayingUrlVariable } from "./spotifyNowPlayingUrl";
+import { SpotifyNowPlayingUriVariable } from "./spotifyNowPlayingUri";
+import { SpotifyNowPlayingDurationVariable } from "./spotifyNowPlayingDuration";
+import { SpotifyNowPlayingDurationMsVariable } from "./spotifyNowPlayingDurationMs";
+import { SpotifyNowPlayingPositionVariable } from "./spotifyNowPlayingPosition";
+import { SpotifyNowPlayingPositionMsVariable } from "./spotifyNowPlayingPositionMs";
+import { SpotifyNowPlayingRelativePositionVariable } from "./spotifyNowPlayingRelativePosition";
 
 export const AllSpotifyReplaceVariables = [
   SpotifyIsPlayingVariable,
@@ -13,5 +18,10 @@ export const AllSpotifyReplaceVariables = [
   SpotifyNowPlayingAlbumVariable,
   SpotifyNowPlayingAlbumArtUrlVariable,
   SpotifyNowPlayingTitleVariable,
-  SpotifyNowPlayingUrlVariable,
+  SpotifyNowPlayingUriVariable,
+  SpotifyNowPlayingDurationVariable,
+  SpotifyNowPlayingDurationMsVariable,
+  SpotifyNowPlayingPositionVariable,
+  SpotifyNowPlayingPositionMsVariable,
+  SpotifyNowPlayingRelativePositionVariable,
 ];

@@ -21,7 +21,7 @@ export default class SpotifyApiService {
     options?: any
   ) {
     try {
-      const accessToken = await this.spotify.auth.getCurrentAccessTokenAsync();
+      const accessToken = await this.spotify.auth.accessToken;
 
       const response = await fetch(this.getUrlFromPath(endpoint), {
         method,

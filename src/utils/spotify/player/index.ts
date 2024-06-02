@@ -1,6 +1,21 @@
-import { logger } from "@utils/firebot";
+import { effectManager, eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import SpotifyQueueService from "./queue";
+import { delay } from "@/utils/timing";
+import { msToFormattedString } from "@/utils/strings";
+
+type SpotifyTrackSummary = {
+  title: string;
+  artists: string[];
+  album: string;
+  albumArtUrl: string;
+  url: string;
+  durationMs: number;
+  duration: string;
+  positionMs: number;
+  position: string;
+  relativePosition: number;
+};
 
 export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
@@ -10,15 +25,63 @@ export default class SpotifyPlayerService {
   private activeDeviceId: string | null = null;
   private lastDevicePollTime: number | null = null;
 
-  private readonly secondsToCacheNowPlaying: number = 5;
-  private nowPlaying: SpotifyTrackDetails | null = null;
-  private cachedNowPlayingExpires: number | null = null;
+  // Obscured vars
+  private _deviceId: string | null = null;
+  private _progressMs: number = 0;
+  private _isPlaying: boolean = false;
+  private _track: SpotifyTrackDetails | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
 
     this.queue = new SpotifyQueueService(this.spotify);
   }
+
+  public init() {
+    this.updatePlaybackState();
+  }
+
+  //#region Getters
+
+  /**
+   * Gets the current playback state of the user's Spotify player.
+   *
+   * @returns {boolean} `true` if Spotify is currently playing, `false` if not.
+   */
+  public get isPlaying(): boolean {
+    return this._isPlaying;
+  }
+
+  /**
+   * Gets the currently playing track summary, or null if no track is playing.
+   *
+   * @return {SpotifyTrackSummary | null} The currently playing track summary, or null if not playing.
+   */
+  public get track(): SpotifyTrackSummary | null {
+    // Return null if no track is playing
+    if (!this._track) return null;
+
+    // Map artists to just their names
+    const artists = this._track.artists.map((a) => a.name);
+
+    // Get the URL of the biggest image for the album
+    const albumArtUrl = this.getBiggestImage(this._track.album.images).url;
+
+    return {
+      title: this._track.name,
+      artists,
+      album: this._track.album.name,
+      albumArtUrl,
+      url: this._track.external_urls.spotify,
+      durationMs: this._track.duration_ms,
+      duration: msToFormattedString(this._track.duration_ms, false),
+      positionMs: this._progressMs,
+      position: msToFormattedString(this._progressMs, false),
+      relativePosition: this._progressMs / this._track.duration_ms,
+    };
+  }
+
+  //#endregion
 
   /**
    * Gets the current playback state of the user's Spotify player if an active device is found.
@@ -37,25 +100,6 @@ export default class SpotifyPlayerService {
     } catch (error) {
       logger.error("Error getting playback state on Spotify", error);
       throw error;
-    }
-  }
-
-  /**
-   * Checks if the user's Spotify player is currently playing.
-   *
-   * @return {Promise<boolean>} A promise that resolves to a boolean indicating
-   * whether the Spotify player is currently playing.
-   * @throws {Error} If an error occurs while fetching the playback state.
-   */
-  public async isPlayingAsync(): Promise<boolean> {
-    try {
-      const playbackState = await this.getPlaybackStateAsync();
-
-      if (!playbackState) return false;
-
-      return playbackState.is_playing;
-    } catch (error) {
-      return false;
     }
   }
 
@@ -86,31 +130,12 @@ export default class SpotifyPlayerService {
   }
 
   /**
-   * Gets the current playback state of the user's Spotify player if an active device is found.
+   * Gets the currently playing track.
    *
-   * @return {Promise<SpotifyCurrentlyPlaying>} A promise that resolves to a SpotifyCurrentlyPlaying object
-   * representing the current playback state, or null if no active player is found.
-   * @throws {Error} If an error occurs while fetching the currently playing state.
+   * @return {SpotifyTrackDetails | null} The currently playing track, or null if no track is playing.
    */
-  public async getCurrentlyPlaying(): Promise<SpotifyTrackDetails | null> {
-    try {
-      if (this.useCachedNowPlaying()) return this.nowPlaying!;
-
-      this.nowPlaying =
-        (
-          await this.spotify.api.fetch<SpotifyCurrentlyPlaying>(
-            "/me/player/currently-playing"
-          )
-        )?.data?.item ?? null;
-      this.cachedNowPlayingExpires =
-        Date.now() + this.secondsToCacheNowPlaying * 1000;
-
-      return this.nowPlaying;
-    } catch (error) {
-      logger.error("Error getting currently playing on Spotify", error);
-      throw error;
-    }
-  }
+  public readonly getCurrentlyPlaying = (): SpotifyTrackDetails | null =>
+    this._track;
 
   /**
    * Resumes the current playback of the user's Spotify player if it is currently paused.
@@ -121,8 +146,7 @@ export default class SpotifyPlayerService {
    */
   public async playAsync(): Promise<void> {
     try {
-      if (await this.isPlayingAsync())
-        throw new Error("Spotify is already playing");
+      if (this.isPlaying) throw new Error("Spotify is already playing");
 
       await this.spotify.api.fetch("/me/player/play", "PUT");
     } catch (error) {
@@ -139,8 +163,7 @@ export default class SpotifyPlayerService {
    */
   public async pauseAsync(): Promise<void> {
     try {
-      if (!(await this.isPlayingAsync()))
-        throw new Error("Spotify is not playing");
+      if (!this.isPlaying) throw new Error("Spotify is not playing");
 
       await this.spotify.api.fetch("/me/player/pause", "PUT");
     } catch (error) {
@@ -156,9 +179,7 @@ export default class SpotifyPlayerService {
    * @throws {Error} If there is an error while toggling the playback state.
    */
   public async playPauseAsync(): Promise<void> {
-    return (await this.isPlayingAsync())
-      ? await this.pauseAsync()
-      : await this.playAsync();
+    return this.isPlaying ? await this.pauseAsync() : await this.playAsync();
   }
 
   /**
@@ -277,17 +298,73 @@ export default class SpotifyPlayerService {
     }
   }
 
+  //#region Continuous methods
+  private async updatePlaybackState(): Promise<void> {
+    const start = Date.now();
+
+    try {
+      if (!this.spotify.auth.isLinked) {
+        this.clearNowPlaying();
+        return this.tick(start);
+      }
+
+      const state =
+        (await this.spotify.api.fetch<SpotifyPlayer>("/me/player")).data ??
+        null;
+
+      if (!state) {
+        this.clearNowPlaying();
+        return this.tick(start);
+      }
+
+      if (this._isPlaying != state.is_playing) {
+        this._isPlaying = state.is_playing;
+      }
+
+      this._progressMs = state.progress_ms;
+
+      const nextTrack = state.item;
+
+      // If track has changed, fire event
+      if (this._track?.uri != nextTrack?.uri) {
+        this._track = nextTrack;
+        eventManager.triggerEvent(
+          "oceanity-spotify",
+          "track-changed",
+          this.track ?? {}
+        );
+      }
+      return this.tick(start);
+    } catch (error) {
+      logger.error("Error checking track change on Spotify", error);
+
+      this.clearNowPlaying();
+      return this.tick(start);
+    }
+  }
+  //#endregion
+
   //#region Helper Methods
+  private readonly getBiggestImage = (images: SpotifyImage[]) =>
+    images.reduce((a, b) => (a.width > b.width ? a : b));
+
   private useCachedDeviceId = () =>
     this.activeDeviceId != null &&
     this.lastDevicePollTime != null &&
     Date.now() - this.lastDevicePollTime <
       this.minutesToCacheDeviceId * 60 * 1000;
 
-  private useCachedNowPlaying = () =>
-    this.nowPlaying != null &&
-    this.cachedNowPlayingExpires != null &&
-    Date.now() - this.cachedNowPlayingExpires <
-      this.secondsToCacheNowPlaying * 1000;
+  private clearNowPlaying(): void {
+    this._isPlaying = false;
+    this._track = null;
+    this._progressMs = 0;
+  }
+
+  private async tick(start: number): Promise<void> {
+    logger.info("tick");
+    eventManager.triggerEvent("oceanity-spotify", "tick", {});
+    await delay(1000, start);
+    return this.updatePlaybackState();
+  }
   //#endregion
 }

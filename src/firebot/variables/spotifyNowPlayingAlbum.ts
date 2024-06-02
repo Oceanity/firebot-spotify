@@ -9,15 +9,5 @@ export const SpotifyNowPlayingAlbumVariable: ReplaceVariable = {
     usage: "spotifyNowPlayingAlbum",
     possibleDataOutput: ["text"],
   },
-  async evaluator() {
-    try {
-      if (!(await spotify.player.isPlayingAsync())) return "";
-
-      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
-
-      return currentlyPlaying ? currentlyPlaying.album.name : "";
-    } catch (error) {
-      return "";
-    }
-  },
+  evaluator: async () => spotify.player.track?.album ?? "",
 };

@@ -1,7 +1,7 @@
 import { spotify } from "@/main";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
-export const SpotifyNowPlayingUrlVariable: ReplaceVariable = {
+export const SpotifyNowPlayingUriVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyNowPlayingUrl",
     description:
@@ -9,17 +9,5 @@ export const SpotifyNowPlayingUrlVariable: ReplaceVariable = {
     usage: "spotifyNowPlayingUrl",
     possibleDataOutput: ["text"],
   },
-  async evaluator() {
-    try {
-      if (!(await spotify.player.isPlayingAsync())) return "";
-
-      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
-
-      return currentlyPlaying
-        ? currentlyPlaying.artists[0].external_urls.spotify
-        : "";
-    } catch (error) {
-      return "";
-    }
-  },
+  evaluator: async () => spotify.player.track?.url ?? "",
 };

@@ -11,11 +11,5 @@ export const SpotifyIsPlayingVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.BOOLEAN],
   },
-  async evaluator() {
-    try {
-      return await spotify.player.isPlayingAsync();
-    } catch (error) {
-      return false;
-    }
-  },
+  evaluator: async () => spotify.player.isPlaying,
 };

@@ -6,22 +6,10 @@ export const SpotifyNowPlayingArtistsVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyNowPlayingArtists",
     description:
-      "Gets all the artists of the currently playing track on Spotify or empty string if not playing",
+      "Gets all the artists of the currently playing track on Spotify as array or empty array if not playing",
     usage: "spotifyNowPlayingArtists",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.ARRAY],
   },
-  async evaluator() {
-    try {
-      if (!(await spotify.player.isPlayingAsync())) return "";
-
-      const currentlyPlaying = await spotify.player.getCurrentlyPlaying();
-
-      return currentlyPlaying
-        ? currentlyPlaying.artists.map((artist) => artist.name)
-        : "";
-    } catch (error) {
-      return "";
-    }
-  },
+  evaluator: async () => spotify.player.track?.artists ?? ([] as string[]),
 };

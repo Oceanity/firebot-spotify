@@ -30,7 +30,6 @@ let spotifyDefinition: IntegrationDefinition | null = null;
 export class SpotifyIntegration extends EventEmitter {
   connected: boolean = false;
   currentTrack: SpotifyTrackDetails | null = null;
-  private readonly secondsToCheckNowPlaying: number = 5;
 
   constructor(client: ClientCredentials) {
     super();
@@ -55,22 +54,7 @@ export class SpotifyIntegration extends EventEmitter {
     // Register Events
     eventManager.registerEventSource(SpotifyEventSource);
 
-    // Regularly check for track change
-    setInterval(async () => {
-      try {
-        if (!isLinked()) return;
-
-        const activeTrack = await spotify.player.getCurrentlyPlaying();
-        if (!activeTrack) return;
-
-        if (!this.currentTrack || activeTrack.uri != this.currentTrack.uri) {
-          this.currentTrack = activeTrack;
-          eventManager.triggerEvent("oceanity-spotify", "track-changed", {});
-        }
-      } catch (error) {
-        logger.error("Error checking track change on Spotify", error);
-      }
-    }, this.secondsToCheckNowPlaying * 1000);
+    spotify.player.init();
   }
 
   async connect() {}
@@ -79,7 +63,9 @@ export class SpotifyIntegration extends EventEmitter {
     logger.info("Linking to Spotify Integration...");
   }
 
-  async unlink() {}
+  async unlink() {
+    logger.info("Unlinking from Spotify Integration...");
+  }
 
   async refreshToken(): Promise<string> {
     try {
@@ -189,9 +175,6 @@ export let integration: SpotifyIntegration;
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
   integrationManager.getIntegrationById(integrationId).definition.auth;
-
-const isLinked = () =>
-  integrationManager.getIntegrationById(integrationId).definition.linked;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (

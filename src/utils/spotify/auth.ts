@@ -6,8 +6,28 @@ import { SpotifyService } from "@utils/spotify";
 export default class SpotifyAuthService {
   private spotify: SpotifyService;
 
+  //#region Constructor
+
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
+  }
+
+  //#endregion
+
+  //#region Getters
+
+  /**
+   * Checks if the Spotify integration is linked.
+   *
+   * @return {boolean} True if the integration is linked, false otherwise.
+   */
+  public get isLinked(): boolean {
+    try {
+      return integrationManager.getIntegrationById(integrationId).definition
+        .linked;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
@@ -16,7 +36,14 @@ export default class SpotifyAuthService {
    *
    * @return {Promise<string>} The current access token.
    */
-  public async getCurrentAccessTokenAsync(): Promise<string> {
+  public get accessToken(): Promise<string> {
+    return this.getCurrentAccessTokenAsync();
+  }
+
+  //#endregion
+
+  //#region Helper Functions
+  private async getCurrentAccessTokenAsync(): Promise<string> {
     const { access_token: accessToken } = this.getSpotifyAuthFromIntegration();
 
     if (!(await this.tokenExpiredAsync(accessToken))) {
@@ -26,7 +53,6 @@ export default class SpotifyAuthService {
     return await integration.refreshToken();
   }
 
-  //#region Helper Functions
   private getSpotifyAuthFromIntegration = (): AuthDefinition =>
     integrationManager.getIntegrationById(integrationId).definition.auth;
 
@@ -35,11 +61,10 @@ export default class SpotifyAuthService {
 
     const { expires_on: expiresOn } = this.getSpotifyAuthFromIntegration();
 
-    if (
-      (expiresOn && parseInt(expiresOn) < Date.now()) ||
-      !(await this.spotifyIsConnectedAsync(accessToken))
-    )
-      return true;
+    if (!(expiresOn && parseInt(expiresOn) < Date.now())) return false;
+
+    // Check against API just in case of config issue
+    return !(await this.spotifyIsConnectedAsync(accessToken));
   }
 
   private spotifyIsConnectedAsync = async (accessToken: string) =>
