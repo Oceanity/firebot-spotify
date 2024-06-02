@@ -305,7 +305,8 @@ export default class SpotifyPlayerService {
     try {
       if (!this.spotify.auth.isLinked) {
         this.clearNowPlaying();
-        return this.tick(start);
+        await delay(1000, start);
+        return this.updatePlaybackState();
       }
 
       const state =
@@ -337,7 +338,6 @@ export default class SpotifyPlayerService {
       return this.tick(start);
     } catch (error) {
       logger.error("Error checking track change on Spotify", error);
-
       this.clearNowPlaying();
       return this.tick(start);
     }
@@ -361,7 +361,6 @@ export default class SpotifyPlayerService {
   }
 
   private async tick(start: number): Promise<void> {
-    logger.info("tick");
     eventManager.triggerEvent("oceanity-spotify", "tick", {});
     await delay(1000, start);
     return this.updatePlaybackState();
