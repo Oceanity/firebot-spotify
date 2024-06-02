@@ -4,15 +4,6 @@ import SpotifyAuthService from "@utils/spotify/auth";
 import SpotifyPlayerService from "@utils/spotify/player";
 import SpotifyProfileService from "@utils/spotify/me";
 
-type SpotifySearchType =
-  | "album"
-  | "artist"
-  | "playlist"
-  | "track"
-  | "show"
-  | "episode"
-  | "audiobook";
-
 export class SpotifyService {
   public readonly api: SpotifyApiService;
   public readonly auth: SpotifyAuthService;

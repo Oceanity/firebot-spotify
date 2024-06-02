@@ -10,7 +10,7 @@ import {
 import { integrationId, spotify } from "@/main";
 import { AllSpotifyEffects } from "./firebot/effects";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
-import { SpotifyEventSource } from "./utils/spotify/spotifyEventSource";
+import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 
 const spotifyScopes = [
@@ -30,7 +30,6 @@ let spotifyDefinition: IntegrationDefinition | null = null;
 export class SpotifyIntegration extends EventEmitter {
   connected: boolean = false;
   currentTrack: SpotifyTrackDetails | null = null;
-  private readonly secondsToCheckNowPlaying: number = 5;
 
   constructor(client: ClientCredentials) {
     super();
@@ -55,21 +54,7 @@ export class SpotifyIntegration extends EventEmitter {
     // Register Events
     eventManager.registerEventSource(SpotifyEventSource);
 
-    // Regularly check for track change
-    setInterval(async () => {
-      try {
-        if (!(await spotify.player.isPlayingAsync())) return;
-
-        const activeTrack = await spotify.player.getCurrentlyPlaying();
-
-        if (activeTrack?.uri != this.currentTrack?.uri) {
-          this.currentTrack = activeTrack;
-          eventManager.triggerEvent("oceanity-spotify", "track-changed", {});
-        }
-      } catch (error) {
-        logger.error("Error checking track change on Spotify", error);
-      }
-    }, this.secondsToCheckNowPlaying * 1000);
+    spotify.player.init();
   }
 
   async connect() {}
@@ -78,7 +63,9 @@ export class SpotifyIntegration extends EventEmitter {
     logger.info("Linking to Spotify Integration...");
   }
 
-  async unlink() {}
+  async unlink() {
+    logger.info("Unlinking from Spotify Integration...");
+  }
 
   async refreshToken(): Promise<string> {
     try {
@@ -121,6 +108,10 @@ export class SpotifyIntegration extends EventEmitter {
 
         data["refresh_token"] = auth.refresh_token;
         data["expires_on"] = Date.now() + data.expires_in * 1000;
+
+        logger.info(
+          `New Token expires on ${new Date(data.expires_on).toDateString()}`
+        );
 
         updateIntegrationAuth(data);
 
@@ -184,7 +175,6 @@ export let integration: SpotifyIntegration;
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
   integrationManager.getIntegrationById(integrationId).definition.auth;
-integrationManager.getIntegrationById(integrationId).definition.auth;
 
 const spotifyIsConnectedAsync = async (accessToken: string) =>
   (
@@ -201,7 +191,6 @@ const tokenPastExpiration = (expiresOn: string) =>
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
     integrationManager.getIntegrationById(integrationId);
-  integrationManager.getIntegrationById(integrationId);
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }
