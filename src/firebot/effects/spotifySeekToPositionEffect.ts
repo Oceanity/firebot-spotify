@@ -3,7 +3,7 @@ import { getErrorMessage } from "@utils/errors";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
 export const SpotifySeekToPositionEffect: Firebot.EffectType<{
-  volume: number;
+  seekPosition: number;
 }> = {
   definition: {
     id: "oceanity-spotify:seek-to-position",
@@ -29,26 +29,8 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<{
 
   optionsTemplate: `
     <eos-container header="Seek Position (ms)" pad-top="true">
-      <p class="muted">Playback Volume (must be integer between 0-100)</p>
-      <input ng-model="effect.volume" type="text" class="form-control" id="chat-text-setting" placeholder="Volume" menu-position="under" replace-variables/>
-    </eos-container>
-    <eos-container header="Playback State">
-      <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="list-effect-type">{{effect.playState ? effect.playState : 'Play'}}</span> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li ng-click="effect.playState = 'Play'">
-            <a href>Play</a>
-          </li>
-          <li ng-click="effect.playState = 'Pause'">
-            <a href>Pause</a>
-          </li>
-          <li ng-click="effect.playState = 'Toggle'">
-            <a href>Toggle</a>
-          </li>
-        </ul>
-      </div>
+      <p class="muted">Seek Position (ms)</p>
+      <input ng-model="effect.seekPosition" type="text" class="form-control" id="chat-text-setting" placeholder="Seek position (ms)" menu-position="under" replace-variables/>
     </eos-container>
   `,
 
@@ -57,28 +39,28 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<{
 
   optionsValidator: (effect) => {
     const errors = [];
-    if (!effect.volume) {
-      errors.push("Volume field is required!");
+    if (!effect.seekPosition) {
+      errors.push("Seek position field is required!");
     }
-    if (effect.volume % 1 !== 0) {
-      errors.push("Volume must be an integer!");
+    if (effect.seekPosition % 1 !== 0) {
+      errors.push("Seek position must be an integer!");
     }
-    if (effect.volume < 0 || effect.volume > 100) {
-      errors.push("Volume must be between 0 and 100!");
+    if (effect.seekPosition > 0) {
+      errors.push("Seek position must be positive!");
     }
     return errors;
   },
 
   onTriggerEvent: async (event) => {
-    const { volume } = event.effect;
+    const { seekPosition } = event.effect;
 
     try {
-      await spotify.player.setVolumeAsync(volume);
+      await spotify.player.seekToPositionAsync(seekPosition);
 
       return {
         success: true,
         outputs: {
-          volumeChanged: true,
+          seekSuccessful: true,
           error: null,
         },
       };
@@ -86,7 +68,7 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<{
       return {
         success: false,
         outputs: {
-          volumeChanged: false,
+          seekSuccessful: false,
           error: getErrorMessage(error),
         },
       };

@@ -1,5 +1,14 @@
 //#region Unique Vars
 type SpotifyRepeatState = "track" | "context" | "off";
+
+type SpotifySearchType =
+  | "album"
+  | "artist"
+  | "playlist"
+  | "track"
+  | "show"
+  | "episode"
+  | "audiobook";
 //#endregion
 
 type SpotifyAuth = {

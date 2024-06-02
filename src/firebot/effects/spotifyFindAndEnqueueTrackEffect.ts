@@ -32,11 +32,11 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   },
 
   optionsTemplate: `
-    <eos-container header="Queued By (Optional)" pad-top="true">
+    <!--<eos-container header="Queued By (Optional)" pad-top="true">
       <p class="muted">Username of user who queued the track (for cancelling/skipping purposes)</p>
       <input ng-model="effect.queuedBy" type="text" class="form-control" id="chat-text-setting" placeholder="Queued By" menu-position="under" replace-variables/>
-    </eos-container>
-    <eos-container header="Spotify Info" pad-top="true">
+    </eos-container>-->
+    <eos-container header="Track Info" pad-top="true">
       <p class="muted">Search query for track to add to your Spotify Queue</p>
       <input ng-model="effect.query" type="text" class="form-control" id="chat-text-setting" placeholder="Search Query" menu-position="under" replace-variables/>
       <div style="display: flex; flex-direction: row; margin: 15px 0;">
