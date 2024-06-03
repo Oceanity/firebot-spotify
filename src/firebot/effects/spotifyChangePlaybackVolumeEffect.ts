@@ -43,12 +43,6 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
     if (!effect.volume) {
       errors.push("Volume field is required!");
     }
-    if (effect.volume % 1 !== 0) {
-      errors.push("Volume must be an integer!");
-    }
-    if (effect.volume < 0 || effect.volume > 100) {
-      errors.push("Volume must be between 0 and 100!");
-    }
     return errors;
   },
 

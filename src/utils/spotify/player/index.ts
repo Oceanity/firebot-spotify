@@ -319,6 +319,11 @@ export default class SpotifyPlayerService {
       }
 
       if (this._isPlaying != state.is_playing) {
+        eventManager.triggerEvent(
+          "oceanity-spotify",
+          "playback-state-changed",
+          this.track ?? {}
+        );
         this._isPlaying = state.is_playing;
       }
 
