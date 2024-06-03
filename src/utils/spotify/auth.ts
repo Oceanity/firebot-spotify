@@ -1,10 +1,11 @@
-import { integrationManager } from "@utils/firebot";
+import { integrationManager, logger } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;
+  private expiresAt: number = 0;
 
   //#region Constructor
 
@@ -50,7 +51,15 @@ export default class SpotifyAuthService {
       return accessToken;
     }
 
-    return await integration.refreshToken();
+    const refreshResponse = await integration.refreshToken();
+
+    if (!refreshResponse) {
+      throw new Error("Failed to refresh token");
+    }
+
+    this.expiresAt = Date.now() + refreshResponse.expires_in * 1000;
+
+    return refreshResponse.access_token;
   }
 
   private getSpotifyAuthFromIntegration = (): AuthDefinition =>
@@ -59,10 +68,7 @@ export default class SpotifyAuthService {
   private async tokenExpiredAsync(accessToken: string | undefined) {
     if (!accessToken) return true;
 
-    const { expires_on: expiresOn } = this.getSpotifyAuthFromIntegration();
-
-    if (!(expiresOn && parseInt(expiresOn) < Date.now())) return false;
-
+    if (!this.expiresAt || this.expiresAt - Date.now() < 5000) return true;
     // Check against API just in case of config issue
     return !(await this.spotifyIsConnectedAsync(accessToken));
   }
