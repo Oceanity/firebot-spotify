@@ -6,6 +6,7 @@ const baseUrl = "https://api.spotify.com/v1";
 
 export default class SpotifyApiService {
   private readonly spotify: SpotifyService;
+  private retryAfter: number | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -20,6 +21,14 @@ export default class SpotifyApiService {
     options?: any
   ) {
     try {
+      if (this.retryAfter && Date.now() < this.retryAfter) {
+        throw new Error(
+          `API Rate Limit Exceeded, will be able to use again after ${new Date(
+            this.retryAfter
+          ).toUTCString()}`
+        );
+      }
+
       const accessToken = await this.spotify.auth.accessToken;
 
       const response = await fetch(this.getUrlFromPath(endpoint), {
@@ -31,6 +40,12 @@ export default class SpotifyApiService {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          const retryAfter = response.headers.get("retry-after");
+          this.retryAfter =
+            Date.now() + (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
+        }
+
         throw new ResponseError(
           `Spotify API /v1/${endpoint} returned status ${response.status}`,
           response
