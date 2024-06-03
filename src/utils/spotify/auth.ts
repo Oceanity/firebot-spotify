@@ -1,4 +1,4 @@
-import { integrationManager } from "@utils/firebot";
+import { integrationManager, logger } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
@@ -68,7 +68,7 @@ export default class SpotifyAuthService {
   private async tokenExpiredAsync(accessToken: string | undefined) {
     if (!accessToken) return true;
 
-    if (!this.expiresAt || this.expiresAt < Date.now()) return true;
+    if (!this.expiresAt || this.expiresAt - Date.now() < 5000) return true;
     // Check against API just in case of config issue
     return !(await this.spotifyIsConnectedAsync(accessToken));
   }
