@@ -31,7 +31,7 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<SpotifyChangeP
         {
           label: "Error Message",
           description:
-            "If the playback volume was not changed successfully, will contain an error message.",
+            "If the playback playback state was not changed successfully, will contain an error message.",
           defaultName: "error",
         },
       ],

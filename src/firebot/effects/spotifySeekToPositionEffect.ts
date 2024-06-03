@@ -42,12 +42,6 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<{
     if (!effect.seekPosition) {
       errors.push("Seek position field is required!");
     }
-    if (effect.seekPosition % 1 !== 0) {
-      errors.push("Seek position must be an integer!");
-    }
-    if (effect.seekPosition > 0) {
-      errors.push("Seek position must be positive!");
-    }
     return errors;
   },
 
