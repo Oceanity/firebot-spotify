@@ -305,7 +305,7 @@ export default class SpotifyPlayerService {
     try {
       if (!this.spotify.auth.isLinked) {
         this.clearNowPlaying();
-        await delay(1000, start);
+        await delay(15000, start);
         return this.updatePlaybackState();
       }
 
@@ -315,7 +315,7 @@ export default class SpotifyPlayerService {
 
       if (!state) {
         this.clearNowPlaying();
-        return this.tick(start);
+        return this.tick(15000, start);
       }
 
       if (this._isPlaying != state.is_playing) {
@@ -340,11 +340,11 @@ export default class SpotifyPlayerService {
           this.track ?? {}
         );
       }
-      return this.tick(start);
+      return this.tick(state.is_playing ? 1000 : 15000, start);
     } catch (error) {
       logger.error("Error checking track change on Spotify", error);
       this.clearNowPlaying();
-      return this.tick(start);
+      return this.tick(30000, start);
     }
   }
   //#endregion
@@ -365,9 +365,9 @@ export default class SpotifyPlayerService {
     this._progressMs = 0;
   }
 
-  private async tick(start: number): Promise<void> {
+  private async tick(delayMs: number, start: number): Promise<void> {
     eventManager.triggerEvent("oceanity-spotify", "tick", {});
-    await delay(1000, start);
+    await delay(delayMs, start);
     return this.updatePlaybackState();
   }
   //#endregion

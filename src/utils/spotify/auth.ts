@@ -58,6 +58,9 @@ export default class SpotifyAuthService {
     }
 
     this.expiresAt = Date.now() + refreshResponse.expires_in * 1000;
+    logger.info(
+      `New token expires at ${new Date(this.expiresAt).toUTCString()}`
+    );
 
     return refreshResponse.access_token;
   }
