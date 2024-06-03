@@ -29,7 +29,7 @@ let spotifyDefinition: IntegrationDefinition | null = null;
 
 export class SpotifyIntegration extends EventEmitter {
   connected: boolean = false;
-  currentTrack: SpotifyTrackDetails | null = null;
+  expiresAt: number | null = null;
 
   constructor(client: ClientCredentials) {
     super();
@@ -67,9 +67,19 @@ export class SpotifyIntegration extends EventEmitter {
     logger.info("Unlinking from Spotify Integration...");
   }
 
-  async refreshToken(): Promise<SpotifyRefreshTokenResponse | null> {
+  async refreshToken(): Promise<AuthDefinition | null> {
     try {
-      logger.info("Refreshing Spotify Token...");
+      const currentAuth = getSpotifyAuthFromIntegration();
+
+      if (
+        currentAuth.access_token &&
+        this.expiresAt &&
+        this.expiresAt - Date.now() > 5000
+      ) {
+        return currentAuth;
+      }
+
+      logger.info("Token expired, refreshing...");
 
       // @ts-ignore
       const { authProviderDetails: authProvider } = spotifyDefinition;
@@ -107,9 +117,14 @@ export class SpotifyIntegration extends EventEmitter {
         const data = (await response.json()) as SpotifyRefreshTokenResponse;
         data.refresh_token = auth.refresh_token;
 
+        this.expiresAt = Date.now() + data.expires_in * 1000;
+        logger.info(
+          `New token expires at ${new Date(this.expiresAt).toUTCString()}`
+        );
+
         updateIntegrationAuth(data);
 
-        return data;
+        return getSpotifyAuthFromIntegration();
       }
     } catch (error) {
       logger.error("Error refreshing Spotify token", error);

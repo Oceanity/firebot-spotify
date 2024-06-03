@@ -1,4 +1,4 @@
-import { effectManager, eventManager, logger } from "@utils/firebot";
+import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import SpotifyQueueService from "./queue";
 import { delay } from "@/utils/timing";
@@ -30,6 +30,7 @@ export default class SpotifyPlayerService {
   private _progressMs: number = 0;
   private _isPlaying: boolean = false;
   private _track: SpotifyTrackDetails | null = null;
+  private _volume: number = 0;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -50,6 +51,15 @@ export default class SpotifyPlayerService {
    */
   public get isPlaying(): boolean {
     return this._isPlaying;
+  }
+
+  /**
+   * Gets the volume of the user's Spotify player.
+   *
+   * @return {number} The volume of the player, between 0 and 100.
+   */
+  public get volume(): number {
+    return this._volume;
   }
 
   /**
@@ -265,10 +275,17 @@ export default class SpotifyPlayerService {
       if (volume < 0 || volume > 100 || volume % 1 !== 0)
         throw new Error("Spotify volume must be an integer between 0 and 100");
 
-      await this.spotify.api.fetch(
+      const response = await this.spotify.api.fetch(
         `/me/player/volume?volume_percent=${volume}`,
         "PUT"
       );
+
+      if (response.ok) {
+        this._volume = volume;
+        eventManager.triggerEvent("oceanity-spotify", "volume-changed", {
+          volume: this._volume,
+        });
+      }
     } catch (error) {
       logger.error("Error setting Spotify volume", error);
     }
@@ -325,6 +342,11 @@ export default class SpotifyPlayerService {
           this.track ?? {}
         );
         this._isPlaying = state.is_playing;
+      }
+
+      if (this._volume != state.device.volume_percent) {
+        eventManager.triggerEvent("oceanity-spotify", "volume-changed", {});
+        this._volume = state.device.volume_percent;
       }
 
       this._progressMs = state.progress_ms;
