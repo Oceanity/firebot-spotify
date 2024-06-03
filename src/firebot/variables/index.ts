@@ -1,4 +1,6 @@
 import { SpotifyIsPlayingVariable } from "./spotifyIsPlaying";
+import { SpotifyPlayerVolumeVariable } from "./spotifyPlayerVolume";
+import { SpotifyPlayerRelativeVolumeVariable } from "./spotifyPlayerRelativeVolume";
 import { SpotifyTrackArtistVariable } from "./spotifyTrackArtist";
 import { SpotifyTrackArtistsVariable } from "./spotifyTrackArtists";
 import { SpotifyTrackAlbumVariable } from "./spotifyTrackAlbum";
@@ -13,6 +15,8 @@ import { SpotifyTrackRelativePositionVariable } from "./spotifyTrackRelativePosi
 
 export const AllSpotifyReplaceVariables = [
   SpotifyIsPlayingVariable,
+  SpotifyPlayerVolumeVariable,
+  SpotifyPlayerRelativeVolumeVariable,
   SpotifyTrackArtistVariable,
   SpotifyTrackArtistsVariable,
   SpotifyTrackAlbumVariable,

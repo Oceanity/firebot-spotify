@@ -25,6 +25,16 @@ export const SpotifyEventSource = {
       },
     },
     {
+      id: "volume-changed",
+      name: "Volume Changed",
+      description: "Spotify volume changed",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify volume changed",
+      },
+    },
+    {
       id: "track-changed",
       name: "Track Changed",
       description: "Currently playing Spotify track changed",

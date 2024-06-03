@@ -7,13 +7,9 @@ export default class SpotifyAuthService {
   private spotify: SpotifyService;
   private expiresAt: number = 0;
 
-  //#region Constructor
-
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
   }
-
-  //#endregion
 
   //#region Getters
 
@@ -71,7 +67,8 @@ export default class SpotifyAuthService {
   private async tokenExpiredAsync(accessToken: string | undefined) {
     if (!accessToken) return true;
 
-    if (!this.expiresAt || this.expiresAt - Date.now() < 5000) return true;
+    if (this.expiresAt && this.expiresAt - Date.now() > 5000) return false;
+
     // Check against API just in case of config issue
     return !(await this.spotifyIsConnectedAsync(accessToken));
   }
