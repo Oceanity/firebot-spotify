@@ -67,7 +67,7 @@ export class SpotifyIntegration extends EventEmitter {
     logger.info("Unlinking from Spotify Integration...");
   }
 
-  async refreshToken(): Promise<string> {
+  async refreshToken(): Promise<SpotifyRefreshTokenResponse | null> {
     try {
       logger.info("Refreshing Spotify Token...");
 
@@ -104,23 +104,17 @@ export class SpotifyIntegration extends EventEmitter {
           throw new ResponseError("Could not refresh Spotify token", response);
         }
 
-        const data = await response.json();
-
-        data["refresh_token"] = auth.refresh_token;
-        data["expires_on"] = Date.now() + data.expires_in * 1000;
-
-        logger.info(
-          `New Token expires on ${new Date(data.expires_on).toDateString()}`
-        );
+        const data = (await response.json()) as SpotifyRefreshTokenResponse;
+        data.refresh_token = auth.refresh_token;
 
         updateIntegrationAuth(data);
 
-        return data.access_token;
+        return data;
       }
     } catch (error) {
       logger.error("Error refreshing Spotify token", error);
     }
-    return "";
+    return null;
   }
 }
 
@@ -155,38 +149,11 @@ export function generateSpotifyIntegration(client: ClientCredentials) {
   return integration;
 }
 
-export async function getCurrentAccessTokenAsync(): Promise<string> {
-  let { access_token: accessToken, expires_on: expiresOn } =
-    getSpotifyAuthFromIntegration();
-
-  if (
-    accessToken &&
-    (!tokenPastExpiration(expiresOn) ||
-      (await spotifyIsConnectedAsync(accessToken)))
-  ) {
-    return accessToken;
-  }
-
-  return await integration.refreshToken();
-}
-
 export let integration: SpotifyIntegration;
 
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
   integrationManager.getIntegrationById(integrationId).definition.auth;
-
-const spotifyIsConnectedAsync = async (accessToken: string) =>
-  (
-    await fetch("https://api.spotify.com/v1/me", {
-      headers: {
-        Authorization: "Bearer " + accessToken,
-      },
-    })
-  ).ok;
-
-const tokenPastExpiration = (expiresOn: string) =>
-  new Date(expiresOn).getTime() < Date.now();
 
 function updateIntegrationAuth(data: unknown) {
   const currentIntegration =
