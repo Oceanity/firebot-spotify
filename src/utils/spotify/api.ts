@@ -1,19 +1,21 @@
-import { logger } from "@utils/firebot";
+import { chatFeedAlert, logger } from "@utils/firebot";
 import { SpotifyService } from ".";
 import ResponseError from "@/models/responseError";
 
-const baseUrl = "https://api.spotify.com/v1";
+type SpotifyRateLimits = {
+  [endpoint: string]: number;
+};
 
 export default class SpotifyApiService {
   private readonly spotify: SpotifyService;
-  private retryAfter: number | null = null;
+  private rateLimits: SpotifyRateLimits = {};
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
   }
 
   public readonly baseUrl = "https://api.spotify.com/v1";
-  public getUrlFromPath = (path: string): string => `${baseUrl}${path}`;
+  public getUrlFromPath = (path: string): string => `${this.baseUrl}${path}`;
 
   public async fetch<T>(
     endpoint: string,
@@ -21,10 +23,15 @@ export default class SpotifyApiService {
     options?: any
   ) {
     try {
-      if (this.retryAfter && Date.now() < this.retryAfter) {
+      const sanitizedEndpoint = endpoint.split("?")[0];
+
+      if (
+        this.rateLimits.hasOwnProperty(sanitizedEndpoint) &&
+        Date.now() < this.rateLimits[sanitizedEndpoint]
+      ) {
         throw new Error(
-          `API Rate Limit Exceeded, will be able to use again after ${new Date(
-            this.retryAfter
+          `API endpoint ${endpoint} Rate Limit Exceeded, will be able to use again after ${new Date(
+            this.rateLimits[sanitizedEndpoint]
           ).toUTCString()}`
         );
       }
@@ -40,16 +47,28 @@ export default class SpotifyApiService {
       });
 
       if (!response.ok) {
-        if (response.status === 429) {
-          const retryAfter = response.headers.get("retry-after");
-          this.retryAfter =
-            Date.now() + (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
+        switch (response.status) {
+          case 401:
+            throw new ResponseError(
+              `Spotify API endpoint ${endpoint} responded Unauthorized, try unlinking and relinking Spotify to generate a new Access/Refresh token pair`,
+              response
+            );
+          case 429:
+            const retryAfter = response.headers.get("retry-after");
+            this.rateLimits[sanitizedEndpoint] =
+              Date.now() + (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
+            throw new ResponseError(
+              `Spotify API endpoint ${endpoint} responded Rate Limit Exceeded, will be able to use again after ${new Date(
+                this.rateLimits[sanitizedEndpoint]
+              ).toUTCString()}`,
+              response
+            );
+          default:
+            throw new ResponseError(
+              `Spotify API ${endpoint} returned status ${response.status}`,
+              response
+            );
         }
-
-        throw new ResponseError(
-          `Spotify API /v1/${endpoint} returned status ${response.status}`,
-          response
-        );
       }
 
       return {
@@ -58,6 +77,12 @@ export default class SpotifyApiService {
         data: response.status === 204 ? null : ((await response.json()) as T),
       };
     } catch (error) {
+      let message =
+        error instanceof Error
+          ? error.message
+          : "Unspecified Error with Spotify API request " + endpoint;
+      chatFeedAlert(message);
+
       logger.error("Error making Spotify API request", error);
       throw error;
     }
