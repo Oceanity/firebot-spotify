@@ -42,9 +42,8 @@ export default class SpotifyApiService {
       if (!response.ok) {
         if (response.status === 429) {
           const retryAfter = response.headers.get("retry-after");
-          this.retryAfter = retryAfter
-            ? Date.now() + parseInt(retryAfter)
-            : null;
+          this.retryAfter =
+            Date.now() + (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
         }
 
         throw new ResponseError(
