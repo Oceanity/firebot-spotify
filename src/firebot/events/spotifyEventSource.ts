@@ -27,7 +27,8 @@ export const SpotifyEventSource = {
     {
       id: "volume-changed",
       name: "Volume Changed",
-      description: "Spotify volume changed",
+      description:
+        "Spotify volume changed, fires faster if volume is changed via Firebot",
       cached: false,
       activityFeed: {
         icon: "fab fa-spotify",

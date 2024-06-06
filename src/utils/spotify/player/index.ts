@@ -5,6 +5,8 @@ import { delay } from "@/utils/timing";
 import { msToFormattedString } from "@/utils/strings";
 
 type SpotifyTrackSummary = {
+  id: string;
+  uri: string;
   title: string;
   artists: string[];
   album: string;
@@ -31,6 +33,7 @@ export default class SpotifyPlayerService {
   private _isPlaying: boolean = false;
   private _track: SpotifyTrackDetails | null = null;
   private _volume: number = 0;
+  private _targetVolume: number = -1;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -78,6 +81,8 @@ export default class SpotifyPlayerService {
     const albumArtUrl = this.getBiggestImage(this._track.album.images).url;
 
     return {
+      id: this._track.id,
+      uri: this._track.uri,
       title: this._track.name,
       artists,
       album: this._track.album.name,
@@ -282,6 +287,7 @@ export default class SpotifyPlayerService {
 
       if (response.ok) {
         this._volume = volume;
+        this._targetVolume = volume;
         eventManager.triggerEvent("oceanity-spotify", "volume-changed", {
           volume: this._volume,
         });
@@ -344,9 +350,15 @@ export default class SpotifyPlayerService {
         this._isPlaying = state.is_playing;
       }
 
-      if (this._volume != state.device.volume_percent) {
+      // If target volume, user has manually changed volume and we don't want it falling back
+      if (
+        this._volume != state.device.volume_percent &&
+        this._targetVolume === -1
+      ) {
         eventManager.triggerEvent("oceanity-spotify", "volume-changed", {});
         this._volume = state.device.volume_percent;
+      } else if (state.device.volume_percent === this._targetVolume) {
+        this._targetVolume = -1;
       }
 
       this._progressMs = state.progress_ms;
