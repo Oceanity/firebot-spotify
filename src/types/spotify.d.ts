@@ -63,7 +63,6 @@ type SpotifyPlayer = {
   progress_ms: number;
   item: SpotifyTrackDetails;
   currently_playing_type: SpotifyContextType;
-  currently_playing_type: SpotifyContextType;
   actions: {
     disallows: {
       resuming?: boolean;
