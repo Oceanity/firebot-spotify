@@ -22,16 +22,6 @@ type SpotifyTrackSummary = {
   context: SpotifyContext | null;
 };
 
-type SpotifyPlaylistSummary = {
-  id: string;
-  uri: string;
-  name: string;
-  description: string;
-  url: string;
-  imageUrl: string;
-  length: number;
-};
-
 export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
   public readonly queue: SpotifyQueueService;
@@ -42,15 +32,12 @@ export default class SpotifyPlayerService {
   private lastDevicePollTime: number | null = null;
 
   // Obscured vars
-  private _deviceId: string | null = null;
   private _progressMs: number = 0;
   private _isPlaying: boolean = false;
   private _track: SpotifyTrackDetails | null = null;
   private _volume: number = 0;
   private _targetVolume: number = -1;
   private _context: SpotifyContext | null = null;
-  private _playlistId: string | null = null;
-  private _playlist: SpotifyPlaylistSummary | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
