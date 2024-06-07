@@ -4,6 +4,26 @@ export const SpotifyEventSource = {
   description: "Events related to Oceanity's Spotify integration",
   events: [
     {
+      id: "playback-state-changed",
+      name: "Spotify Playback State Changed",
+      description: "Spotify playback state changed",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify playback state changed",
+      },
+    },
+    {
+      id: "playlist-changed",
+      name: "Spotify Playlist Changed",
+      description: "Currently active Spotify Playlist has changed",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify playlist changed",
+      },
+    },
+    {
       id: "tick",
       name: "Spotify Tick",
       description:
@@ -15,33 +35,24 @@ export const SpotifyEventSource = {
       },
     },
     {
-      id: "playback-state-changed",
-      name: "Playback State Changed",
-      description: "Spotify playback state changed",
-      cached: false,
-      activityFeed: {
-        icon: "fab fa-spotify",
-        getMessage: () => "Spotify playback state changed",
-      },
-    },
-    {
-      id: "volume-changed",
-      name: "Volume Changed",
-      description: "Spotify volume changed",
-      cached: false,
-      activityFeed: {
-        icon: "fab fa-spotify",
-        getMessage: () => "Spotify volume changed",
-      },
-    },
-    {
       id: "track-changed",
-      name: "Track Changed",
+      name: "Spotify Track Changed",
       description: "Currently playing Spotify track changed",
       cached: false,
       activityFeed: {
         icon: "fab fa-spotify",
         getMessage: () => "Spotify track changed",
+      },
+    },
+    {
+      id: "volume-changed",
+      name: "Spotify Volume Changed",
+      description:
+        "Spotify volume changed, fires faster if volume is changed via Firebot",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify volume changed",
       },
     },
   ],
