@@ -17,12 +17,9 @@
     "downlevelIteration": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@effects*": ["./src/firebot/effects/*"],
-      "@events*": ["./src/firebot/events/*"],
       "@models/*": ["./src/models/*"],
       "@utils/*": ["./src/utils/*"],
       "@shared/*": ["./src/shared/*"],
-      "@variables/*": ["./src/firebot/variables/*"],
       "ts-jest/*": ["./node_modules/ts-jest/dist/*"]
     },
     "lib": ["es5", "es6", "dom", "dom.iterable"],

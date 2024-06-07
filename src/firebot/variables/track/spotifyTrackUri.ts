@@ -3,11 +3,11 @@ import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/type
 
 export const SpotifyTrackUriVariable: ReplaceVariable = {
   definition: {
-    handle: "spotifyTrackUrl",
+    handle: "spotifyTrackUri",
     description:
-      "Gets the url of the currently playing track on Spotify or empty string if not playing",
-    usage: "spotifyTrackUrl",
+      "Gets the unique Uri of the currently playing track on Spotify or empty string if not playing",
+    usage: "spotifyTrackUri",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track?.url ?? "",
+  evaluator: async () => spotify.player.track?.uri ?? "",
 };

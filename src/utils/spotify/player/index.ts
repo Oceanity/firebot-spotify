@@ -1,10 +1,14 @@
 import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import SpotifyQueueService from "./queue";
 import { delay } from "@/utils/timing";
 import { msToFormattedString } from "@/utils/strings";
+import SpotifyQueueService from "./queue";
+import SpotifyPlaylistService from "./playlist";
+import { getBiggestImageUrl } from "@/utils/array";
 
 type SpotifyTrackSummary = {
+  id: string;
+  uri: string;
   title: string;
   artists: string[];
   album: string;
@@ -15,27 +19,31 @@ type SpotifyTrackSummary = {
   positionMs: number;
   position: string;
   relativePosition: number;
+  context: SpotifyContext | null;
 };
 
 export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
   public readonly queue: SpotifyQueueService;
+  public readonly playlist: SpotifyPlaylistService;
 
   private readonly minutesToCacheDeviceId: number = 15;
   private activeDeviceId: string | null = null;
   private lastDevicePollTime: number | null = null;
 
   // Obscured vars
-  private _deviceId: string | null = null;
   private _progressMs: number = 0;
   private _isPlaying: boolean = false;
   private _track: SpotifyTrackDetails | null = null;
   private _volume: number = 0;
+  private _targetVolume: number = -1;
+  private _context: SpotifyContext | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
 
     this.queue = new SpotifyQueueService(this.spotify);
+    this.playlist = new SpotifyPlaylistService(this.spotify);
   }
 
   public init() {
@@ -75,9 +83,11 @@ export default class SpotifyPlayerService {
     const artists = this._track.artists.map((a) => a.name);
 
     // Get the URL of the biggest image for the album
-    const albumArtUrl = this.getBiggestImage(this._track.album.images).url;
+    const albumArtUrl = getBiggestImageUrl(this._track.album.images);
 
     return {
+      id: this._track.id,
+      uri: this._track.uri,
       title: this._track.name,
       artists,
       album: this._track.album.name,
@@ -88,6 +98,7 @@ export default class SpotifyPlayerService {
       positionMs: this._progressMs,
       position: msToFormattedString(this._progressMs, false),
       relativePosition: this._progressMs / this._track.duration_ms,
+      context: this._context ?? null,
     };
   }
 
@@ -282,6 +293,7 @@ export default class SpotifyPlayerService {
 
       if (response.ok) {
         this._volume = volume;
+        this._targetVolume = volume;
         eventManager.triggerEvent("oceanity-spotify", "volume-changed", {
           volume: this._volume,
         });
@@ -315,6 +327,21 @@ export default class SpotifyPlayerService {
     }
   }
 
+  public async getCurrentPlaylistName(): Promise<string> {
+    try {
+      if (!this._context || this._context.type != "playlist") return "";
+
+      const playlist = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
+        `/playlists/${this._context.uri.split(":")[2]}`
+      );
+
+      return playlist.data?.name ?? "";
+    } catch (error) {
+      logger.error("Error getting current playlist name", error);
+      return "";
+    }
+  }
+
   //#region Continuous methods
   private async updatePlaybackState(): Promise<void> {
     const start = Date.now();
@@ -344,9 +371,19 @@ export default class SpotifyPlayerService {
         this._isPlaying = state.is_playing;
       }
 
-      if (this._volume != state.device.volume_percent) {
+      if (state.context && this.playlist.id !== state.context.uri) {
+        await this.playlist.updateCurrentPlaylistAsync(state.context.uri);
+      }
+
+      // If target volume, user has manually changed volume and we don't want it falling back
+      if (
+        this._volume != state.device.volume_percent &&
+        this._targetVolume === -1
+      ) {
         eventManager.triggerEvent("oceanity-spotify", "volume-changed", {});
         this._volume = state.device.volume_percent;
+      } else if (state.device.volume_percent === this._targetVolume) {
+        this._targetVolume = -1;
       }
 
       this._progressMs = state.progress_ms;
