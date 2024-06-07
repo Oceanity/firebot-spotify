@@ -48,19 +48,33 @@ This script adds the following features to Firebot
 **Any Spotify Account**
 
 - Replace Variables
-  - spotifyIsPlaying: `bool`
-  - spotifyTrackAlbum: `string`
-  - spotifyTrackAlbumArtUrl: `string`
-  - spotifyTrackArtist: `string`
-  - spotifyTrackArtists: `string[]`
-  - spotifyTrackDuration: `string`
-  - spotifyTrackDurationMs: `number`
-  - spotifyTrackPosition: `string`
-  - spotifyTrackPositionMs: `number`
-  - spotifyTrackRelativePosition: `float`
-  - spotifyTrackTitle: `string`
-  - spotifyTrackUrl: `string`
+  - Player
+    - spotifyIsPlaying: `bool`
+    - spotifyPlayerRelativeVolume: `float`
+    - spotifyPlayerVolume: `integer`
+  - Playlist
+    - spotifyIsPlaylistActive: `bool`
+    - spotifyCoverImageUrl: `string`
+    - spotifyPlaylistDescription: `string`
+    - spotifyPlaylistLength: `integer`
+    - spotifyPlaylistUrl: `string`
+  - Track
+    - spotifyTrackAlbum: `string`
+    - spotifyTrackAlbumArtUrl: `string`
+    - spotifyTrackArtist: `string`
+    - spotifyTrackArtists: `string[]`
+    - spotifyTrackDuration: `string`
+    - spotifyTrackDurationMs: `integer`
+    - spotifyTrackId: `string`
+    - spotifyTrackPosition: `string`
+    - spotifyTrackPositionMs: `integer`
+    - spotifyTrackRelativePosition: `float`
+    - spotifyTrackTitle: `string`
+    - spotifyTrackUri: `string`
+    - spotifyTrackUrl: `string`
 - Events
-  - Spotify Tick
   - Playback State Changed
+  - Playlist Changed
+  - Tick
   - Track Changed
+  - Volume Changed
