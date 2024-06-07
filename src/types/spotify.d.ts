@@ -1,7 +1,7 @@
 //#region Unique Vars
 type SpotifyRepeatState = "track" | "context" | "off";
 
-type SpotifySearchType =
+type SpotifyContextType =
   | "album"
   | "artist"
   | "playlist"
@@ -9,11 +9,20 @@ type SpotifySearchType =
   | "show"
   | "episode"
   | "audiobook";
+
+type SpotifyExternalUrls = { [platform: string]: string };
+
+type SpotifyContext = {
+  external_urls: { [platform: string]: string };
+  href: string;
+  type: SpotifyContextType;
+  uri: string;
+} | null;
 //#endregion
 
 type SpotifyRefreshTokenResponse = {
   access_token: string;
-  token_type: string;
+  token_type: SpotifyContextType;
   scope: string;
   expires_in: number;
   refresh_token: string;
@@ -27,7 +36,7 @@ type SpotifyUserProfile = {
     filter_enabled: boolean;
     filter_locked: boolean;
   };
-  external_urls: { [platform: string]: string };
+  external_urls: SpotifyExternalUrls;
   followers: {
     href: string;
     total: number;
@@ -36,7 +45,7 @@ type SpotifyUserProfile = {
   id: string;
   images: SpotifyImage[];
   product: string;
-  type: string;
+  type: SpotifyContextType;
   uri: string;
 };
 
@@ -50,16 +59,11 @@ type SpotifyPlayer = {
   smart_shuffle: boolean;
   repeat_state: SpotifyRepeatState;
   timestamp: number;
-  context: {
-    type: string;
-    href: string;
-    external_urls: { [platform: string]: string };
-    uri: string;
-  };
+  context: SpotifyContext;
   progress_ms: number;
   item: SpotifyTrackDetails;
-  currently_playing_type: string;
-  currently_playing_type: string;
+  currently_playing_type: SpotifyContextType;
+  currently_playing_type: SpotifyContextType;
   actions: {
     disallows: {
       resuming?: boolean;
@@ -79,7 +83,7 @@ type SpotifyDevice = {
   is_private_session: boolean;
   is_restricted: boolean;
   name: string;
-  type: string;
+  type: SpotifyContextType;
   supports_volume: boolean;
   volume_percent: number;
 };
@@ -104,17 +108,12 @@ type SpotifyCurrentlyPlaying = {
   device: SpotifyDevice;
   repeat_state: SpotifyRepeatState;
   shuffle_state: boolean;
-  context: {
-    type: string;
-    href: string;
-    external_urls: { [platform: string]: string };
-    uri: string;
-  };
+  context: SpotifyContext;
   timestamp: number;
   progress_ms: number;
   is_playing: boolean;
   item: SpotifyTrackDetails;
-  currently_playing_type: string;
+  currently_playing_type: SpotifyContextType;
   actions: {
     interrupting_playback?: boolean;
     pausing?: boolean;
@@ -129,6 +128,31 @@ type SpotifyCurrentlyPlaying = {
   };
 };
 
+type SpotifyPlaylistDetails = {
+  collaborative: boolean;
+  description: string;
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  images: SpotifyImage[];
+  name: string;
+  owner: SpotifyUserProfile;
+  primary_color: string | null;
+  public: boolean;
+  snapshot_id: string;
+  tracks: {
+    href: string;
+    items: SpotifyTrackDetails[];
+    limit: number;
+    next: string;
+    offset: number;
+    previous: string;
+    total: number;
+  };
+  type: SpotifyContextType;
+  uri: string;
+};
+
 //#region Spotify API /search types
 type SpotifyTrackDetails = {
   album: SpotifyAlbumDetails;
@@ -138,7 +162,7 @@ type SpotifyTrackDetails = {
   duration_ms: number;
   explicit: boolean;
   external_ids: { [source: string]: string };
-  external_urls: { [platform: string]: string };
+  external_urls: SpotifyExternalUrls;
   href: string;
   id: string;
   is_playable: boolean;
@@ -148,7 +172,7 @@ type SpotifyTrackDetails = {
   popularity: number;
   preview_url: string;
   track_number: number;
-  type: track;
+  type: SpotifyContextType;
   uri: string;
   is_local: boolean;
   queue_position?: number;
@@ -159,7 +183,7 @@ type SpotifyAlbumArtistDetails = {
   href: string;
   id: string;
   name: string;
-  type: string;
+  type: SpotifyContextType;
   uri: string;
 };
 
@@ -174,10 +198,10 @@ type SpotifyArtistDetails = SpotifyAlbumArtistDetails & {
 };
 
 type SpotifyAlbumDetails = {
-  album_type: string;
+  album_type: SpotifyContextType;
   total_tracks: number;
   available_markets: string[];
-  external_urls: { [platform: string]: string };
+  external_urls: SpotifyExternalUrls;
   href: string;
   id: string;
   images: SpotifyImage[];
@@ -185,7 +209,7 @@ type SpotifyAlbumDetails = {
   release_date: string;
   release_date_precision: string;
   restrictions: { reason?: string };
-  type: string;
+  type: SpotifyContextType;
   uri: string;
   artists: SpotifyAlbumArtistDetails[];
 };

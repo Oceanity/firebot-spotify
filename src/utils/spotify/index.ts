@@ -19,7 +19,7 @@ export class SpotifyService {
 
   public async searchAsync(
     query: string,
-    types: SpotifySearchType[] | SpotifySearchType,
+    types: SpotifyContextType[] | SpotifyContextType,
     limit: number = 20,
     offset: number = 0
   ) {

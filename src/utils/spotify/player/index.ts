@@ -1,8 +1,10 @@
 import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import SpotifyQueueService from "./queue";
 import { delay } from "@/utils/timing";
 import { msToFormattedString } from "@/utils/strings";
+import SpotifyQueueService from "./queue";
+import SpotifyPlaylistService from "./playlist";
+import { getBiggestImageUrl } from "@/utils/array";
 
 type SpotifyTrackSummary = {
   id: string;
@@ -17,11 +19,23 @@ type SpotifyTrackSummary = {
   positionMs: number;
   position: string;
   relativePosition: number;
+  context: SpotifyContext | null;
+};
+
+type SpotifyPlaylistSummary = {
+  id: string;
+  uri: string;
+  name: string;
+  description: string;
+  url: string;
+  imageUrl: string;
+  length: number;
 };
 
 export default class SpotifyPlayerService {
   private readonly spotify: SpotifyService;
   public readonly queue: SpotifyQueueService;
+  public readonly playlist: SpotifyPlaylistService;
 
   private readonly minutesToCacheDeviceId: number = 15;
   private activeDeviceId: string | null = null;
@@ -34,11 +48,15 @@ export default class SpotifyPlayerService {
   private _track: SpotifyTrackDetails | null = null;
   private _volume: number = 0;
   private _targetVolume: number = -1;
+  private _context: SpotifyContext | null = null;
+  private _playlistId: string | null = null;
+  private _playlist: SpotifyPlaylistSummary | null = null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
 
     this.queue = new SpotifyQueueService(this.spotify);
+    this.playlist = new SpotifyPlaylistService(this.spotify);
   }
 
   public init() {
@@ -78,7 +96,7 @@ export default class SpotifyPlayerService {
     const artists = this._track.artists.map((a) => a.name);
 
     // Get the URL of the biggest image for the album
-    const albumArtUrl = this.getBiggestImage(this._track.album.images).url;
+    const albumArtUrl = getBiggestImageUrl(this._track.album.images);
 
     return {
       id: this._track.id,
@@ -93,6 +111,7 @@ export default class SpotifyPlayerService {
       positionMs: this._progressMs,
       position: msToFormattedString(this._progressMs, false),
       relativePosition: this._progressMs / this._track.duration_ms,
+      context: this._context ?? null,
     };
   }
 
@@ -321,6 +340,21 @@ export default class SpotifyPlayerService {
     }
   }
 
+  public async getCurrentPlaylistName(): Promise<string> {
+    try {
+      if (!this._context || this._context.type != "playlist") return "";
+
+      const playlist = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
+        `/playlists/${this._context.uri.split(":")[2]}`
+      );
+
+      return playlist.data?.name ?? "";
+    } catch (error) {
+      logger.error("Error getting current playlist name", error);
+      return "";
+    }
+  }
+
   //#region Continuous methods
   private async updatePlaybackState(): Promise<void> {
     const start = Date.now();
@@ -348,6 +382,10 @@ export default class SpotifyPlayerService {
           this.track ?? {}
         );
         this._isPlaying = state.is_playing;
+      }
+
+      if (state.context && this.playlist.id !== state.context.uri) {
+        await this.playlist.updateCurrentPlaylistAsync(state.context.uri);
       }
 
       // If target volume, user has manually changed volume and we don't want it falling back

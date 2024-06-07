@@ -16,7 +16,7 @@ export const SpotifyEventSource = {
     },
     {
       id: "playback-state-changed",
-      name: "Playback State Changed",
+      name: "Spotify Playback State Changed",
       description: "Spotify playback state changed",
       cached: false,
       activityFeed: {
@@ -26,7 +26,7 @@ export const SpotifyEventSource = {
     },
     {
       id: "volume-changed",
-      name: "Volume Changed",
+      name: "Spotify Volume Changed",
       description:
         "Spotify volume changed, fires faster if volume is changed via Firebot",
       cached: false,
@@ -37,12 +37,22 @@ export const SpotifyEventSource = {
     },
     {
       id: "track-changed",
-      name: "Track Changed",
+      name: "Spotify Track Changed",
       description: "Currently playing Spotify track changed",
       cached: false,
       activityFeed: {
         icon: "fab fa-spotify",
         getMessage: () => "Spotify track changed",
+      },
+    },
+    {
+      id: "playlist-changed",
+      name: "Spotify Playlist Changed",
+      description: "Currently active Spotify Playlist has changed",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify playlist changed",
       },
     },
   ],
