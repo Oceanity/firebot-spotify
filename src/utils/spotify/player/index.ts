@@ -371,7 +371,11 @@ export default class SpotifyPlayerService {
         this._isPlaying = state.is_playing;
       }
 
-      if (state.context && this.playlist.id !== state.context.uri) {
+      if (
+        state.context &&
+        state.context.type === "playlist" &&
+        this.playlist.id !== state.context.uri
+      ) {
         await this.playlist.updateCurrentPlaylistAsync(state.context.uri);
       }
 
@@ -409,9 +413,6 @@ export default class SpotifyPlayerService {
   //#endregion
 
   //#region Helper Methods
-  private readonly getBiggestImage = (images: SpotifyImage[]) =>
-    images.reduce((a, b) => (a.width > b.width ? a : b));
-
   private useCachedDeviceId = () =>
     this.activeDeviceId != null &&
     this.lastDevicePollTime != null &&
