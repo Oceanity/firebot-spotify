@@ -63,6 +63,7 @@ export class SpotifyIntegration extends EventEmitter {
     }
 
     spotify.player.init();
+    spotify.player.lyrics.init();
   }
 
   async connect() {}

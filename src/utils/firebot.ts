@@ -1,6 +1,7 @@
 import { integrationId } from "@/main";
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 import { HttpServerManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/http-server-manager";
+import { JsonDB } from "node-json-db";
 
 export let logger: ScriptModules["logger"];
 export let effectRunner: ScriptModules["effectRunner"];
@@ -9,7 +10,7 @@ export let eventManager: ScriptModules["eventManager"];
 export let httpServer: HttpServerManager;
 export let variableManager: ScriptModules["replaceVariableManager"];
 export let integrationManager: ScriptModules["integrationManager"];
-export let jsonDb: ScriptModules["JsonDb"];
+export let jsonDb: unknown;
 export let utils: ScriptModules["utils"];
 
 export function initModules(scriptModules: ScriptModules) {
