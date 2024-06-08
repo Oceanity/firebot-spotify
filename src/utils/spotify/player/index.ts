@@ -407,7 +407,7 @@ export default class SpotifyPlayerService extends EventEmitter {
         eventManager.triggerEvent(
           "oceanity-spotify",
           "track-changed",
-          this.track ?? {}
+          this._track ?? null
         );
 
         this.emit("track-changed", this._track);
@@ -436,6 +436,7 @@ export default class SpotifyPlayerService extends EventEmitter {
 
   private async tick(delayMs: number, startTime: number): Promise<void> {
     eventManager.triggerEvent("oceanity-spotify", "tick", {});
+    this.emit("tick");
     await delay(delayMs, startTime);
     return this.updatePlaybackState();
   }
