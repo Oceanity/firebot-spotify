@@ -4,7 +4,9 @@ import { delay } from "@/utils/timing";
 import { msToFormattedString } from "@/utils/strings";
 import SpotifyQueueService from "./queue";
 import SpotifyPlaylistService from "./playlist";
+import { SpotifyLyricsService } from "./lyrics";
 import { getBiggestImageUrl } from "@/utils/array";
+import { EventEmitter } from "events";
 
 type SpotifyTrackSummary = {
   id: string;
@@ -22,10 +24,11 @@ type SpotifyTrackSummary = {
   context: SpotifyContext | null;
 };
 
-export default class SpotifyPlayerService {
+export default class SpotifyPlayerService extends EventEmitter {
   private readonly spotify: SpotifyService;
   public readonly queue: SpotifyQueueService;
   public readonly playlist: SpotifyPlaylistService;
+  public readonly lyrics: SpotifyLyricsService;
 
   private readonly minutesToCacheDeviceId: number = 15;
   private activeDeviceId: string | null = null;
@@ -40,10 +43,13 @@ export default class SpotifyPlayerService {
   private _context: SpotifyContext | null = null;
 
   constructor(spotifyService: SpotifyService) {
+    super();
+
     this.spotify = spotifyService;
 
     this.queue = new SpotifyQueueService(this.spotify);
     this.playlist = new SpotifyPlaylistService(this.spotify);
+    this.lyrics = new SpotifyLyricsService(this.spotify);
   }
 
   public init() {
@@ -256,14 +262,12 @@ export default class SpotifyPlayerService {
       if (!(await this.spotify.me.isUserPremiumAsync()))
         throw new Error("Spotify Premium required to seek");
 
-      const deviceId = await this.spotify.player.getActiveDeviceIdAsync();
-
       await this.spotify.api.fetch(
         `/me/player/seek?position_ms=${positionMS}`,
         "PUT",
         {
           body: {
-            device_id: deviceId,
+            device_id: this.activeDeviceId,
           },
         }
       );
@@ -283,8 +287,9 @@ export default class SpotifyPlayerService {
    */
   public async setVolumeAsync(volume: number): Promise<void> {
     try {
-      if (volume < 0 || volume > 100 || volume % 1 !== 0)
+      if (volume < 0 || volume > 100 || volume % 1 !== 0) {
         throw new Error("Spotify volume must be an integer between 0 and 100");
+      }
 
       const response = await this.spotify.api.fetch(
         `/me/player/volume?volume_percent=${volume}`,
@@ -344,12 +349,12 @@ export default class SpotifyPlayerService {
 
   //#region Continuous methods
   private async updatePlaybackState(): Promise<void> {
-    const start = Date.now();
+    const startTime = performance.now();
 
     try {
       if (!this.spotify.auth.isLinked) {
         this.clearNowPlaying();
-        await delay(15000, start);
+        await delay(5000, startTime);
         return this.updatePlaybackState();
       }
 
@@ -359,8 +364,10 @@ export default class SpotifyPlayerService {
 
       if (!state) {
         this.clearNowPlaying();
-        return this.tick(15000, start);
+        return this.tick(5000, startTime);
       }
+
+      this.activeDeviceId = state.device.id;
 
       if (this._isPlaying != state.is_playing) {
         eventManager.triggerEvent(
@@ -402,12 +409,14 @@ export default class SpotifyPlayerService {
           "track-changed",
           this.track ?? {}
         );
+
+        this.emit("track-changed", this._track);
       }
-      return this.tick(state.is_playing ? 1000 : 15000, start);
+      return this.tick(state.is_playing ? 1000 : 5000, startTime);
     } catch (error) {
       logger.error("Error checking track change on Spotify", error);
       this.clearNowPlaying();
-      return this.tick(30000, start);
+      return this.tick(15000, startTime);
     }
   }
   //#endregion
@@ -425,9 +434,9 @@ export default class SpotifyPlayerService {
     this._progressMs = 0;
   }
 
-  private async tick(delayMs: number, start: number): Promise<void> {
+  private async tick(delayMs: number, startTime: number): Promise<void> {
     eventManager.triggerEvent("oceanity-spotify", "tick", {});
-    await delay(delayMs, start);
+    await delay(delayMs, startTime);
     return this.updatePlaybackState();
   }
   //#endregion
