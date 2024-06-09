@@ -1,14 +1,12 @@
 import { Request, Response } from "express";
 import { ApiEndpoint } from ".";
-import { effectRunner, jsonDb, logger } from "@/utils/firebot";
-import { integrationId } from "@/main";
-import { resolve } from "path";
-import { ensureDir, pathExists } from "fs-extra";
 import { spotify } from "@/main";
-import { JsonDB } from "node-json-db";
-import DbService from "@/utils/db";
-
-const lyricsDb = new DbService("./oceanitySpotifyLyrics.json", true, false);
+import DbService from "@utils/db";
+import { logger } from "@/utils/firebot";
+import {
+  lyricsFileExistsAsync,
+  lyricsFilePath,
+} from "@/utils/spotify/player/lyrics";
 
 export const SaveLyricsEndpoint: ApiEndpoint = [
   "/lyrics/save",
@@ -21,32 +19,39 @@ export const SaveLyricsEndpoint: ApiEndpoint = [
           message: "No request body",
         });
       }
+      if (!req.body.id || !req.body.data) {
+        res.status(400).send({
+          status: 400,
+          message: "Missing id or data",
+        });
+      }
 
       const { id, data } = req.body;
 
-      let existing;
-      try {
-        existing = await lyricsDb.getAsync(`/${id}`);
-      } catch (error) {}
+      if (data === "{}") return;
 
-      if (existing) {
+      if (await lyricsFileExistsAsync(id)) {
         res.status(409).send({
           status: 409,
-          message: `File ${id} already exists`,
+          message: "File already exists",
         });
         return;
       }
+      const filePath = lyricsFilePath(id);
 
-      try {
-        await lyricsDb.pushAsync(`/${id}`, data, true);
-      } catch (error) {
-        logger.error("Error saving lyrics to disk", error);
-      }
+      const db = new DbService(filePath, true, false);
+      await db.pushAsync(`/`, data);
+
+      const trackData = await spotify.getTrackAsync(id);
+
+      logger.info(
+        `Wrote lyrics to ${filePath} for ${trackData.artists[0].name} - ${trackData.name}`
+      );
 
       res.status(200).send({
         status: 200,
         message: "OK",
-        track: id,
+        track: `${trackData.artists[0].name} - ${trackData.name}`,
       });
     } catch (error) {
       res.status(500).send({
