@@ -52,14 +52,16 @@ export class SpotifyService {
     }
   }
 
-  public async getTrack(id: string) {
+  public async getTrackAsync(id: string) {
     try {
       const response = await this.api.fetch<SpotifyTrackDetails>(
         `/tracks/${id}`
       );
+
       if (!response.data) {
         throw new Error("Could not retrieve Spotify track");
       }
+
       return response.data;
     } catch (error) {
       logger.error("Error getting Spotify track", error);
