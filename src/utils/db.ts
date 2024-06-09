@@ -12,15 +12,19 @@ type PatchResults<T> = {
 export default class DbService {
   private _ready: boolean = false;
   private _path: string;
-  private _write: boolean;
-  private _minify: boolean;
+  private _autoSave: boolean;
+  private _humanReadable: boolean;
   private _db?: JsonDB;
 
-  public constructor(path: string, write: boolean, minify: boolean) {
+  public constructor(
+    path: string,
+    saveOnWrite: boolean = true,
+    humanReadable: boolean = false
+  ) {
     if (!path.includes(__dirname)) path = resolve(__dirname, path);
     this._path = path;
-    this._write = write;
-    this._minify = minify;
+    this._autoSave = saveOnWrite;
+    this._humanReadable = humanReadable;
   }
 
   public get ready(): boolean {
@@ -32,7 +36,7 @@ export default class DbService {
     await ensureDir(dirname(this._path));
 
     // @ts-expect-error ts18046
-    this._db = new jsonDb(this._path, this._write, this._minify);
+    this._db = new jsonDb(this._path, this._autoSave, this._humanReadable);
 
     this._ready = true;
   }
@@ -42,6 +46,8 @@ export default class DbService {
     defaults?: T | T[]
   ): Promise<T | undefined> {
     try {
+      await this.init();
+
       return this._db?.getData(route) as T;
     } catch (err) {
       if (defaults) this._db?.push(route, defaults, true);
@@ -72,9 +78,9 @@ export default class DbService {
     data: T,
     override: boolean = false
   ): Promise<boolean> {
-    logger.info(`Pushing ${JSON.stringify(data)} to ${route} in ${this._path}`);
-
     try {
+      await this.init();
+
       await this._db?.push(route, data, override);
       return true;
     } catch (err) {
@@ -90,6 +96,8 @@ export default class DbService {
     defaults: T
   ): Promise<boolean> {
     try {
+      await this.init();
+
       const existing = (await this.getAsync<T>(route, defaults)) ?? defaults;
       await this.pushAsync(route, callback(existing, data), true);
       return true;
@@ -106,6 +114,8 @@ export default class DbService {
     fuseOptions?: IFuseOptions<T>
   ): Promise<PatchResults<T> | undefined> {
     try {
+      await this.init();
+
       const data = await this._db?.getData(route);
       const fuse = new Fuse(data, fuseOptions);
       const results = fuse.search(search);
