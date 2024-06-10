@@ -25,7 +25,7 @@
 
   // Fetch storage
   let firebotHost = localStorage.getItem(FIREBOT_HOST_KEY);
-  let savedLyricIds = JSON.parse(localStorage.getItem(FIREBOT_SAVED_IDS_KEY) ?? "[]");
+  let savedLyricIds = [];
 
   if (!firebotHost) {
     console.log("No Firebot Host found in Local storage, setting to default");
@@ -54,11 +54,31 @@
     return response;
   };
 
-  // Create Modal
-  const startOffsetTop = localStorage.getItem("modalOffsetTop") ?? "20";
-  const startOffsetLeft = localStorage.getItem("modalOffsetLeft") ?? "310";
+  window.onresize = (e) => {
+    moveOverlay(overlay.offsetLeft, overlay.offsetTop);
+  }
 
-  const pluginCss = createDomElement("style", `
+  addStyles(`
+      #oceanity-spotify-modal {
+          position: absolute;
+          border-radius: 10px;
+          top: 20px;
+          left: 310px;
+          width: 360px;
+          overflow: hidden;
+          color: #fff;
+          text-shadow: 1px 1px 2px #000;
+          background-color: rgba(0,45,70,0.8);
+          z-index: 999;
+      }
+      #oceanity-spotify-modal input,
+      #oceanity-spotify-modal textarea {
+          border: 0;
+          border-radius: 5px;
+          padding: 5px;
+          color: #ddd;
+          background-color: rgba(0, 0, 0, 0.5);
+      }
       .oceanity-spotify-connection-row {
           display: flex;
           align-items: center;
@@ -76,37 +96,23 @@
           font-size: 0.8em;
       }
   `);
-  document.head.append(pluginCss);
 
   // Create UI Overlay
-  const overlay = createDomElement("div", "", {
-    id: "firebot-lyric-grabber-overlay",
-    css: {
-      position: "absolute",
-      borderRadius: "10px",
-      top: `${startOffsetTop}px`,
-      left: `${startOffsetLeft}px`,
-      width: "360px",
-      overflow: "hidden",
-      color: "#fff",
-      textShadow: "1px 1px 2px #000",
-      backgroundColor: "rgba(0,45,70,0.8)",
-      zIndex: 9999
-    },
+  const overlay = createDomElement("div", {
+    id: "oceanity-spotify-modal"
   });
-
-  const overlayHeader = createDomElement("div", "", {
-    id: "firebot-lyric-grabber-overlay-header",
+  const overlayHeader = createDomElement("div", {
+    id: "oceanity-spotify-modal-header",
     css: {
       height: "20px",
       background: "rgba(0,25,50,0.5)",
       cursor: "move"
-    }
+    },
+    onmousedown: dragOverlayHandler
   });
   overlay.append(overlayHeader);
 
-
-  const connectionPanel = createDomElement("div", "", {
+  const connectionPanel = createDomElement("div", {
     css: {
       display: "flex",
       flexDirection: "column",
@@ -117,41 +123,46 @@
   overlay.append(connectionPanel);
 
   //#region Lyrics connected
-  const lyricsConnectedRow = createDomElement("div", "", {
+  const lyricsConnectedRow = createDomElement("div", {
     className: "oceanity-spotify-connection-row",
   });
   connectionPanel.append(lyricsConnectedRow);
-  const lyricsConnectedLight = createDomElement("div", "", {
+
+  const lyricsConnectedLight = createDomElement("div", {
     className: "oceanity-spotify-connection-light",
   });
   lyricsConnectedRow.append(lyricsConnectedLight);
-  const lyricsConnectedText = createDomElement("span", "Disconnected from Spotify Lyrics, go to <a href='/lyrics'>lyrics</a>", {
+
+  const lyricsConnectedText = createDomElement("span", {
+    html: "Disconnected from Spotify Lyrics, go to <a href='/lyrics'>lyrics</a>",
     className: "oceanity-spotify-connection-text"
   });
   lyricsConnectedRow.append(lyricsConnectedText);
+
   async function checkLyrics() {
-    if (window.location.pathname === "/lyrics") {
-      lyricsConnectedLight.style.background = "green";
-      lyricsConnectedText.innerHTML = "Connected to Spotify Lyrics";
-    } else {
-      lyricsConnectedLight.style.background = "red";
-      lyricsConnectedText.innerHTML = "Disconnected from Spotify Lyrics, go to <a href='/lyrics'>lyrics</a>";
-      setTimeout(checkLyrics, 1000);
-    }
+    const onLyrics = window.location.pathname === "/lyrics";
+    lyricsConnectedLight.style.background = onLyrics ?
+      "green" :
+      "red";
+    lyricsConnectedText.innerHTML = onLyrics ?
+      "Connected to Spotify Lyrics" :
+      "Disconnected from Spotify Lyrics, go to <a href='/lyrics'>lyrics</a>";
+    setTimeout(checkLyrics, 15000);
   }
   checkLyrics();
   //#endregion
 
   //#region Firebot connected
-  const firebotConnectedRow = createDomElement("div", "", {
+  const firebotConnectedRow = createDomElement("div", {
     className: "oceanity-spotify-connection-row",
   });
   connectionPanel.append(firebotConnectedRow);
-  const firebotConnectedLight = createDomElement("div", "", {
+  const firebotConnectedLight = createDomElement("div", {
     className: "oceanity-spotify-connection-light",
   });
   firebotConnectedRow.append(firebotConnectedLight);
-  const firebotConnectedText = createDomElement("span", "Disconnected from Firebot", {
+  const firebotConnectedText = createDomElement("span", {
+    text: "Disconnected from Firebot",
     className: "oceanity-spotify-connection-text"
   });
   firebotConnectedRow.append(firebotConnectedText);
@@ -173,10 +184,9 @@
   checkFirebot();
   //#endregion
 
-  const overlayBody = createDomElement("div", `
-      <h2>Lyrics Grabber <span style="font-size:0.75em; color: rgba(255,255,255,0.7)">(by Oceanity)</span></h2>
-      <label>Firebot Host</label>
-  `, {
+  const overlayBody = createDomElement("div", {
+    html: `<h2>Lyrics Grabber <span style="font-size:0.75em; color: rgba(255,255,255,0.7)">(by Oceanity)</span></h2>
+             <label>Firebot Host</label>`,
     css: {
       display: "flex",
       flexDirection: "column",
@@ -186,52 +196,57 @@
   });
   overlay.append(overlayBody);
 
-  const overlayHostInput = createDomElement("input", "", {
+  let timeoutToSaveHost;
+  const overlayHostInput = createDomElement("input", {
     name: "firebot-hostname",
     id: "firebot-hostname",
     type: "text",
     value: firebotHost,
-    css: {
-      color: "navy"
+    oninput: (e) => {
+      if (timeoutToSaveHost) clearTimeout(timeoutToSaveHost);
+      firebotHost = e.target.value;
+      timeoutToSaveHost = setTimeout(() => {
+        localStorage.setItem(FIREBOT_HOST_KEY, firebotHost);
+      }, 1000);
     }
-  });
-  let timeoutToSaveHost;
-  overlayHostInput.addEventListener("input", (e) => {
-    if (timeoutToSaveHost) clearTimeout(timeoutToSaveHost);
-    firebotHost = e.target.value;
-    timeoutToSaveHost = setTimeout(() => {
-      console.log("Saved host to local storage");
-      localStorage.setItem(FIREBOT_HOST_KEY, firebotHost);
-    }, 5000);
   });
   overlayBody.append(overlayHostInput);
 
-  const overlayLog = createDomElement("textarea", "Log:", {
+  const overlayLog = createDomElement("textarea", {
+    value: "Log:",
     readOnly: true,
     css: {
-      padding: "5px",
       minHeight: "160px",
       overflowX: "hidden",
       overflowY: "auto",
-      color: "#ddd",
-      background: "rgba(0, 0, 0, 0.5)",
       userSelect: "none",
       fontSize: "10px",
       fontFamily: "monospace",
-      resize: "vertical",
-      border: 0
+      resize: "none"
     }
   });
   overlayBody.append(overlayLog);
 
   document.body.prepend(overlay);
 
-  dragElement(overlay);
-
   // Firebot functions
   async function saveLyricsToFirebotAsync(id, data) {
     try {
       if (savedLyricIds.includes(id)) return;
+
+      const lyricsExistResponse = await originalFetch(`${firebotApiUrl()}/exists?id=${id}`);
+
+      if (lyricsExistResponse.ok) {
+        const lyricsExist = (await lyricsExistResponse.json()).exists;
+
+        if (lyricsExist) {
+          console.log(`Lyrics for track with Id ${id} already exist`);
+          savedLyricIds.push(id);
+          return;
+        }
+      }
+
+      console.log(lyricsExistResponse);
 
       const firebotResponse = await originalFetch(`${firebotApiUrl()}/save`, {
         headers: {
@@ -244,7 +259,6 @@
         })
       });
       if (firebotResponse.ok || firebotResponse.status === 409) {
-        savedLyricIds.push(id);
         localStorage.setItem(FIREBOT_SAVED_IDS_KEY, JSON.stringify(savedLyricIds));
 
         const data = await firebotResponse.json();
@@ -259,72 +273,21 @@
     }
   }
 
-  // Draggable element functions
-  function dragElement(elmnt) {
-    var pos1 = 0,
-      pos2 = 0,
-      pos3 = 0,
-      pos4 = 0;
-    if (document.getElementById(elmnt.id + "-header")) {
-      // if present, the header is where you move the DIV from:
-      document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
-    } else {
-      // otherwise, move the DIV from anywhere inside the DIV:
-      elmnt.onmousedown = dragMouseDown;
-    }
-
-    function dragMouseDown(e) {
-      e = e || window.event;
-      e.preventDefault();
-      // Prevent dragging if the target is an input element
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-        return;
-      }
-      // get the mouse cursor position at startup:
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-      e = e || window.event;
-      e.preventDefault();
-      // calculate the new cursor position:
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      // set the element's new position:
-      elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-      elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-    }
-
-    function closeDragElement() {
-      // stop moving when mouse button is released:
-      document.onmouseup = null;
-      document.onmousemove = null;
-
-      localStorage.setItem("modalOffsetTop", elmnt.offsetTop);
-      localStorage.setItem("modalOffsetLeft", elmnt.offsetLeft);
-    }
-  }
-
-  function createDomElement(type, content = "", data = {}) {
+  function createDomElement(type, data = {}) {
     const element = document.createElement(type);
-    element.innerHTML = content;
 
     for (const [key, value] of Object.entries(data)) {
       switch (key) {
+        case "html":
+          element.innerHTML = data.html;
+          break;
+        case "text":
+          element.textContent = data.text;
+          break;
         case "css":
           for (const [cssKey, cssValue] of Object.entries(data.css)) {
             element.style[cssKey] = cssValue;
           }
-          break;
-        case "parent":
-          if (data.prepend) data.parent.prepend(element);
-          else data.parent.append(element);
           break;
         default:
           element[key] = value;
@@ -334,4 +297,55 @@
 
     return element;
   }
+
+  function addStyles(content = "") {
+    const style = createDomElement("style", {
+      innerHTML: content
+    });
+    document.head.append(style);
+  }
+
+  function dragOverlayHandler(e) {
+    let pos1 = 0,
+      pos2 = 0,
+      pos3 = 0,
+      pos4 = 0;
+
+    e = e || window.event;
+    e.preventDefault();
+    // Prevent dragging if the target is an input element
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+      return;
+    }
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmousemove = (e) => {
+      e = e || window.event;
+      e.preventDefault();
+      // calculate the new cursor position:
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      // set the element's new position:
+      moveOverlay(overlay.offsetLeft - pos1, overlay.offsetTop - pos2);
+    };
+    // stop moving when mouse button is released:
+    document.onmouseup = (e) => {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    };
+  }
+
+  function moveOverlay(x, y) {
+    const rightBoundary = window.innerWidth - overlay.getBoundingClientRect().width;
+    const bottomBoundary = window.innerHeight - overlay.getBoundingClientRect().height;
+
+    overlay.style.left = clamp(x, 0, rightBoundary) + "px";
+    overlay.style.top = clamp(y, 0, bottomBoundary) + "px";
+  }
+
+  // Helpers
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 })();
