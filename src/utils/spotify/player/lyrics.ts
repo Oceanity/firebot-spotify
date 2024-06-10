@@ -50,10 +50,6 @@ export class SpotifyLyricsService extends EventEmitter {
       if (!this._lyricsData || this._trackId !== track.id) {
         if (!(await lyricsFileExistsAsync(track.id))) return;
 
-        logger.info(
-          `Lyrics file exists for ${track.artists[0].name} - ${track.name}`
-        );
-
         const path = lyricsFilePath(track.id);
         const db = new DbService(path, true, false);
 
@@ -80,8 +76,6 @@ export class SpotifyLyricsService extends EventEmitter {
 
     // If current track, let's make it live
     if (this._trackId === id) {
-      logger.info("Found current track lyrics midway");
-
       this._lyricsData = lyricsData;
 
       this.spotify.player.on("tick", this.tickListener);
@@ -98,7 +92,6 @@ export class SpotifyLyricsService extends EventEmitter {
         !lyricsData ||
         this._trackId !== this.spotify.player.track.id
       ) {
-        logger.info("Stopping lyric tick handler");
         this.spotify.player.off("tick", this.tickListener);
         return;
       }
