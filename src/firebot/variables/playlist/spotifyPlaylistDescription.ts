@@ -7,7 +7,7 @@ export const SpotifyPlaylistDescriptionVariable: ReplaceVariable = {
     description:
       "Gets the Description of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistDescription",
-    possibleDataOutput: ["number"],
+    possibleDataOutput: ["text"],
   },
   evaluator: async () => spotify.player.playlist.description,
 };
