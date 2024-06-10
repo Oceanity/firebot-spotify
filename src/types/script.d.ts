@@ -54,3 +54,33 @@ type IntegrationDefinition<Params extends FirebotParams = FirebotParams> = {
     }
   | { linkType: "other" | "none" }
 );
+
+type LyricsLine = {
+  startTimeMs: string;
+  words: string;
+  syllables: string[];
+  endTimeMs: string;
+};
+
+type LyricsData = {
+  syncType: string;
+  lyrics: {
+    lines: LyricsLine[];
+    provider: string;
+    providerLyricsId: number;
+    providerDisplayName: string;
+    syncLyricsUri: string;
+    isDenseTypeface: boolean;
+    alternatives: string[];
+    language: string;
+    isRtlLanguage: boolean;
+    showUpsell: boolean;
+    capStatus: string;
+  };
+  colors: {
+    background: number;
+    text: number;
+    highlightText: number;
+  };
+  hasVocalRemoval: boolean;
+};

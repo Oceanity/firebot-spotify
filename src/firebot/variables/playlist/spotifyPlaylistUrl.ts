@@ -6,7 +6,7 @@ export const SpotifyPlaylistUrlVariable: ReplaceVariable = {
     handle: "spotifyPlaylistUrl",
     description: "Gets the Url of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistUrl",
-    possibleDataOutput: ["number"],
+    possibleDataOutput: ["text"],
   },
   evaluator: async () => spotify.player.playlist.url,
 };

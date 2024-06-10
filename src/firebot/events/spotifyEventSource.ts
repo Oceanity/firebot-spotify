@@ -4,6 +4,16 @@ export const SpotifyEventSource = {
   description: "Events related to Oceanity's Spotify integration",
   events: [
     {
+      id: "lyrics-changed",
+      name: "Spotify Lyrics Changed",
+      description: "Current Spotify lyrics line changed",
+      cached: false,
+      activityFeed: {
+        icon: "fab fa-spotify",
+        getMessage: () => "Spotify lyrics changed",
+      },
+    },
+    {
       id: "playback-state-changed",
       name: "Spotify Playback State Changed",
       description: "Spotify playback state changed",

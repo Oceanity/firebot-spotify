@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity <sub style="color:gray">v0.6</sub>
+# Spotify Integration by Oceanity <sub style="color:gray">v0.7.0</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
@@ -27,7 +27,14 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
   - Log in and authorize on the page that pops up
 - You should now have the ability to use this script's Effects, Events and Replace Variables in Firebot
 
----
+### Lyrics Setup
+
+- Install Tampermonkey from https://www.tampermonkey.net/
+  - Google Chrome and other Chromium browsers may need to follow instructions here https://www.tampermonkey.net/faq.php#Q209 for this script to work
+- Click the lyricsGrabber.user.js file included with the latest Release
+- Tampermonkey should prompt you to install the script, click Install
+- Visit https://open.spotify.com/lyrics and you should see a modal on the site for the plugin
+- As long as the lyrics pane is open, any songs with Lyrics will now forward those to Firebot (they will not render in the browser, this is normal)
 
 <div id="Features" />
 
@@ -48,6 +55,9 @@ This script adds the following features to Firebot
 **Any Spotify Account**
 
 - Replace Variables
+  - Lyrics
+    - spotifyLyricsCurrentLine: `string`
+    - spotifyTrackHasLyrics: `bool`
   - Player
     - spotifyIsPlaying: `bool`
     - spotifyPlayerRelativeVolume: `float`
@@ -73,6 +83,7 @@ This script adds the following features to Firebot
     - spotifyTrackUri: `string`
     - spotifyTrackUrl: `string`
 - Events
+  - Lyrics Changed
   - Playback State Changed
   - Playlist Changed
   - Tick
