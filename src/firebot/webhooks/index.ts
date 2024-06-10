@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { LyricsExistEndpoint } from "./lyricsExist";
 import { PingLyricsEndpoint } from "./pingLyrics";
 import { SaveLyricsEndpoint } from "./saveLyrics";
 
@@ -11,6 +12,7 @@ export type ApiEndpoint = [
 ];
 
 export const AllSpotifyWebhooks: ApiEndpoint[] = [
+  LyricsExistEndpoint,
   PingLyricsEndpoint,
   SaveLyricsEndpoint,
 ];
