@@ -6,7 +6,7 @@ export const SpotifyPlaylistNameVariable: ReplaceVariable = {
     handle: "spotifyPlaylistName",
     description: "Gets the Name of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistName",
-    possibleDataOutput: ["number"],
+    possibleDataOutput: ["text"],
   },
   evaluator: async () => spotify.player.playlist.name,
 };

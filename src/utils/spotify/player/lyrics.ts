@@ -11,18 +11,22 @@ export const lyricsPath = "./lyrics";
 export class SpotifyLyricsService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
-  private _lineQueued: boolean = false;
   private _trackId: string | null = null;
   private _lyricsData: LyricsData | null = null;
   private _currentLine: LyricsLine | null = null;
   private _queuedLine: LyricsLine | null = null;
 
-  private tickListener = () => this.handleNextTick();
+  private tickListener = (progressMs: number) =>
+    this.handleNextTick(progressMs);
 
   public constructor(spotifyService: SpotifyService) {
     super();
 
     this.spotify = spotifyService;
+  }
+
+  public get trackHasLyrics(): boolean {
+    return !!this._lyricsData;
   }
 
   public get currentLine(): string {
@@ -32,7 +36,7 @@ export class SpotifyLyricsService extends EventEmitter {
   public async init() {
     this.spotify.player.on("track-changed", async (track) => {
       this._lyricsData = null;
-      this._lineQueued = false;
+      this._trackId = track.id;
 
       // set current line to empty
       this._currentLine = {
@@ -55,20 +59,38 @@ export class SpotifyLyricsService extends EventEmitter {
 
         const lyricsData = await db.getAsync<LyricsData>("/");
 
-        if (lyricsData) {
-          this._trackId = track.id;
-          this._lyricsData = lyricsData;
-
-          this.spotify.player.on("tick", this.tickListener);
+        if (!lyricsData) {
+          this.spotify.player.off("tick", this.tickListener);
           return;
         }
 
-        this.spotify.player.off("tick", this.tickListener);
+        this._lyricsData = lyricsData;
+
+        this.spotify.player.on("tick", this.tickListener);
+        return;
       }
     });
   }
 
-  private async handleNextTick(): Promise<void> {
+  public async saveLyrics(id: string, lyricsData: LyricsData) {
+    const filePath = lyricsFilePath(id);
+
+    const db = new DbService(filePath, true, false);
+    const response = await db.pushAsync(`/`, lyricsData);
+
+    // If current track, let's make it live
+    if (this._trackId === id) {
+      logger.info("Found current track lyrics midway");
+
+      this._lyricsData = lyricsData;
+
+      this.spotify.player.on("tick", this.tickListener);
+    }
+
+    return response;
+  }
+
+  private async handleNextTick(progressMs: number): Promise<void> {
     const { _lyricsData: lyricsData } = this;
     try {
       if (
@@ -76,19 +98,18 @@ export class SpotifyLyricsService extends EventEmitter {
         !lyricsData ||
         this._trackId !== this.spotify.player.track.id
       ) {
+        logger.info("Stopping lyric tick handler");
         this.spotify.player.off("tick", this.tickListener);
         return;
       }
 
       // Don't update if line is already on its way
-      if (this._queuedLine) return;
+      if (this._queuedLine || !this.spotify.player.isPlaying) return;
 
-      const currentMs = this.spotify.player.track.positionMs;
-
-      this.checkNextLine(currentMs);
+      this.checkNextLine(progressMs);
 
       if (!this._queuedLine) {
-        this.checkPreviousLine(currentMs);
+        this.checkPreviousLine(progressMs);
       }
     } catch (error) {
       logger.error("Error handling next tick", error);
@@ -101,22 +122,19 @@ export class SpotifyLyricsService extends EventEmitter {
     const { lines } = this._lyricsData.lyrics;
 
     const nextLine = lines
-      .filter((line) => parseInt(line.startTimeMs) > currentMs)
+      .filter((line) => Number(line.startTimeMs) > currentMs)
       .reduce(
         (prev, curr) =>
-          parseInt(curr.startTimeMs) < parseInt(prev.startTimeMs) ? curr : prev,
+          Number(curr.startTimeMs) < Number(prev.startTimeMs) ? curr : prev,
         this.endLine
       );
 
-    const offset = parseInt(nextLine.startTimeMs) - currentMs;
+    const offset = Number(nextLine.startTimeMs) - currentMs;
 
     if (
       offset < 1000 &&
       this._queuedLine?.startTimeMs !== nextLine.startTimeMs
     ) {
-      logger.info(`Found upcoming line\n${JSON.stringify(nextLine)}`);
-
-      this._queuedLine = nextLine;
       this.queueNextLine(offset, nextLine);
     }
   }
@@ -127,16 +145,16 @@ export class SpotifyLyricsService extends EventEmitter {
     const { lines } = this._lyricsData.lyrics;
 
     const lastLine = lines
-      .filter((line) => parseInt(line.startTimeMs) < currentMs)
+      .filter((line) => Number(line.startTimeMs) < currentMs)
       .reduce(
         (prev, curr) =>
-          parseInt(curr.startTimeMs) > parseInt(prev.startTimeMs) ? curr : prev,
+          Number(curr.startTimeMs) > Number(prev.startTimeMs) ? curr : prev,
         this.startLine
       );
 
     if (
       !this._currentLine ||
-      parseInt(lastLine.startTimeMs) > parseInt(this._currentLine.startTimeMs)
+      Number(lastLine.startTimeMs) > Number(this._currentLine.startTimeMs)
     ) {
       this._currentLine == lastLine;
       this.queueNextLine(0, lastLine);
@@ -147,9 +165,9 @@ export class SpotifyLyricsService extends EventEmitter {
     delayMs: number,
     line: LyricsLine
   ): Promise<void> {
-    if (this._lineQueued) return;
+    if (this._queuedLine) return;
     const id = this._trackId;
-    this._lineQueued = true;
+    this._queuedLine = line;
 
     await delay(delayMs);
 
@@ -159,8 +177,6 @@ export class SpotifyLyricsService extends EventEmitter {
     this._currentLine = line;
     this._queuedLine = null;
     this.emitLyricsChanged(this._currentLine);
-
-    this._lineQueued = false;
   }
 
   private emitLyricsChanged(line: LyricsLine) {
@@ -176,7 +192,7 @@ export class SpotifyLyricsService extends EventEmitter {
   };
 
   private readonly endLine: LyricsLine = {
-    startTimeMs: "999999999",
+    startTimeMs: "9999999999",
     words: "",
     syllables: [],
     endTimeMs: "0",
@@ -191,9 +207,5 @@ export async function lyricsFileExistsAsync(id: string): Promise<boolean> {
 
   await ensureDir(dirname(filePath));
 
-  if (await pathExists(filePath)) {
-    return true;
-  }
-
-  return false;
+  return await pathExists(filePath);
 }

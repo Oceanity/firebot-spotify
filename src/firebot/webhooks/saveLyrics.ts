@@ -1,12 +1,7 @@
 import { Request, Response } from "express";
 import { ApiEndpoint } from ".";
 import { spotify } from "@/main";
-import DbService from "@utils/db";
-import { logger } from "@/utils/firebot";
-import {
-  lyricsFileExistsAsync,
-  lyricsFilePath,
-} from "@/utils/spotify/player/lyrics";
+import { lyricsFileExistsAsync } from "@/utils/spotify/player/lyrics";
 
 export const SaveLyricsEndpoint: ApiEndpoint = [
   "/lyrics/save",
@@ -19,7 +14,12 @@ export const SaveLyricsEndpoint: ApiEndpoint = [
           message: "No request body",
         });
       }
-      if (!req.body.id || !req.body.data) {
+      if (
+        !req.body.id ||
+        !req.body.data ||
+        req.body.id === "undefined" ||
+        req.body.data === "{}"
+      ) {
         res.status(400).send({
           status: 400,
           message: "Missing id or data",
@@ -37,16 +37,10 @@ export const SaveLyricsEndpoint: ApiEndpoint = [
         });
         return;
       }
-      const filePath = lyricsFilePath(id);
 
-      const db = new DbService(filePath, true, false);
-      await db.pushAsync(`/`, data);
+      await spotify.player.lyrics.saveLyrics(id, data);
 
       const trackData = await spotify.getTrackAsync(id);
-
-      logger.info(
-        `Wrote lyrics to ${filePath} for ${trackData.artists[0].name} - ${trackData.name}`
-      );
 
       res.status(200).send({
         status: 200,
