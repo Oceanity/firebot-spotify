@@ -6,10 +6,12 @@ import {
   effectManager,
   variableManager,
   eventManager,
+  httpServer,
 } from "@utils/firebot";
 import { integrationId, spotify } from "@/main";
 import { AllSpotifyEffects } from "./firebot/effects";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
+import { AllSpotifyWebhooks } from "./firebot/webhooks";
 import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 
@@ -54,7 +56,14 @@ export class SpotifyIntegration extends EventEmitter {
     // Register Events
     eventManager.registerEventSource(SpotifyEventSource);
 
+    // Register Webhooks
+    for (const webhook of AllSpotifyWebhooks) {
+      const [path, method, handler] = webhook;
+      httpServer.registerCustomRoute(integrationId, path, method, handler);
+    }
+
     spotify.player.init();
+    spotify.player.lyrics.init();
   }
 
   async connect() {}

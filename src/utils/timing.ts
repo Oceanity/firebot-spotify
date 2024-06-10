@@ -1,7 +1,7 @@
 import { logger } from "./firebot";
 
-export async function delay(ms: number, methodStart?: number): Promise<void> {
-  const offset = methodStart ? Date.now() - methodStart : 0;
+export async function delay(ms: number, startTime?: number): Promise<void> {
+  const offset = startTime ? performance.now() - startTime : 0;
 
   if (offset > ms) {
     logger.info(

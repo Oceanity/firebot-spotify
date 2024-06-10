@@ -7,7 +7,7 @@ export const SpotifyPlaylistCoverImageUrlVariable: ReplaceVariable = {
     description:
       "Gets the Cover Image Url of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistCoverImageUrl",
-    possibleDataOutput: ["number"],
+    possibleDataOutput: ["text"],
   },
   evaluator: async () => spotify.player.playlist.coverImageUrl,
 };
