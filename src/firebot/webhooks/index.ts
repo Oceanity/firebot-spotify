@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { LyricsExistEndpoint } from "./lyricsExist";
 import { PingLyricsEndpoint } from "./pingLyrics";
 import { SaveLyricsEndpoint } from "./saveLyrics";
+import { VersionCheckEndpoint } from "./versionCheck";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
 
@@ -15,4 +16,5 @@ export const AllSpotifyWebhooks: ApiEndpoint[] = [
   LyricsExistEndpoint,
   PingLyricsEndpoint,
   SaveLyricsEndpoint,
+  VersionCheckEndpoint,
 ];
