@@ -1,7 +1,6 @@
 import { integrationId } from "@/main";
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 import { HttpServerManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/http-server-manager";
-import { JsonDB } from "node-json-db";
 
 export let logger: ScriptModules["logger"];
 export let effectRunner: ScriptModules["effectRunner"];
@@ -25,24 +24,24 @@ export function initModules(scriptModules: ScriptModules) {
   httpServer = scriptModules.httpServer;
 }
 
-export function chatFeedAlert(message: string) {
-  effectRunner.processEffects({
+export async function chatFeedAlert(message: string) {
+  //@ts-expect-error ts2339
+  const effect = effectManager.getEffectById("firebot:chat-feed-alert");
+
+  if (!effect || !effect.onTriggerEvent) {
+    logger.error("Unable to trigger chat feed alert");
+    return;
+  }
+
+  await effect.onTriggerEvent({
+    effect: {
+      message,
+    },
     trigger: {
       type: "custom_script",
       metadata: {
         username: "script",
       },
-    },
-    effects: {
-      id: `${integrationId}-${Date.now()}`,
-      list: [
-        {
-          id: "e6bac140-1894-11ef-a992-091f0a9405f6",
-          type: "firebot:chat-feed-alert",
-          active: true,
-          message,
-        },
-      ],
     },
   });
 }

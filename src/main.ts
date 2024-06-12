@@ -4,10 +4,12 @@ import {
   generateSpotifyDefinition,
 } from "@/spotifyIntegration";
 
-import { initModules } from "@utils/firebot";
+import { chatFeedAlert, initModules } from "@utils/firebot";
 import { SpotifyService } from "./utils/spotify/index";
+import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
 export const integrationId = "oceanity-spotify";
+export const localVersion = "0.7.1";
 export const spotify = new SpotifyService();
 
 const script: Firebot.CustomScript<Params> = {
@@ -16,7 +18,7 @@ const script: Firebot.CustomScript<Params> = {
       name: "Firebot Spotify Integrations",
       description: "Let your viewers determine your taste in music",
       author: "Oceanity",
-      version: "0.7.0",
+      version: localVersion,
       firebotVersion: "5",
     };
   },
@@ -69,6 +71,17 @@ const script: Firebot.CustomScript<Params> = {
     integrationManager.registerIntegration({
       definition,
       integration,
+    });
+
+    //@ts-expect-error ts2339
+    runRequest.modules.twitchChat.on("connected", async () => {
+      const updateResponse = await checkRemoteVersionAsync();
+
+      if (!updateResponse.newVersionAvailable) return;
+
+      await chatFeedAlert(
+        `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
+      );
     });
   },
 };
