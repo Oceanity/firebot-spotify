@@ -19,7 +19,7 @@ export const VersionCheckEndpoint: ApiEndpoint = [
   },
 ];
 
-async function checkRemoteVersionAsync() {
+export async function checkRemoteVersionAsync() {
   let remoteVersion: string | null = null;
   let remoteIsNewer = false;
 

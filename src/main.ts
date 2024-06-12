@@ -6,6 +6,7 @@ import {
 
 import { initModules } from "@utils/firebot";
 import { SpotifyService } from "./utils/spotify/index";
+import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
 export const integrationId = "oceanity-spotify";
 export const version = "0.7.1";
@@ -70,6 +71,35 @@ const script: Firebot.CustomScript<Params> = {
     integrationManager.registerIntegration({
       definition,
       integration,
+    });
+
+    //@ts-expect-error ts2339
+    runRequest.modules.twitchChat.on("connected", async () => {
+      const updateResponse = await checkRemoteVersionAsync();
+
+      if (updateResponse.newVersionAvailable) {
+        //@ts-expect-error ts2339
+        const effect = runRequest.modules.effectManager.getEffectById(
+          "firebot:chat-feed-alert"
+        );
+
+        if (!effect || !effect.onTriggerEvent) {
+          logger.error("Unable to trigger chat feed alert");
+          return;
+        }
+
+        await effect.onTriggerEvent({
+          effect: {
+            message: `A new update of Spotify Integration by Oceanity is available (${updateResponse.currentVersion} -> ${updateResponse.latestVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`,
+          },
+          trigger: {
+            type: "custom_script",
+            metadata: {
+              username: "script",
+            },
+          },
+        });
+      }
     });
   },
 };
