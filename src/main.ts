@@ -9,7 +9,7 @@ import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
 export const integrationId = "oceanity-spotify";
-export const version = "0.7.1";
+export const localVersion = "0.7.1";
 export const spotify = new SpotifyService();
 
 const script: Firebot.CustomScript<Params> = {
@@ -18,7 +18,7 @@ const script: Firebot.CustomScript<Params> = {
       name: "Firebot Spotify Integrations",
       description: "Let your viewers determine your taste in music",
       author: "Oceanity",
-      version,
+      version: localVersion,
       firebotVersion: "5",
     };
   },
@@ -80,7 +80,7 @@ const script: Firebot.CustomScript<Params> = {
       if (!updateResponse.newVersionAvailable) return;
 
       await chatFeedAlert(
-        `A new update of Spotify Integration by Oceanity is available (${updateResponse.currentVersion} -> ${updateResponse.latestVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
+        `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
       );
     });
   },

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ApiEndpoint } from ".";
-import { version } from "@/main";
+import { localVersion } from "@/main";
 import ResponseError from "@/models/responseError";
 import { logger } from "@/utils/firebot";
 
@@ -19,7 +19,13 @@ export const VersionCheckEndpoint: ApiEndpoint = [
   },
 ];
 
-export async function checkRemoteVersionAsync() {
+type RemoteVersionCheckResponse = {
+  localVersion: string;
+  remoteVersion: string | null;
+  newVersionAvailable: boolean;
+};
+
+export async function checkRemoteVersionAsync(): Promise<RemoteVersionCheckResponse> {
   let remoteVersion: string | null = null;
   let remoteIsNewer = false;
 
@@ -29,13 +35,13 @@ export async function checkRemoteVersionAsync() {
     );
     remoteVersion = (await githubPackageResponse.json()).version;
 
-    if (!remoteVersion)
+    if (remoteVersion === null)
       throw new ResponseError(
         "Failed to get remote version",
         githubPackageResponse
       );
 
-    const splitLocal = version.split(".");
+    const splitLocal = localVersion.split(".");
     const splitRemote = remoteVersion.split(".");
 
     for (let i = 0; i < Math.min(splitLocal.length, splitRemote.length); i++) {
@@ -55,9 +61,10 @@ export async function checkRemoteVersionAsync() {
   } catch (error) {
     logger.error("Error checking remote version", error);
   }
+
   return {
-    currentVersion: version,
-    latestVersion: remoteVersion,
+    localVersion,
+    remoteVersion,
     newVersionAvailable: remoteIsNewer,
   };
 }
