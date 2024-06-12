@@ -1,7 +1,6 @@
 import { integrationId } from "@/main";
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 import { HttpServerManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/http-server-manager";
-import { JsonDB } from "node-json-db";
 
 export let logger: ScriptModules["logger"];
 export let effectRunner: ScriptModules["effectRunner"];
