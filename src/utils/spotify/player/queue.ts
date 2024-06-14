@@ -25,15 +25,13 @@ export default class SpotifyQueueService {
 
   public async pushAsync(songUri: string, allowDuplicates: boolean = false) {
     try {
-      const deviceId = await this.spotify.player.getActiveDeviceIdAsync();
-
       if (!allowDuplicates && (await this.findIndexAsync(songUri)) !== -1) {
         throw new Error("Song already exists in queue");
       }
 
       await this.spotify.api.fetch(`/me/player/queue?uri=${songUri}`, "POST", {
         body: {
-          device_id: deviceId,
+          device_id: this.spotify.player.device.id,
         },
       });
     } catch (error) {

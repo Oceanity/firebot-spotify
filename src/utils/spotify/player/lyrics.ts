@@ -11,13 +11,10 @@ export const lyricsPath = "./lyrics";
 export class SpotifyLyricsService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
-  private _trackId: string | null = null;
-  private _lyricsData: LyricsData | null = null;
-  private _currentLine: LyricsLine | null = null;
-  private _queuedLine: LyricsLine | null = null;
-
-  private tickListener = (progressMs: number) =>
-    this.handleNextTick(progressMs);
+  private _trackId?: string;
+  private _lyricsData?: LyricsData;
+  private _currentLine?: LyricsLine;
+  private _queuedLine?: LyricsLine;
 
   public constructor(spotifyService: SpotifyService) {
     super();
@@ -25,48 +22,59 @@ export class SpotifyLyricsService extends EventEmitter {
     this.spotify = spotifyService;
   }
 
+  public async init() {
+    this.spotify.player.state.on(
+      "track-state-changed",
+      this.trackChangedHandler
+    );
+  }
+
   public get trackHasLyrics(): boolean {
-    return !!this._lyricsData;
+    return (
+      this.spotify.player.isPlaying &&
+      !!this._lyricsData &&
+      this._trackId === this.spotify.player.trackService.id
+    );
   }
 
   public get currentLine(): string {
     return this._currentLine?.words ?? "";
   }
 
-  public async init() {
-    this.spotify.player.on("track-changed", async (track) => {
-      this._lyricsData = null;
-      this._trackId = track.id;
+  private tickHandler = (progressMs: number) => this.handleNextTick(progressMs);
 
-      // set current line to empty
-      this._currentLine = {
-        startTimeMs: "0",
-        words: "",
-        syllables: [],
-        endTimeMs: "0",
-      };
-      this.emitLyricsChanged(this._currentLine);
+  private trackChangedHandler = async (track?: SpotifyTrackDetails) => {
+    this._lyricsData = undefined;
+    this._trackId = track?.id;
 
-      if (!this._lyricsData || this._trackId !== track.id) {
-        if (!(await lyricsFileExistsAsync(track.id))) return;
+    // set current line to empty
+    this._currentLine = {
+      startTimeMs: "0",
+      words: "",
+      syllables: [],
+      endTimeMs: "0",
+    };
+    this.emitLyricsChanged(this._currentLine);
 
-        const path = lyricsFilePath(track.id);
-        const db = new DbService(path, true, false);
+    if (!track) return;
 
-        const lyricsData = await db.getAsync<LyricsData>("/");
+    if (!(await lyricsFileExistsAsync(track.id))) return;
 
-        if (!lyricsData) {
-          this.spotify.player.off("tick", this.tickListener);
-          return;
-        }
+    const path = lyricsFilePath(track.id);
+    const db = new DbService(path, true, false);
 
-        this._lyricsData = lyricsData;
+    const lyricsData = await db.getAsync<LyricsData>("/");
 
-        this.spotify.player.on("tick", this.tickListener);
-        return;
-      }
-    });
-  }
+    if (!lyricsData) {
+      this.spotify.player.state.off("tick", this.tickHandler);
+      return;
+    }
+
+    this._lyricsData = lyricsData;
+
+    this.spotify.player.state.on("tick", this.tickHandler);
+    return;
+  };
 
   public async saveLyrics(id: string, lyricsData: LyricsData) {
     const filePath = lyricsFilePath(id);
@@ -78,26 +86,21 @@ export class SpotifyLyricsService extends EventEmitter {
     if (this._trackId === id) {
       this._lyricsData = lyricsData;
 
-      this.spotify.player.on("tick", this.tickListener);
+      this.spotify.player.state.on("tick", this.tickHandler);
     }
 
     return response;
   }
 
   private async handleNextTick(progressMs: number): Promise<void> {
-    const { _lyricsData: lyricsData } = this;
     try {
-      if (
-        !this.spotify.player.track ||
-        !lyricsData ||
-        this._trackId !== this.spotify.player.track.id
-      ) {
-        this.spotify.player.off("tick", this.tickListener);
+      if (!this.trackHasLyrics) {
+        this.spotify.player.state.off("tick", this.tickHandler);
         return;
       }
 
       // Don't update if line is already on its way
-      if (this._queuedLine || !this.spotify.player.isPlaying) return;
+      if (!!this._queuedLine) return;
 
       this.checkNextLine(progressMs);
 
@@ -168,25 +171,25 @@ export class SpotifyLyricsService extends EventEmitter {
     if (id !== this._trackId) return;
 
     this._currentLine = line;
-    this._queuedLine = null;
+    this._queuedLine = undefined;
     this.emitLyricsChanged(this._currentLine);
   }
 
   private emitLyricsChanged(line: LyricsLine) {
     this.emit("lyrics-changed", line);
-    eventManager.triggerEvent("oceanity-spotify", "lyrics-changed", line);
+    this.spotify.events.trigger("lyrics-changed", line);
   }
 
   private readonly startLine: LyricsLine = {
     startTimeMs: "0",
-    words: "",
+    words: "♪",
     syllables: [],
     endTimeMs: "0",
   };
 
   private readonly endLine: LyricsLine = {
     startTimeMs: "9999999999",
-    words: "",
+    words: "♪",
     syllables: [],
     endTimeMs: "0",
   };

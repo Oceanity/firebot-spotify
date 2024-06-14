@@ -8,10 +8,10 @@ export class SpotifyPlayerStateService extends EventEmitter {
 
   private _progressMs: number = 0;
 
-  constructor(spotify: SpotifyService) {
+  constructor(spotifyService: SpotifyService) {
     super();
 
-    this.spotify = spotify;
+    this.spotify = spotifyService;
   }
 
   init() {
@@ -46,24 +46,23 @@ export class SpotifyPlayerStateService extends EventEmitter {
         this.emit("is-playing-state-changed", state.is_playing);
       }
 
-      // if (
-      //   state.context &&
-      //   state.context.type === "playlist" &&
-      //   this.playlist.id !== state.context.uri
-      // ) {
-      //   await this.playlist.updateCurrentPlaylistAsync(state.context.uri);
-      // }
+      if (state.context) {
+        switch (state.context.type) {
+          case "playlist":
+            if (state.context.uri !== this.spotify.player.playlist.uri) {
+              this.emit("playlist-state-changed", state.context.uri);
+            }
+            break;
+        }
+      }
 
-      // // If target volume, user has manually changed volume and we don't want it falling back
-      // if (
-      //   this._volume != state.device.volume_percent &&
-      //   this._targetVolume === -1
-      // ) {
-      //   eventManager.triggerEvent("oceanity-spotify", "volume-changed", {});
-      //   this._volume = state.device.volume_percent;
-      // } else if (state.device.volume_percent === this._targetVolume) {
-      //   this._targetVolume = -1;
-      // }
+      // If target volume, user has manually changed volume and we don't want it falling back
+      if (
+        this.spotify.player.volume != state.device.volume_percent &&
+        !this.spotify.player.volumeWasManuallyChanged
+      ) {
+        this.emit("volume-state-changed", state.device.volume_percent);
+      }
 
       this._progressMs = state.progress_ms;
 
@@ -72,13 +71,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
       // If track has changed, fire event
       if (this.spotify.player.trackService.uri != nextTrack?.uri) {
         this.emit("track-state-changed", nextTrack);
-        eventManager.triggerEvent(
-          "oceanity-spotify",
-          "track-changed",
-          nextTrack ?? null
-        );
-
-        this.emit("track-state-changed", nextTrack);
+        this.spotify.events.trigger("track-changed", nextTrack ?? null);
       }
       return this.tick(state.is_playing ? 1000 : 5000, startTime);
     } catch (error) {
@@ -88,9 +81,8 @@ export class SpotifyPlayerStateService extends EventEmitter {
   }
 
   private async tick(delayMs: number, startTime: number): Promise<void> {
-    eventManager.triggerEvent("oceanity-spotify", "tick", {
-      progressMs: this._progressMs,
-    });
+    const diffedMs = performance.now() - startTime + this._progressMs;
+    this.spotify.events.trigger("tick", { progressMs: diffedMs });
     this.emit("tick", this._progressMs);
     await delay(delayMs, startTime);
     return this.updatePlaybackStateAsync();

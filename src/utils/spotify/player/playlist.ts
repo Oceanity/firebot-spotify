@@ -12,6 +12,13 @@ export default class SpotifyPlaylistService {
     this.spotify = spotifyService;
   }
 
+  public async init() {
+    this.spotify.player.state.on(
+      "playlist-state-changed",
+      this.playlistChangedHandler
+    );
+  }
+
   /* Getters */
   public get id(): string | null {
     return this._playlist?.id ?? null;
@@ -33,6 +40,10 @@ export default class SpotifyPlaylistService {
     return this._playlist?.external_urls.spotify ?? "";
   }
 
+  public get uri(): string {
+    return this._playlist?.uri ?? "";
+  }
+
   public get coverImageUrl(): string {
     return getBiggestImageUrl(this._playlist?.images ?? []);
   }
@@ -47,6 +58,12 @@ export default class SpotifyPlaylistService {
 
   public get length(): number {
     return this._playlist?.tracks.total ?? -1;
+  }
+
+  private async playlistChangedHandler(uri: string) {
+    await this.updateCurrentPlaylistAsync(uri);
+
+    this.spotify.events.trigger("playlist-changed", { uri });
   }
 
   public async updateCurrentPlaylistAsync(playlistUri: string | null) {
@@ -73,7 +90,7 @@ export default class SpotifyPlaylistService {
 
       this._playlist = response.data;
 
-      eventManager.triggerEvent("oceanity-spotify", "playlist-changed", {});
+      this.spotify.events.trigger("playlist-changed", {});
     } catch (error) {
       logger.error("Error getting Spotify Queue", error);
       throw error;

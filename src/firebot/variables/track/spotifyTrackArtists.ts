@@ -11,5 +11,5 @@ export const SpotifyTrackArtistsVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.ARRAY],
   },
-  evaluator: async () => spotify.player.track?.artists ?? ([] as string[]),
+  evaluator: async () => spotify.player.trackService.artists,
 };

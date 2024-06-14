@@ -6,20 +6,31 @@ export class SpotifyDeviceService {
 
   private _id?: string;
 
-  constructor(spotify: SpotifyService) {
-    this.spotify = spotify;
+  constructor(spotifyService: SpotifyService) {
+    this.spotify = spotifyService;
   }
 
   public async init() {
-    this.spotify.player.on("device-changed", this.updateDeviceIdHandler);
+    this.spotify.player.state.on(
+      "device-id-state-changed",
+      this.updateDeviceIdHandler
+    );
   }
 
+  //#region Getters
   public get id(): string {
     return this._id ?? "";
   }
+  //#endregion
 
-  private async updateDeviceIdHandler(id?: string) {
-    logger.info(`Changing active Device ID to ${id}`);
+  //#region Event Handlers
+  private updateDeviceIdHandler = async (id?: string) => {
+    this.updateCurrentDeviceId(id);
+  };
+  //#endregion
+
+  private updateCurrentDeviceId(id?: string) {
+    logger.info(`Spotify Device ID changed to ${id} from ${this._id}`);
     this._id = id;
   }
 }

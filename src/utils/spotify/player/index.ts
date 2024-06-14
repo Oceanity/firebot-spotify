@@ -43,8 +43,9 @@ export default class SpotifyPlayerService extends EventEmitter {
   // Obscured vars
   private _progressMs: number = 0;
   private _isPlaying: boolean = false;
+  private _targetIsPlaying: boolean | null = null;
   private _track: SpotifyTrackDetails | null = null;
-  private _volume: number = 0;
+  private _volume: number = -1;
   private _targetVolume: number = -1;
   private _context: SpotifyContext | null = null;
 
@@ -62,7 +63,13 @@ export default class SpotifyPlayerService extends EventEmitter {
   }
 
   public async init() {
-    this.updatePlaybackState();
+    await this.lyrics.init();
+    await this.state.init();
+    await this.device.init();
+    await this.trackService.init();
+
+    this.state.on("is-playing-state-changed", this.isPlayingChangedHandler);
+    this.state.on("volume-state-changed", this.volumeChangedHandler);
   }
 
   //#region Getters
@@ -85,37 +92,38 @@ export default class SpotifyPlayerService extends EventEmitter {
     return this._volume;
   }
 
-  /**
-   * Gets the currently playing track summary, or null if no track is playing.
-   *
-   * @return {SpotifyTrackSummary | null} The currently playing track summary, or null if not playing.
-   */
-  public get track(): SpotifyTrackSummary | null {
-    // Return null if no track is playing
-    if (!this._track) return null;
-
-    // Map artists to just their names
-    const artists = this._track.artists.map((a) => a.name);
-
-    // Get the URL of the biggest image for the album
-    const albumArtUrl = getBiggestImageUrl(this._track.album.images);
-
-    return {
-      id: this._track.id,
-      uri: this._track.uri,
-      title: this._track.name,
-      artists,
-      album: this._track.album.name,
-      albumArtUrl,
-      url: this._track.external_urls.spotify,
-      durationMs: this._track.duration_ms,
-      duration: msToFormattedString(this._track.duration_ms, false),
-      positionMs: this._progressMs,
-      position: msToFormattedString(this._progressMs, false),
-      relativePosition: this._progressMs / this._track.duration_ms,
-      context: this._context ?? null,
-    };
+  public get volumeWasManuallyChanged(): boolean {
+    return this._targetVolume !== -1;
   }
+
+  private isPlayingChangedHandler = (isPlaying: boolean) =>
+    this.updateIsPlaying(isPlaying);
+
+  private updateIsPlaying = (isPlaying: boolean) => {
+    if (this._targetIsPlaying === isPlaying) {
+      this._targetIsPlaying = null;
+      return;
+    }
+    this._isPlaying = isPlaying;
+
+    this.spotify.events.trigger("playback-state-changed", { isPlaying });
+  };
+
+  private volumeChangedHandler = (volume: number) => this.updateVolume(volume);
+
+  private updateVolume = (volume: number) => {
+    logger.info(`Changing Spotify volume to ${volume} from ${this._volume}`);
+
+    // If first value set or target volume not met, do not emit
+    if (this._volume === -1 || this._targetVolume === volume) {
+      this._targetVolume = -1;
+      this._volume = volume;
+      return;
+    }
+
+    this._volume = volume;
+    this.spotify.events.trigger("volume-changed", { volume });
+  };
 
   //#endregion
 
@@ -140,32 +148,6 @@ export default class SpotifyPlayerService extends EventEmitter {
   }
 
   /**
-   * Gets the active device ID of the user's Spotify player if an active device is found.
-   *
-   * @return {Promise<string>} A promise that resolves to a string representing the
-   * active device ID, or null if no active player is found.
-   * @throws {Error} If an error occurs while fetching the active device ID.
-   */
-  public async getActiveDeviceIdAsync(): Promise<string> {
-    try {
-      if (this.useCachedDeviceId()) return this.activeDeviceId!;
-
-      const playbackState = await this.getPlaybackStateAsync();
-      if (!playbackState) {
-        throw new Error("No active Spotify player was found");
-      }
-
-      this.activeDeviceId = playbackState.device.id;
-      this.lastDevicePollTime = Date.now();
-
-      return this.activeDeviceId;
-    } catch (error) {
-      logger.error("Error getting active device ID on Spotify", error);
-      throw error;
-    }
-  }
-
-  /**
    * Gets the currently playing track.
    *
    * @return {SpotifyTrackDetails | null} The currently playing track, or null if no track is playing.
@@ -182,9 +164,19 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async playAsync(): Promise<void> {
     try {
-      if (this.isPlaying) throw new Error("Spotify is already playing");
+      if (this.isPlaying) return;
 
-      await this.spotify.api.fetch("/me/player/play", "PUT");
+      const response = await this.spotify.api.fetch("/me/player/play", "PUT", {
+        device_id: this.device.id,
+      });
+
+      if (response.ok) {
+        this._targetIsPlaying = true;
+
+        this.spotify.events.trigger("playback-state-changed", {
+          isPlaying: true,
+        });
+      }
     } catch (error) {
       logger.error("Error resuming Spotify playback", error);
     }
@@ -199,9 +191,19 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async pauseAsync(): Promise<void> {
     try {
-      if (!this.isPlaying) throw new Error("Spotify is not playing");
+      if (!this.isPlaying) return;
 
-      await this.spotify.api.fetch("/me/player/pause", "PUT");
+      const response = await this.spotify.api.fetch("/me/player/pause", "PUT", {
+        device_id: this.device.id,
+      });
+
+      if (response.ok) {
+        this._targetIsPlaying = false;
+
+        this.spotify.events.trigger("playback-state-changed", {
+          isPlaying: false,
+        });
+      }
     } catch (error) {
       logger.error("Error pausing Spotify playback", error);
     }
@@ -308,9 +310,8 @@ export default class SpotifyPlayerService extends EventEmitter {
       if (response.ok) {
         this._volume = volume;
         this._targetVolume = volume;
-        eventManager.triggerEvent("oceanity-spotify", "volume-changed", {
-          volume: this._volume,
-        });
+
+        this.spotify.events.trigger("volume-changed", { volume });
       }
     } catch (error) {
       logger.error("Error setting Spotify volume", error);
@@ -355,101 +356,4 @@ export default class SpotifyPlayerService extends EventEmitter {
       return "";
     }
   }
-
-  //#region Continuous methods
-  private async updatePlaybackState(): Promise<void> {
-    const startTime = performance.now();
-
-    try {
-      if (!this.spotify.auth.isLinked) {
-        this.clearNowPlaying();
-        await delay(5000, startTime);
-        return this.updatePlaybackState();
-      }
-
-      const state =
-        (await this.spotify.api.fetch<SpotifyPlayer>("/me/player")).data ??
-        null;
-
-      if (!state) {
-        this.clearNowPlaying();
-        return this.tick(5000, startTime);
-      }
-
-      this.activeDeviceId = state.device.id;
-
-      if (this._isPlaying != state.is_playing) {
-        eventManager.triggerEvent(
-          "oceanity-spotify",
-          "playback-state-changed",
-          this.track ?? {}
-        );
-        this._isPlaying = state.is_playing;
-      }
-
-      if (
-        state.context &&
-        state.context.type === "playlist" &&
-        this.playlist.id !== state.context.uri
-      ) {
-        await this.playlist.updateCurrentPlaylistAsync(state.context.uri);
-      }
-
-      // If target volume, user has manually changed volume and we don't want it falling back
-      if (
-        this._volume != state.device.volume_percent &&
-        this._targetVolume === -1
-      ) {
-        eventManager.triggerEvent("oceanity-spotify", "volume-changed", {});
-        this._volume = state.device.volume_percent;
-      } else if (state.device.volume_percent === this._targetVolume) {
-        this._targetVolume = -1;
-      }
-
-      this._progressMs = state.progress_ms;
-
-      const nextTrack = state.item;
-
-      // If track has changed, fire event
-      if (this._track?.uri != nextTrack?.uri) {
-        this._track = nextTrack;
-        eventManager.triggerEvent(
-          "oceanity-spotify",
-          "track-changed",
-          this._track ?? null
-        );
-
-        this.emit("track-changed", this._track);
-      }
-      return this.tick(state.is_playing ? 1000 : 5000, startTime);
-    } catch (error) {
-      logger.error("Error checking track change on Spotify", error);
-      this.clearNowPlaying();
-      return this.tick(15000, startTime);
-    }
-  }
-  //#endregion
-
-  //#region Helper Methods
-  private useCachedDeviceId = () =>
-    this.activeDeviceId != null &&
-    this.lastDevicePollTime != null &&
-    Date.now() - this.lastDevicePollTime <
-      this.minutesToCacheDeviceId * 60 * 1000;
-
-  private clearNowPlaying(): void {
-    this._isPlaying = false;
-    this._track = null;
-    this._progressMs = 0;
-  }
-
-  private async tick(delayMs: number, startTime: number): Promise<void> {
-    eventManager.triggerEvent("oceanity-spotify", "tick", {
-      progressMs: this._progressMs,
-    });
-    this.emit("tick", this._progressMs);
-    await delay(delayMs, startTime);
-    return this.updatePlaybackState();
-  }
-  //#endregion
 }

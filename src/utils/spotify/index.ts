@@ -1,27 +1,27 @@
 import { logger } from "@utils/firebot";
-import SpotifyApiService from "@utils/spotify/api";
-import SpotifyAuthService from "@utils/spotify/auth";
-import SpotifyPlayerService from "@utils/spotify/player";
-import SpotifyProfileService from "@utils/spotify/me";
+import SpotifyApiService from "./api";
+import SpotifyAuthService from "./auth";
+import SpotifyPlayerService from "./player";
+import SpotifyProfileService from "./me";
+import { SpotifyEventService } from "./events";
 
 export class SpotifyService {
   public readonly api: SpotifyApiService;
   public readonly auth: SpotifyAuthService;
+  public readonly events: SpotifyEventService;
   public readonly me: SpotifyProfileService;
   public readonly player: SpotifyPlayerService;
 
   constructor() {
     this.api = new SpotifyApiService(this);
     this.auth = new SpotifyAuthService(this);
+    this.events = new SpotifyEventService(this);
     this.me = new SpotifyProfileService(this);
     this.player = new SpotifyPlayerService(this);
   }
 
   public async init() {
     await this.player.init();
-    await this.player.state.init();
-    await this.player.device.init();
-    await this.player.lyrics.init();
   }
 
   public async searchAsync(
