@@ -17,6 +17,13 @@ export class SpotifyService {
     this.player = new SpotifyPlayerService(this);
   }
 
+  public async init() {
+    await this.player.init();
+    await this.player.state.init();
+    await this.player.device.init();
+    await this.player.lyrics.init();
+  }
+
   public async searchAsync(
     query: string,
     types: SpotifyContextType[] | SpotifyContextType,

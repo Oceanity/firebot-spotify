@@ -5,6 +5,9 @@ import { msToFormattedString } from "@/utils/strings";
 import SpotifyQueueService from "./queue";
 import SpotifyPlaylistService from "./playlist";
 import { SpotifyLyricsService } from "./lyrics";
+import { SpotifyPlayerStateService } from "./state";
+import { SpotifyDeviceService } from "./device";
+import { SpotifyTrackService } from "./track";
 import { getBiggestImageUrl } from "@/utils/array";
 import { EventEmitter } from "events";
 
@@ -29,6 +32,9 @@ export default class SpotifyPlayerService extends EventEmitter {
   public readonly queue: SpotifyQueueService;
   public readonly playlist: SpotifyPlaylistService;
   public readonly lyrics: SpotifyLyricsService;
+  public readonly state: SpotifyPlayerStateService;
+  public readonly device: SpotifyDeviceService;
+  public readonly trackService: SpotifyTrackService;
 
   private readonly minutesToCacheDeviceId: number = 15;
   private activeDeviceId: string | null = null;
@@ -50,9 +56,12 @@ export default class SpotifyPlayerService extends EventEmitter {
     this.queue = new SpotifyQueueService(this.spotify);
     this.playlist = new SpotifyPlaylistService(this.spotify);
     this.lyrics = new SpotifyLyricsService(this.spotify);
+    this.state = new SpotifyPlayerStateService(this.spotify);
+    this.device = new SpotifyDeviceService(this.spotify);
+    this.trackService = new SpotifyTrackService(this.spotify);
   }
 
-  public init() {
+  public async init() {
     this.updatePlaybackState();
   }
 
