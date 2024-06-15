@@ -1,4 +1,4 @@
-import { SpotifyDeviceService } from "@/utils/spotify/device";
+import { SpotifyDeviceService } from "@utils/spotify/device";
 
 describe("SpotifyDeviceService", () => {
   let spotifyDevice: SpotifyDeviceService;

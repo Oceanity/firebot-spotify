@@ -33,7 +33,7 @@ export class SpotifyService {
     types: SpotifyContextType[] | SpotifyContextType,
     limit: number = 20,
     offset: number = 0
-  ) {
+  ): Promise<SpotifySearchResponse> {
     try {
       if (!(types instanceof Array)) {
         types = [types];

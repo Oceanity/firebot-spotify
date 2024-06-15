@@ -213,6 +213,10 @@ type SpotifyAlbumDetails = {
   artists: SpotifyAlbumArtistDetails[];
 };
 
+type SpotifyAudiobookDetails = {};
+type SpotifyEpisodeDetails = {};
+type SpotifyShowDetails = {};
+
 type SpotifySearchCategory<T> = {
   href: string;
   limit: number;
