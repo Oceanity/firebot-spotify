@@ -1,6 +1,6 @@
 import { getBiggestImageUrl } from "@utils/array";
 import { decode } from "he";
-import { eventManager, logger } from "@utils/firebot";
+import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 
 export default class SpotifyPlaylistService {
@@ -66,14 +66,14 @@ export default class SpotifyPlaylistService {
     this.spotify.events.trigger("playlist-changed", { uri });
   }
 
-  public async updateCurrentPlaylistAsync(playlistUri: string | null) {
+  private async updateCurrentPlaylistAsync(playlistUri: string | null) {
     try {
       if (!playlistUri) {
         this._playlist = null;
         return;
       }
 
-      const id = this.getIdFromUri(playlistUri);
+      const id = this.spotify.getIdFromUri(playlistUri);
 
       if (this._playlist && this._playlist.id === id) {
         return;
@@ -96,6 +96,4 @@ export default class SpotifyPlaylistService {
       throw error;
     }
   }
-
-  private getIdFromUri = (uri: string): string => uri.split(":")[2];
 }

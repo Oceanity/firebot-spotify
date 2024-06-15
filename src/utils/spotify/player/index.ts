@@ -1,31 +1,12 @@
-import { eventManager, logger } from "@utils/firebot";
+import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import { delay } from "@/utils/timing";
-import { msToFormattedString } from "@/utils/strings";
 import SpotifyQueueService from "./queue";
 import SpotifyPlaylistService from "./playlist";
 import { SpotifyLyricsService } from "./lyrics";
 import { SpotifyPlayerStateService } from "./state";
 import { SpotifyDeviceService } from "./device";
 import { SpotifyTrackService } from "./track";
-import { getBiggestImageUrl } from "@/utils/array";
 import { EventEmitter } from "events";
-
-type SpotifyTrackSummary = {
-  id: string;
-  uri: string;
-  title: string;
-  artists: string[];
-  album: string;
-  albumArtUrl: string;
-  url: string;
-  durationMs: number;
-  duration: string;
-  positionMs: number;
-  position: string;
-  relativePosition: number;
-  context: SpotifyContext | null;
-};
 
 export default class SpotifyPlayerService extends EventEmitter {
   private readonly spotify: SpotifyService;
@@ -35,10 +16,6 @@ export default class SpotifyPlayerService extends EventEmitter {
   public readonly state: SpotifyPlayerStateService;
   public readonly device: SpotifyDeviceService;
   public readonly trackService: SpotifyTrackService;
-
-  private readonly minutesToCacheDeviceId: number = 15;
-  private activeDeviceId: string | null = null;
-  private lastDevicePollTime: number | null = null;
 
   // Obscured vars
   private _progressMs: number = 0;
@@ -278,7 +255,7 @@ export default class SpotifyPlayerService extends EventEmitter {
         "PUT",
         {
           body: {
-            device_id: this.activeDeviceId,
+            device_id: this.spotify.player.device.id,
           },
         }
       );
@@ -342,18 +319,18 @@ export default class SpotifyPlayerService extends EventEmitter {
     }
   }
 
-  public async getCurrentPlaylistName(): Promise<string> {
-    try {
-      if (!this._context || this._context.type != "playlist") return "";
+  // public async getCurrentPlaylistName(): Promise<string> {
+  //   try {
+  //     if (!this._context || this._context.type != "playlist") return "";
 
-      const playlist = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
-        `/playlists/${this._context.uri.split(":")[2]}`
-      );
+  //     const playlist = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
+  //       `/playlists/${this._context.uri.split(":")[2]}`
+  //     );
 
-      return playlist.data?.name ?? "";
-    } catch (error) {
-      logger.error("Error getting current playlist name", error);
-      return "";
-    }
-  }
+  //     return playlist.data?.name ?? "";
+  //   } catch (error) {
+  //     logger.error("Error getting current playlist name", error);
+  //     return "";
+  //   }
+  // }
 }

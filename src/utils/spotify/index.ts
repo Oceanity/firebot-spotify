@@ -75,4 +75,6 @@ export class SpotifyService {
       throw error;
     }
   }
+
+  public getIdFromUri = (uri?: string) => uri?.split(":")[2] ?? "";
 }

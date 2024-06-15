@@ -1,5 +1,5 @@
 import DbService from "@/utils/db";
-import { eventManager, logger } from "@/utils/firebot";
+import { logger } from "@/utils/firebot";
 import { delay } from "@/utils/timing";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
@@ -27,6 +27,10 @@ export class SpotifyLyricsService extends EventEmitter {
       "track-state-changed",
       this.trackChangedHandler
     );
+  }
+
+  public get trackHasLyricsFile(): Promise<boolean> {
+    return lyricsFileExistsAsync(this._trackId ?? "");
   }
 
   public get trackHasLyrics(): boolean {
