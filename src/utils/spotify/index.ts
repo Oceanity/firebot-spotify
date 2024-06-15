@@ -5,7 +5,7 @@ import { SpotifyDeviceService } from "./device";
 import { SpotifyEventService } from "./events";
 import SpotifyProfileService from "./me";
 import SpotifyPlayerService from "./player";
-import { getErrorMessage } from "../errors";
+import { getErrorMessage } from "../strings";
 
 export class SpotifyService {
   public readonly api: SpotifyApiService;

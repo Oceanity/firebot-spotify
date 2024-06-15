@@ -1,8 +1,8 @@
-import { chatFeedAlert, integrationManager, logger } from "@utils/firebot";
+import { integrationManager, logger } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "../errors";
+import { getErrorMessage } from "@utils/strings";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;

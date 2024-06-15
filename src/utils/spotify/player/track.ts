@@ -1,4 +1,4 @@
-import { msToFormattedString } from "@utils/strings";
+import { formatMsToTimecode } from "@utils/strings";
 import { getBiggestImageUrl } from "@utils/array";
 import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
@@ -66,7 +66,7 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   public get duration(): string {
-    return msToFormattedString(this.durationMs, false);
+    return formatMsToTimecode(this.durationMs, false);
   }
 
   public get positionMs(): number {
@@ -74,7 +74,7 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   public get position(): string {
-    return msToFormattedString(this.positionMs, false);
+    return formatMsToTimecode(this.positionMs, false);
   }
 
   public get relativePosition(): number {

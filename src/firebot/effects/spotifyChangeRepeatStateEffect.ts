@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { getErrorMessage } from "@/utils/errors";
+import { getErrorMessage } from "@utils/strings";
 
 export const SpotifyChangeRepeatStateEffect: Firebot.EffectType<{
   repeatState: [SpotifyRepeatState, string];
