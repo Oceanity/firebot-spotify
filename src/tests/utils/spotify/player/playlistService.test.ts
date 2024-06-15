@@ -12,16 +12,18 @@ describe("SpotifyDeviceService", () => {
     spotify = new SpotifyService();
     playlist = new SpotifyPlaylistService(spotify);
 
-    jest.spyOn(spotify.api, "fetch").mockImplementation(async () => ({
-      ok: true,
-      status: 200,
-      data: testPlaylist,
-    }));
+    jest.spyOn(spotify.api, "fetch").mockReturnValue(
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        data: testPlaylist,
+      })
+    );
 
     jest.spyOn(spotify.events, "trigger").mockImplementation(() => {});
   });
 
-  it("should not have initial values", () => {
+  it("should have default getter values", () => {
     expect(playlist.isActive).toBe(false);
     expect(playlist.id).toBe("");
     expect(playlist.name).toBe("");

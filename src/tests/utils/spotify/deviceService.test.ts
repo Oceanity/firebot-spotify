@@ -7,7 +7,7 @@ describe("SpotifyDeviceService", () => {
     spotifyDevice = new SpotifyDeviceService();
   });
 
-  it("should not have initial values", () => {
+  it("should have default getter values", () => {
     expect(spotifyDevice.isAvailable).toBe(false);
     expect(spotifyDevice.id).toBe("");
   });

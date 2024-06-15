@@ -8,6 +8,24 @@ export const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
   items: [],
 });
 
+export const testImages: SpotifyImage[] = [
+  {
+    url: "medium-image.jpg",
+    height: 300,
+    width: 300,
+  },
+  {
+    url: "big-image.jpg",
+    height: 500,
+    width: 500,
+  },
+  {
+    url: "small-image.jpg",
+    height: 100,
+    width: 100,
+  },
+];
+
 export const testSearchResponse = {
   tracks: emptySearchCategory<SpotifyTrackDetails>(),
   artists: emptySearchCategory<SpotifyArtistDetails>(),
@@ -28,7 +46,7 @@ export const testTrack: SpotifyTrackDetails = {
     },
     href: "",
     id: "",
-    images: [],
+    images: testImages,
     name: "",
     release_date: "",
     release_date_precision: "",
@@ -78,18 +96,7 @@ export const testPlaylist: SpotifyPlaylistDetails = {
   primary_color: "#00bcc5",
   href: "playlist-url",
   id: "playlist-id",
-  images: [
-    {
-      url: "big-image.jpg",
-      height: 500,
-      width: 500,
-    },
-    {
-      url: "small-image.jpg",
-      height: 100,
-      width: 100,
-    },
-  ],
+  images: testImages,
   name: "some playlist",
   owner: {
     display_name: "Oceanity",
@@ -111,7 +118,7 @@ export const testPlaylist: SpotifyPlaylistDetails = {
       filter_locked: false,
     },
     type: "user",
-    images: [],
+    images: testImages,
   },
   public: false,
   snapshot_id: "",
