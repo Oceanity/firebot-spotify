@@ -1,5 +1,5 @@
 import ResponseError from "@/models/responseError";
-import { getErrorMessage, formatMsToTimecode } from "@utils/strings";
+import { getErrorMessage, formatMsToTimecode } from "@/utils/string";
 
 //#region msToFormattedString
 describe("msToFormattedString", () => {

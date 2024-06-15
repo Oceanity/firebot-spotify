@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { getErrorMessage } from "@utils/strings";
+import { getErrorMessage } from "@/utils/string";
 
 export enum SpotifyPlaybackState {
   Play = "Play",

@@ -2,7 +2,7 @@ import { getBiggestImageUrl } from "@utils/array";
 import { decode } from "he";
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "@/utils/strings";
+import { getErrorMessage } from "@/utils/string";
 
 export class SpotifyPlaylistService {
   private readonly spotify: SpotifyService;

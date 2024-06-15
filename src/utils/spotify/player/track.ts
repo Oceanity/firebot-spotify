@@ -1,4 +1,4 @@
-import { formatMsToTimecode } from "@utils/strings";
+import { formatMsToTimecode } from "@/utils/string";
 import { getBiggestImageUrl } from "@utils/array";
 import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
@@ -33,10 +33,6 @@ export class SpotifyTrackService extends EventEmitter {
     return this._track?.id ?? "";
   }
 
-  public get uri(): string {
-    return this._track?.uri ?? "";
-  }
-
   public get title(): string {
     return this._track?.name ?? "";
   }
@@ -55,10 +51,6 @@ export class SpotifyTrackService extends EventEmitter {
 
   public get albumArtUrl(): string {
     return getBiggestImageUrl(this._track?.album.images ?? []);
-  }
-
-  public get url(): string {
-    return this._track?.external_urls.spotify ?? "";
   }
 
   public get durationMs(): number {
@@ -82,25 +74,33 @@ export class SpotifyTrackService extends EventEmitter {
 
     return this.positionMs / this.durationMs;
   }
+
+  public get url(): string {
+    return this._track?.external_urls.spotify ?? "";
+  }
+
+  public get uri(): string {
+    return this._track?.uri ?? "";
+  }
   //#endregion
 
   //#region Event Handlers
   private trackChangedHandler = async (track?: SpotifyTrackDetails) =>
-    this.updateTrack(track);
+    this.update(track);
 
   private tickHandler = (progressMs: number) => this.handleNextTick(progressMs);
   //#endregion
 
-  public async updateTrack(track?: SpotifyTrackDetails): Promise<void> {
+  public update(track?: SpotifyTrackDetails): void {
     if (this._track?.uri != track?.uri) {
       this._track = track;
 
       this.emit("track-changed", track);
-      eventManager.triggerEvent("oceanity-spotify", "track-changed", { track });
+      this.spotify.events.trigger("track-changed", { track });
     }
   }
 
-  private async handleNextTick(progressMs?: number) {
+  public async handleNextTick(progressMs?: number) {
     this._progressMs = progressMs;
     this.emit("tick", progressMs);
   }

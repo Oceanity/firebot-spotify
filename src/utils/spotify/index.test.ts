@@ -1,6 +1,6 @@
 import { SpotifyService } from "@utils/spotify";
 import { jest } from "@jest/globals";
-import { testSearchResponse, testTrack } from "@/tests/testData";
+import { testSearchResponse, testTrack } from "@/testData";
 
 describe("SpotifyService", () => {
   let spotify: SpotifyService;
@@ -11,6 +11,10 @@ describe("SpotifyService", () => {
     jest
       .spyOn(spotify, "searchAsync")
       .mockReturnValue(Promise.resolve(testSearchResponse));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("search returns search response", async () => {

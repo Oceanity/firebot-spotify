@@ -36,6 +36,24 @@ export const testSearchResponse = {
   episodes: emptySearchCategory<SpotifyEpisodeDetails>(),
 };
 
+export const testArtist = (name: string): SpotifyArtistDetails => ({
+  name,
+  genres: [],
+  followers: {
+    href: "",
+    total: 0,
+  },
+  images: testImages,
+  popularity: 0,
+  external_urls: {
+    spotify: "",
+  },
+  id: "",
+  type: "artist",
+  uri: "",
+  href: "",
+});
+
 export const testTrack: SpotifyTrackDetails = {
   album: {
     album_type: "album",
@@ -55,7 +73,10 @@ export const testTrack: SpotifyTrackDetails = {
     uri: "",
     total_tracks: 0,
   },
-  artists: [],
+  artists: [
+    testArtist("really important artist"),
+    testArtist("not so important artist"),
+  ],
   available_markets: [],
   disc_number: 1,
   duration_ms: 0,

@@ -2,7 +2,7 @@ import { integrationManager, logger } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "@utils/strings";
+import { getErrorMessage } from "@/utils/string";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;

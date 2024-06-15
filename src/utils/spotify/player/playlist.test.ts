@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyPlaylistService } from "@utils/spotify/player/playlist";
-import { testPlaylist } from "@/tests/testData";
+import { testPlaylist } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
 
 describe("SpotifyDeviceService", () => {
