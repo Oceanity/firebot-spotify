@@ -1,7 +1,7 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 
-export default class SpotifyQueueService {
+export class SpotifyQueueService {
   private readonly spotify: SpotifyService;
 
   constructor(spotifyService: SpotifyService) {

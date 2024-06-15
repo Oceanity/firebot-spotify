@@ -50,7 +50,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
         switch (state.context.type) {
           case "playlist":
             if (state.context.uri !== this.spotify.player.playlist.uri) {
-              this.emit("playlist-state-changed", state.context.uri);
+              this.spotify.player.playlist.update(state.context.uri);
             }
             break;
         }

@@ -10,5 +10,5 @@ export const SpotifyIsPlaylistActiveVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.BOOLEAN],
   },
-  evaluator: async () => spotify.player.playlist.isPlaylistActive,
+  evaluator: async () => spotify.player.playlist.isActive,
 };

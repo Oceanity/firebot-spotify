@@ -1,7 +1,7 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import SpotifyQueueService from "./queue";
-import SpotifyPlaylistService from "./playlist";
+import { SpotifyQueueService } from "./queue";
+import { SpotifyPlaylistService } from "./playlist";
 import { SpotifyLyricsService } from "./lyrics";
 import { SpotifyPlayerStateService } from "./state";
 import { SpotifyTrackService } from "./track";

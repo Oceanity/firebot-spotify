@@ -2,8 +2,9 @@ import { getBiggestImageUrl } from "@utils/array";
 import { decode } from "he";
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
+import { getErrorMessage } from "@/utils/strings";
 
-export default class SpotifyPlaylistService {
+export class SpotifyPlaylistService {
   private readonly spotify: SpotifyService;
 
   private _playlist: SpotifyPlaylistDetails | null = null;
@@ -12,20 +13,13 @@ export default class SpotifyPlaylistService {
     this.spotify = spotifyService;
   }
 
-  public async init() {
-    this.spotify.player.state.on(
-      "playlist-state-changed",
-      this.playlistChangedHandler
-    );
-  }
-
   /* Getters */
-  public get id(): string | null {
-    return this._playlist?.id ?? null;
+  public get isActive(): boolean {
+    return !!this._playlist;
   }
 
-  public get isPlaylistActive(): boolean {
-    return !!this._playlist;
+  public get id(): string {
+    return this._playlist?.id ?? "";
   }
 
   public get name(): string {
@@ -60,39 +54,35 @@ export default class SpotifyPlaylistService {
     return this._playlist?.tracks.total ?? -1;
   }
 
-  private async playlistChangedHandler(uri: string) {
-    await this.updateCurrentPlaylistAsync(uri);
+  public async updateByUriAsync(playlistUri?: string): Promise<void> {
+    const playlist = await this.fetchByUriAsync(playlistUri);
 
-    this.spotify.events.trigger("playlist-changed", { uri });
+    this.update(playlist);
   }
 
-  private async updateCurrentPlaylistAsync(playlistUri: string | null) {
+  public async fetchByUriAsync(
+    playlistUri?: string
+  ): Promise<SpotifyPlaylistDetails | null> {
+    if (!playlistUri) return null;
+
+    const id = this.spotify.getIdFromUri(playlistUri);
+
+    const response = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
+      `/playlists/${id}`
+    );
+
+    return response.data ?? null;
+  }
+
+  public update(playlist: SpotifyPlaylistDetails | null): void {
     try {
-      if (!playlistUri) {
-        this._playlist = null;
-        return;
-      }
+      if (this._playlist?.uri === playlist?.uri) return;
 
-      const id = this.spotify.getIdFromUri(playlistUri);
+      this._playlist = playlist ?? null;
 
-      if (this._playlist && this._playlist.id === id) {
-        return;
-      }
-
-      const response = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
-        `/playlists/${id}`
-      );
-
-      if (!response.data) {
-        this._playlist === null;
-        throw new Error("No Spotify playlist found with provided Id");
-      }
-
-      this._playlist = response.data;
-
-      this.spotify.events.trigger("playlist-changed", {});
+      this.spotify.events.trigger("playlist-changed", { playlist });
     } catch (error) {
-      logger.error("Error getting Spotify Queue", error);
+      logger.error(this.update.name, getErrorMessage(error), error);
       throw error;
     }
   }
