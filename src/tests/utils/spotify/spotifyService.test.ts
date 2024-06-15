@@ -1,42 +1,35 @@
 import { SpotifyService } from "@utils/spotify";
 import { jest } from "@jest/globals";
+import { testSearchResponse, testTrack } from "@/tests/testData";
 
 describe("SpotifyService", () => {
   let spotify: SpotifyService;
 
-  const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
-    href: "",
-    limit: 1,
-    next: "",
-    offset: 0,
-    previous: "",
-    total: 0,
-    items: [],
-  });
-
-  let searchResponse: SpotifySearchResponse;
-
   beforeEach(() => {
     spotify = new SpotifyService();
-  });
-
-  it("search returns search response", async () => {
-    searchResponse = {
-      tracks: emptySearchCategory<SpotifyTrackDetails>(),
-      artists: emptySearchCategory<SpotifyArtistDetails>(),
-      albums: emptySearchCategory<SpotifyAlbumDetails>(),
-      audiobooks: emptySearchCategory<SpotifyAudiobookDetails>(),
-      playlists: emptySearchCategory<SpotifyPlaylistDetails>(),
-      shows: emptySearchCategory<SpotifyShowDetails>(),
-      episodes: emptySearchCategory<SpotifyEpisodeDetails>(),
-    };
 
     jest
       .spyOn(spotify, "searchAsync")
-      .mockReturnValue(Promise.resolve(searchResponse));
+      .mockReturnValue(Promise.resolve(testSearchResponse));
+  });
+
+  it("search returns search response", async () => {
+    const response = await spotify.searchAsync("testing", "track");
+
+    expect(response).toBe(testSearchResponse);
+  });
+
+  it("search returns expected number of tracks", async () => {
+    testSearchResponse.tracks.items = [
+      testTrack,
+      testTrack,
+      testTrack,
+      testTrack,
+      testTrack,
+    ];
 
     const response = await spotify.searchAsync("testing", "track");
 
-    expect(response).toBe(searchResponse);
+    expect(response.tracks.items.length).toBe(5);
   });
 });
