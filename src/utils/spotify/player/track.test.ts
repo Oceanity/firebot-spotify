@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 import { SpotifyService } from "@utils/spotify";
-import { testPlaylist, testTrack } from "@/testData";
+import { testTrack } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyTrackService } from "./track";
 import { formatMsToTimecode } from "@/utils/string";

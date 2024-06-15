@@ -1,3 +1,5 @@
+import { SpotifyQueueService } from "./utils/spotify/player/queue";
+
 export const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
   href: "",
   limit: 1,
@@ -36,8 +38,8 @@ export const testSearchResponse = {
   episodes: emptySearchCategory<SpotifyEpisodeDetails>(),
 };
 
-export const testArtist = (name: string): SpotifyArtistDetails => ({
-  name,
+const testArtist: SpotifyArtistDetails = {
+  name: "",
   genres: [],
   followers: {
     href: "",
@@ -52,6 +54,15 @@ export const testArtist = (name: string): SpotifyArtistDetails => ({
   type: "artist",
   uri: "",
   href: "",
+};
+
+export const getTestArtist = (
+  name: string = "some artist",
+  id: string = "123"
+): SpotifyArtistDetails => ({
+  ...testArtist,
+  name,
+  id,
 });
 
 export const testTrack: SpotifyTrackDetails = {
@@ -74,8 +85,8 @@ export const testTrack: SpotifyTrackDetails = {
     total_tracks: 0,
   },
   artists: [
-    testArtist("really important artist"),
-    testArtist("not so important artist"),
+    getTestArtist("really important artist"),
+    getTestArtist("not so important artist"),
   ],
   available_markets: [],
   disc_number: 1,
@@ -107,6 +118,16 @@ export const testTrack: SpotifyTrackDetails = {
     uri: "",
   },
 };
+
+export const getTestTrack = (
+  name: string = "some track",
+  id: string = "123"
+): SpotifyTrackDetails => ({
+  ...testTrack,
+  name,
+  id,
+  uri: `spotify:track:${id}`,
+});
 
 export const testPlaylist: SpotifyPlaylistDetails = {
   collaborative: false,
@@ -146,4 +167,13 @@ export const testPlaylist: SpotifyPlaylistDetails = {
   tracks: emptySearchCategory<SpotifyTrackDetails>(),
   type: "playlist",
   uri: "playlist-uri",
+};
+
+export const testQueue: SpotifyQueueResponse = {
+  currently_playing: getTestTrack("currently playing track", "89072134"),
+  queue: [
+    getTestTrack("first queued track", "253345512359"),
+    getTestTrack("second queued track", "12314356752498"),
+    getTestTrack("second queued track", "173358134545"),
+  ],
 };
