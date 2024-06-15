@@ -12,6 +12,7 @@ export class SpotifyLyricsService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
   private _trackId?: string;
+  private _lines?: FormattedLyricsLine[];
   private _lyricsData?: LyricsData;
   private _currentLine?: LyricsLine;
   private _queuedLine?: LyricsLine;
@@ -35,9 +36,7 @@ export class SpotifyLyricsService extends EventEmitter {
 
   public get trackHasLyrics(): boolean {
     return (
-      this.spotify.player.isPlaying &&
-      !!this._lyricsData &&
-      this._trackId === this.spotify.player.trackService.id
+      !!this._lines && this._trackId === this.spotify.player.trackService.id
     );
   }
 
@@ -49,6 +48,7 @@ export class SpotifyLyricsService extends EventEmitter {
 
   private trackChangedHandler = async (track?: SpotifyTrackDetails) => {
     this._lyricsData = undefined;
+    this._lines = undefined;
     this._trackId = track?.id;
 
     // set current line to empty
@@ -75,6 +75,12 @@ export class SpotifyLyricsService extends EventEmitter {
     }
 
     this._lyricsData = lyricsData;
+    this._lines = lyricsData.lyrics.lines.map((l) => ({
+      startTimeMs: Number(l.startTimeMs),
+      words: l.words,
+      syllables: l.syllables,
+      endTimeMs: Number(l.endTimeMs),
+    }));
 
     this.spotify.player.state.on("tick", this.tickHandler);
     return;
@@ -103,6 +109,8 @@ export class SpotifyLyricsService extends EventEmitter {
         return;
       }
 
+      if (!this.spotify.player.isPlaying) return this.clearCurrentLine();
+
       // Don't update if line is already on its way
       if (!!this._queuedLine) return;
 
@@ -117,19 +125,16 @@ export class SpotifyLyricsService extends EventEmitter {
   }
 
   private checkNextLine(currentMs: number) {
-    if (!this._lyricsData) return;
+    if (!this._lines) return;
 
-    const { lines } = this._lyricsData.lyrics;
-
-    const nextLine = lines
-      .filter((line) => Number(line.startTimeMs) > currentMs)
+    const nextLine = this._lines
+      .filter((line) => line.startTimeMs > currentMs)
       .reduce(
-        (prev, curr) =>
-          Number(curr.startTimeMs) < Number(prev.startTimeMs) ? curr : prev,
+        (prev, curr) => (curr.startTimeMs < prev.startTimeMs ? curr : prev),
         this.endLine
       );
 
-    const offset = Number(nextLine.startTimeMs) - currentMs;
+    const offset = nextLine.startTimeMs - currentMs;
 
     if (
       offset < 1000 &&
@@ -140,21 +145,18 @@ export class SpotifyLyricsService extends EventEmitter {
   }
 
   private checkPreviousLine(currentMs: number) {
-    if (!this._lyricsData) return;
+    if (!this._lines) return;
 
-    const { lines } = this._lyricsData.lyrics;
-
-    const lastLine = lines
-      .filter((line) => Number(line.startTimeMs) < currentMs)
+    const lastLine = this._lines
+      .filter((line) => line.startTimeMs < currentMs)
       .reduce(
-        (prev, curr) =>
-          Number(curr.startTimeMs) > Number(prev.startTimeMs) ? curr : prev,
+        (prev, curr) => (curr.startTimeMs > prev.startTimeMs ? curr : prev),
         this.startLine
       );
 
     if (
       !this._currentLine ||
-      Number(lastLine.startTimeMs) > Number(this._currentLine.startTimeMs)
+      lastLine.startTimeMs > this._currentLine.startTimeMs
     ) {
       this._currentLine == lastLine;
       this.queueNextLine(0, lastLine);
@@ -182,6 +184,18 @@ export class SpotifyLyricsService extends EventEmitter {
   private emitLyricsChanged(line: LyricsLine) {
     this.emit("lyrics-changed", line);
     this.spotify.events.trigger("lyrics-changed", line);
+  }
+
+  private clearCurrentLine() {
+    this._currentLine = {
+      startTimeMs: "0",
+      words: "",
+      syllables: [],
+      endTimeMs: "0",
+    };
+    this._queuedLine = undefined;
+
+    this.emitLyricsChanged(this._currentLine);
   }
 
   private readonly startLine: LyricsLine = {
