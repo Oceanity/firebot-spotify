@@ -8,5 +8,11 @@ export function formatMsToTimecode(ms: number, showHours: boolean): string {
   }${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 }
 
-export const getErrorMessage = (error: any): string =>
-  error instanceof Error ? error.message : "Unhandled Exception";
+export const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  } else if (typeof error === "object" && error !== null) {
+    return "Unhandled Exception";
+  }
+  return String(error);
+};

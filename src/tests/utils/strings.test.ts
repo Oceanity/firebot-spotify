@@ -1,3 +1,4 @@
+import ResponseError from "@/models/responseError";
 import { getErrorMessage, formatMsToTimecode } from "@utils/strings";
 
 //#region msToFormattedString
@@ -29,12 +30,24 @@ describe("msToFormattedString", () => {
 
 //#region getErrorMessage
 describe("getErrorMessage", () => {
-  it("returns expected string value", () => {
+  it("returns error message for Error", () => {
     expect(getErrorMessage(new Error("test"))).toBe("test");
   });
 
+  it("returns error message for ResponseError", () => {
+    expect(getErrorMessage(new ResponseError("test", {}))).toBe("test");
+  });
+
+  it("returns expected string value for string", () => {
+    expect(getErrorMessage("test")).toBe("test");
+  });
+
+  it("returns expected string value for number", () => {
+    expect(getErrorMessage(123)).toBe("123");
+  });
+
   it("returns `Unhandled Exception` when no message found", () => {
-    expect(getErrorMessage({})).toBe("Unhandled Exception");
+    expect(getErrorMessage({ someData: "test" })).toBe("Unhandled Exception");
   });
 });
 //#endregion
