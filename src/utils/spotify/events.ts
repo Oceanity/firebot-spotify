@@ -1,15 +1,10 @@
-import { SpotifyService } from "@utils/spotify";
 import { eventManager, logger } from "../firebot";
 
 export class SpotifyEventService {
-  private readonly spotify: SpotifyService;
-
-  constructor(spotifyService: SpotifyService) {
-    this.spotify = spotifyService;
-  }
+  constructor() {}
 
   /**
-   * Triggers a spotify event.
+   * Triggers a Spotify Firebot event.
    *
    * @param {string} eventId - The id of the event to trigger.
    * @param {Record<string, unknown>} meta - The metadata associated with the event.

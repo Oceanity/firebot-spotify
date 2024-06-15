@@ -15,7 +15,7 @@ export class SpotifyService {
   constructor() {
     this.api = new SpotifyApiService(this);
     this.auth = new SpotifyAuthService(this);
-    this.events = new SpotifyEventService(this);
+    this.events = new SpotifyEventService();
     this.me = new SpotifyProfileService(this);
     this.player = new SpotifyPlayerService(this);
   }
