@@ -27,7 +27,6 @@ describe("SpotifyService", () => {
       testTrack,
       testTrack,
     ];
-
     const response = await spotify.searchAsync("testing", "track");
 
     expect(response.tracks.items.length).toBe(5);
