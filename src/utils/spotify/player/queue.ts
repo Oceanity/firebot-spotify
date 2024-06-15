@@ -31,7 +31,7 @@ export default class SpotifyQueueService {
 
       await this.spotify.api.fetch(`/me/player/queue?uri=${songUri}`, "POST", {
         body: {
-          device_id: this.spotify.player.device.id,
+          device_id: this.spotify.device.id,
         },
       });
     } catch (error) {

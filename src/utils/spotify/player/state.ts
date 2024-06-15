@@ -38,8 +38,8 @@ export class SpotifyPlayerStateService extends EventEmitter {
         return this.updatePlaybackStateAsync();
       }
 
-      if (this.spotify.player.device.id !== state.device.id) {
-        this.emit("device-id-state-changed", state.device.id);
+      if (this.spotify.device.id !== state.device.id) {
+        this.spotify.device.updateId(state.device.id);
       }
 
       if (this.spotify.player.isPlaying !== state.is_playing) {

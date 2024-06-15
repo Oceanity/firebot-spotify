@@ -4,7 +4,6 @@ import SpotifyQueueService from "./queue";
 import SpotifyPlaylistService from "./playlist";
 import { SpotifyLyricsService } from "./lyrics";
 import { SpotifyPlayerStateService } from "./state";
-import { SpotifyDeviceService } from "./device";
 import { SpotifyTrackService } from "./track";
 import { EventEmitter } from "events";
 
@@ -14,17 +13,14 @@ export default class SpotifyPlayerService extends EventEmitter {
   public readonly playlist: SpotifyPlaylistService;
   public readonly lyrics: SpotifyLyricsService;
   public readonly state: SpotifyPlayerStateService;
-  public readonly device: SpotifyDeviceService;
   public readonly trackService: SpotifyTrackService;
 
   // Obscured vars
-  private _progressMs: number = 0;
   private _isPlaying: boolean = false;
   private _targetIsPlaying: boolean | null = null;
   private _track: SpotifyTrackDetails | null = null;
   private _volume: number = -1;
   private _targetVolume: number = -1;
-  private _context: SpotifyContext | null = null;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -35,14 +31,12 @@ export default class SpotifyPlayerService extends EventEmitter {
     this.playlist = new SpotifyPlaylistService(this.spotify);
     this.lyrics = new SpotifyLyricsService(this.spotify);
     this.state = new SpotifyPlayerStateService(this.spotify);
-    this.device = new SpotifyDeviceService(this.spotify);
     this.trackService = new SpotifyTrackService(this.spotify);
   }
 
   public async init() {
     await this.lyrics.init();
     await this.state.init();
-    await this.device.init();
     await this.trackService.init();
 
     this.state.on("is-playing-state-changed", this.isPlayingChangedHandler);
@@ -144,7 +138,7 @@ export default class SpotifyPlayerService extends EventEmitter {
       if (this.isPlaying) return;
 
       const response = await this.spotify.api.fetch("/me/player/play", "PUT", {
-        device_id: this.device.id,
+        device_id: this.spotify.device.id,
       });
 
       if (response.ok) {
@@ -171,7 +165,7 @@ export default class SpotifyPlayerService extends EventEmitter {
       if (!this.isPlaying) return;
 
       const response = await this.spotify.api.fetch("/me/player/pause", "PUT", {
-        device_id: this.device.id,
+        device_id: this.spotify.device.id,
       });
 
       if (response.ok) {
@@ -255,7 +249,7 @@ export default class SpotifyPlayerService extends EventEmitter {
         "PUT",
         {
           body: {
-            device_id: this.spotify.player.device.id,
+            device_id: this.spotify.device.id,
           },
         }
       );

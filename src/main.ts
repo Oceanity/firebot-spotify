@@ -10,7 +10,7 @@ import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
 export const integrationId = "oceanity-spotify";
 export const localVersion = "0.7.1";
-export const spotify = new SpotifyService();
+export let spotify: SpotifyService;
 
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
@@ -44,6 +44,8 @@ const script: Firebot.CustomScript<Params> = {
   run: async (runRequest) => {
     const { spotifyClientId, spotifyClientSecret } = runRequest.parameters;
     const { integrationManager, logger } = runRequest.modules;
+
+    spotify = new SpotifyService();
 
     if (!spotifyClientId || !spotifyClientSecret) {
       logger.error(
