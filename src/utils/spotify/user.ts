@@ -17,7 +17,7 @@ export default class SpotifyProfileService {
     try {
       const now = performance.now();
 
-      if (!!this._userProfile && this._pollUserAt > now) {
+      if (this._userProfile && this._pollUserAt > now) {
         return this._userProfile;
       }
 
@@ -30,7 +30,7 @@ export default class SpotifyProfileService {
       this._userProfile = response.data;
       this._pollUserAt = now + 1000 * 60 * this.minutesToRefresh;
 
-      return response.data;
+      return this._userProfile;
     } catch (error) {
       logger.error(getErrorMessage(error), error);
       throw error;

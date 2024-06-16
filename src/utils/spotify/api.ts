@@ -6,10 +6,10 @@ type SpotifyRateLimits = {
   [endpoint: string]: number;
 };
 
-type SpotifyFetchResponse = {
+type SpotifyFetchResponse<T> = {
   status: number;
   ok: boolean;
-  data: any;
+  data?: T | null;
 };
 
 type SpotifyHttpRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -38,7 +38,7 @@ export default class SpotifyApiService {
     endpoint: string,
     method: SpotifyHttpRequestMethod = "GET",
     options?: any
-  ): Promise<SpotifyFetchResponse> {
+  ): Promise<SpotifyFetchResponse<T>> {
     try {
       const sanitizedEndpoint = endpoint.split("?")[0];
 
