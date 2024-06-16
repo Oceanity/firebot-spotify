@@ -58,7 +58,7 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   public get duration(): string {
-    return formatMsToTimecode(this.durationMs, false);
+    return formatMsToTimecode(this.durationMs);
   }
 
   public get positionMs(): number {
@@ -66,7 +66,7 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   public get position(): string {
-    return formatMsToTimecode(this.positionMs, false);
+    return formatMsToTimecode(this.positionMs);
   }
 
   public get relativePosition(): number {

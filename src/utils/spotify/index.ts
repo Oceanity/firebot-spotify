@@ -1,5 +1,5 @@
 import { logger } from "@utils/firebot";
-import SpotifyApiService from "./api";
+import { SpotifyApiService } from "./api";
 import SpotifyAuthService from "./auth";
 import { SpotifyDeviceService } from "./device";
 import { SpotifyEventService } from "./events";

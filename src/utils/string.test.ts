@@ -6,12 +6,12 @@ describe("msToFormattedString", () => {
   beforeEach(() => {});
 
   it("returns expected string value for small number", () => {
-    expect(formatMsToTimecode(1000, false)).toBe("0:01");
+    expect(formatMsToTimecode(1000)).toBe("0:01");
   });
 
   it("returns expected string with floored ms", () => {
-    expect(formatMsToTimecode(956, false)).toBe("0:00");
-    expect(formatMsToTimecode(1240, false)).toBe("0:01");
+    expect(formatMsToTimecode(956)).toBe("0:00");
+    expect(formatMsToTimecode(1240)).toBe("0:01");
   });
 
   it("includes hours in string value when enabled", () => {
@@ -19,11 +19,11 @@ describe("msToFormattedString", () => {
   });
 
   it("returns expected string value for large number", () => {
-    expect(formatMsToTimecode(3600000, false)).toBe("1:00:00");
+    expect(formatMsToTimecode(3600000)).toBe("1:00:00");
   });
 
   it("returns expected string value for silly number", () => {
-    expect(formatMsToTimecode(817000, false)).toBe("13:37");
+    expect(formatMsToTimecode(817000)).toBe("13:37");
   });
 });
 //#endregion

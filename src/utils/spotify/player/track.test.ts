@@ -49,11 +49,9 @@ describe("SpotifyTrackService", () => {
     expect(track.album).toBe(testTrack.album.name);
     expect(track.albumArtUrl).toBe(getBiggestImageUrl(testTrack.album.images));
     expect(track.durationMs).toBe(testTrack.duration_ms);
-    expect(track.duration).toBe(
-      formatMsToTimecode(testTrack.duration_ms, false)
-    );
+    expect(track.duration).toBe(formatMsToTimecode(testTrack.duration_ms));
     expect(track.positionMs).toBe(position);
-    expect(track.position).toBe(formatMsToTimecode(position, false));
+    expect(track.position).toBe(formatMsToTimecode(position));
     expect(track.relativePosition).toBe(position / testTrack.duration_ms);
     expect(track.url).toBe(testTrack.external_urls.spotify);
     expect(track.uri).toBe(testTrack.uri);
