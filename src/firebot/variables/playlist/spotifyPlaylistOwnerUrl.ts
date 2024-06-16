@@ -9,5 +9,5 @@ export const SpotifyPlaylistOwnerUrlVariable: ReplaceVariable = {
     usage: "spotifyPlaylistOwnerUrl",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.playlist.owner,
+  evaluator: async () => spotify.player.playlist.ownerUrl,
 };
