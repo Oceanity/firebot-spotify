@@ -3,7 +3,7 @@ import { delay, now } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
-export class SpotifyPlayerStateService extends EventEmitter {
+export class SpotifyStateService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
   private _progressMs: number = 0;

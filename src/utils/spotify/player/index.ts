@@ -3,7 +3,7 @@ import { SpotifyService } from "@utils/spotify";
 import { SpotifyQueueService } from "./queue";
 import { SpotifyPlaylistService } from "./playlist";
 import { SpotifyLyricsService } from "./lyrics";
-import { SpotifyPlayerStateService } from "./state";
+import { SpotifyStateService } from "./state";
 import { SpotifyTrackService } from "./track";
 import { EventEmitter } from "events";
 
@@ -12,7 +12,7 @@ export default class SpotifyPlayerService extends EventEmitter {
   public readonly queue: SpotifyQueueService;
   public readonly playlist: SpotifyPlaylistService;
   public readonly lyrics: SpotifyLyricsService;
-  public readonly state: SpotifyPlayerStateService;
+  public readonly state: SpotifyStateService;
   public readonly trackService: SpotifyTrackService;
 
   // Obscured vars
@@ -30,7 +30,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     this.queue = new SpotifyQueueService(this.spotify);
     this.playlist = new SpotifyPlaylistService(this.spotify);
     this.lyrics = new SpotifyLyricsService(this.spotify);
-    this.state = new SpotifyPlayerStateService(this.spotify);
+    this.state = new SpotifyStateService(this.spotify);
     this.trackService = new SpotifyTrackService(this.spotify);
   }
 
