@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ApiEndpoint } from ".";
-import { lyricsFileExistsAsync } from "@/utils/spotify/player/lyrics";
+import { LyricsHelpers } from "@/utils/spotify/player/lyrics";
 
 export const LyricsExistEndpoint: ApiEndpoint = [
   "/lyrics/exists",
@@ -18,7 +18,7 @@ export const LyricsExistEndpoint: ApiEndpoint = [
       }
 
       res.status(200).send({
-        exists: await lyricsFileExistsAsync(id as string),
+        exists: await LyricsHelpers.fileExistsAsync(id as string),
       });
     } catch (error) {
       res.status(500).send({

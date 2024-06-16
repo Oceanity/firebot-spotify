@@ -30,7 +30,7 @@ export class SpotifyLyricsService extends EventEmitter {
   }
 
   public get trackHasLyricsFile(): Promise<boolean> {
-    return lyricsFileExistsAsync(this._trackId ?? "");
+    return LyricsHelpers.fileExistsAsync(this._trackId ?? "");
   }
 
   public get trackHasLyrics(): boolean {
@@ -60,9 +60,9 @@ export class SpotifyLyricsService extends EventEmitter {
 
     if (!track) return;
 
-    if (!(await lyricsFileExistsAsync(track.id))) return;
+    if (!(await LyricsHelpers.fileExistsAsync(track.id))) return;
 
-    const path = lyricsFilePath(track.id);
+    const path = LyricsHelpers.filePathFromId(track.id);
     const db = new DbService(path, true, false);
 
     const lyricsData = await db.getAsync<LyricsData>("/");
@@ -86,7 +86,7 @@ export class SpotifyLyricsService extends EventEmitter {
       : undefined);
 
   public async saveLyrics(id: string, lyricsData: LyricsData) {
-    const filePath = lyricsFilePath(id);
+    const filePath = LyricsHelpers.filePathFromId(id);
 
     const db = new DbService(filePath, true, false);
     const response = await db.pushAsync(`/`, lyricsData);
@@ -211,13 +211,15 @@ export class SpotifyLyricsService extends EventEmitter {
   };
 }
 
-export const lyricsFilePath = (id: string) =>
-  resolve(__dirname, lyricsPath, `${id}.json`);
+export class LyricsHelpers {
+  public static filePathFromId = (id: string) =>
+    resolve(__dirname, lyricsPath, `${id}.json`);
 
-export async function lyricsFileExistsAsync(id: string): Promise<boolean> {
-  const filePath = lyricsFilePath(id);
+  public static async fileExistsAsync(id: string) {
+    const filePath = LyricsHelpers.filePathFromId(id);
 
-  await ensureDir(dirname(filePath));
+    await ensureDir(dirname(filePath));
 
-  return await pathExists(filePath);
+    return await pathExists(filePath);
+  }
 }
