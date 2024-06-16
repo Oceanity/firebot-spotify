@@ -5,7 +5,7 @@ import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyTrackService } from "./track";
 import { formatMsToTimecode } from "@/utils/string";
 
-describe("SpotifyTrackService", () => {
+describe("Spotify - Track Service", () => {
   let spotify: SpotifyService;
   let track: SpotifyTrackService;
 

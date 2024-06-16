@@ -2,7 +2,7 @@ import { SpotifyService } from "@utils/spotify";
 import { jest } from "@jest/globals";
 import { testSearchResponse, testTrack } from "@/testData";
 
-describe("SpotifyService", () => {
+describe("Spotify Service", () => {
   let spotify: SpotifyService;
 
   beforeEach(() => {
@@ -17,22 +17,24 @@ describe("SpotifyService", () => {
     jest.clearAllMocks();
   });
 
-  it("search returns search response", async () => {
-    const response = await spotify.searchAsync("testing", "track");
+  describe("searchAsync", () => {
+    it("search returns search response", async () => {
+      const response = await spotify.searchAsync("testing", "track");
 
-    expect(response).toBe(testSearchResponse);
-  });
+      expect(response).toBe(testSearchResponse);
+    });
 
-  it("search returns expected number of tracks", async () => {
-    testSearchResponse.tracks.items = [
-      testTrack,
-      testTrack,
-      testTrack,
-      testTrack,
-      testTrack,
-    ];
-    const response = await spotify.searchAsync("testing", "track");
+    it("search returns expected number of tracks", async () => {
+      testSearchResponse.tracks.items = [
+        testTrack,
+        testTrack,
+        testTrack,
+        testTrack,
+        testTrack,
+      ];
+      const response = await spotify.searchAsync("testing", "track");
 
-    expect(response.tracks.items.length).toBe(5);
+      expect(response.tracks.items.length).toBe(5);
+    });
   });
 });

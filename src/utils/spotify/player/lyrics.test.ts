@@ -2,7 +2,7 @@ import { testLyricData } from "@/testData";
 import { SpotifyService } from "..";
 import { SpotifyLyricsService, LyricsHelpers } from "./lyrics";
 
-describe("SpotifyLyricsService", () => {
+describe("Spotify - Lyrics Service", () => {
   let spotify: SpotifyService;
   let lyrics: SpotifyLyricsService;
 
@@ -30,35 +30,41 @@ describe("SpotifyLyricsService", () => {
     jest.clearAllMocks();
   });
 
-  it("should have default getter values", async () => {
-    jest
-      .spyOn(LyricsHelpers, "lyricsFileExistsAsync")
-      .mockImplementation(() => Promise.resolve(false));
+  describe("Getters", () => {
+    it("should have default getter values", async () => {
+      jest
+        .spyOn(LyricsHelpers, "lyricsFileExistsAsync")
+        .mockImplementation(() => Promise.resolve(false));
 
-    const fileExists = await lyrics.trackHasLyricsFile;
-    expect(fileExists).toBe(false);
+      const fileExists = await lyrics.trackHasLyricsFile;
+      expect(fileExists).toBe(false);
 
-    for (const [key, value] of Object.entries(defaults)) {
-      expect(lyrics[key as keyof SpotifyLyricsService]).toBe(value);
-    }
+      for (const [key, value] of Object.entries(defaults)) {
+        expect(lyrics[key as keyof SpotifyLyricsService]).toBe(value);
+      }
+    });
   });
 
-  it("should return true if file exists if path check resolves true", async () => {
-    const fileExists = await lyrics.trackHasLyricsFile;
-    expect(fileExists).toBe(true);
-  });
+  describe("Helper Functions", () => {
+    describe("lyricsFileExistsAsync", () => {
+      it("should return true if file exists if path check resolves true", async () => {
+        const fileExists = await lyrics.trackHasLyricsFile;
+        expect(fileExists).toBe(true);
+      });
 
-  it("should load lyrics file if file exists", async () => {
-    await lyrics.loadLyricsFileAsync();
+      it("should load lyrics file if file exists", async () => {
+        await lyrics.loadLyricsFileAsync();
 
-    const response = await lyrics.formatLines(testLyricData);
+        const response = await lyrics.formatLines(testLyricData);
 
-    expect(response).toEqual(
-      testLyricData.lyrics.lines.map((l) => ({
-        ...l,
-        startTimeMs: Number(l.startTimeMs),
-        endTimeMs: Number(l.endTimeMs),
-      }))
-    );
+        expect(response).toEqual(
+          testLyricData.lyrics.lines.map((l) => ({
+            ...l,
+            startTimeMs: Number(l.startTimeMs),
+            endTimeMs: Number(l.endTimeMs),
+          }))
+        );
+      });
+    });
   });
 });
