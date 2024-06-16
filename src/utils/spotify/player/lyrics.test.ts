@@ -21,6 +21,10 @@ describe("SpotifyLyricsService", () => {
       .mockImplementation(() => Promise.resolve(false));
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should have default getter values", async () => {
     const fileExists = await lyrics.trackHasLyricsFile;
     expect(fileExists).toBe(false);
@@ -28,5 +32,14 @@ describe("SpotifyLyricsService", () => {
     for (const [key, value] of Object.entries(defaults)) {
       expect(lyrics[key as keyof SpotifyLyricsService]).toBe(value);
     }
+  });
+
+  it("should return true if file exists", async () => {
+    jest
+      .spyOn(LyricsHelpers, "fileExistsAsync")
+      .mockImplementation(() => Promise.resolve(true));
+
+    const fileExists = await lyrics.trackHasLyricsFile;
+    expect(fileExists).toBe(true);
   });
 });
