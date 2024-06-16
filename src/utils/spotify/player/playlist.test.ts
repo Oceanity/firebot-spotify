@@ -42,7 +42,7 @@ describe("SpotifyPlaylistService", () => {
   });
 
   it("should update current playlist", async () => {
-    playlist.update(testPlaylist);
+    await playlist.updateByUriAsync(testPlaylist.uri);
 
     expect(playlist.isActive).toBe(true);
     expect(playlist.id).toBe(testPlaylist.id);
@@ -56,5 +56,20 @@ describe("SpotifyPlaylistService", () => {
     expect(playlist.owner).toBe(testPlaylist.owner.display_name);
     expect(playlist.ownerUrl).toBe(testPlaylist.owner.external_urls.spotify);
     expect(playlist.length).toBe(testPlaylist.tracks.total);
+  });
+
+  it("should clear playlist if update is given null", async () => {
+    await playlist.updateByUriAsync(null);
+
+    expect(playlist.isActive).toBe(false);
+    expect(playlist.id).toBe("");
+    expect(playlist.name).toBe("");
+    expect(playlist.description).toBe("");
+    expect(playlist.url).toBe("");
+    expect(playlist.uri).toBe("");
+    expect(playlist.coverImageUrl).toBe("");
+    expect(playlist.owner).toBe("");
+    expect(playlist.ownerUrl).toBe("");
+    expect(playlist.length).toBe(-1);
   });
 });

@@ -50,10 +50,12 @@ export class SpotifyPlayerStateService extends EventEmitter {
         switch (state.context.type) {
           case "playlist":
             if (state.context.uri !== this.spotify.player.playlist.uri) {
-              this.spotify.player.playlist.update(state.context.uri);
+              this.emit("playlist-state-changed", state.context.uri);
             }
             break;
         }
+      } else {
+        this.emit("playlist-state-changed", null);
       }
 
       // If target volume, user has manually changed volume and we don't want it falling back
