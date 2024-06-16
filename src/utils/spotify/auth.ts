@@ -1,7 +1,9 @@
-import { chatFeedAlert, integrationManager, logger } from "@utils/firebot";
+import { integrationManager, logger } from "@utils/firebot";
 import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
+import { getErrorMessage } from "@/utils/string";
+import { now } from "@utils/time";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;
@@ -31,7 +33,7 @@ export default class SpotifyAuthService {
    * Retrieves the current access token. If the current token is expired or
    * unavailable, it will be refreshed.
    *
-   * @return {Promise<string>} The current access token.
+   * @return {Promise<string>} A Promise that resolves to the current access token.
    */
   public get accessToken(): Promise<string> {
     return this.getCurrentAccessTokenAsync();
@@ -41,27 +43,33 @@ export default class SpotifyAuthService {
 
   //#region Helper Functions
   private async getCurrentAccessTokenAsync(): Promise<string> {
-    const { access_token: accessToken } = this.getSpotifyAuthFromIntegration();
+    try {
+      const { access_token: accessToken } =
+        this.getSpotifyAuthFromIntegration();
 
-    if (!(await this.tokenExpiredAsync(accessToken))) {
-      return accessToken;
+      if (!(await this.tokenExpiredAsync(accessToken))) {
+        return accessToken;
+      }
+
+      const refreshResponse = await integration.refreshToken();
+
+      if (!refreshResponse) {
+        throw new Error("Failed to refresh token");
+      }
+
+      this.expiresAt = now() + refreshResponse.expires_in * 1000;
+
+      logger.info(
+        `Refreshed Spotify Token. New Token will expire at ${new Date(
+          this.expiresAt
+        ).toUTCString()}`
+      );
+
+      return refreshResponse.access_token;
+    } catch (error) {
+      logger.error(getErrorMessage(error), error);
+      return "";
     }
-
-    const refreshResponse = await integration.refreshToken();
-
-    if (!refreshResponse) {
-      throw new Error("Failed to refresh token");
-    }
-
-    this.expiresAt = Date.now() + refreshResponse.expires_in * 1000;
-
-    chatFeedAlert(
-      `Refreshed Spotify Token. New Token will expire at ${new Date(
-        this.expiresAt
-      ).toUTCString()}`
-    );
-
-    return refreshResponse.access_token;
   }
 
   private getSpotifyAuthFromIntegration = (): AuthDefinition =>
@@ -70,7 +78,7 @@ export default class SpotifyAuthService {
   private async tokenExpiredAsync(accessToken: string | undefined) {
     if (!accessToken) return true;
 
-    if (this.expiresAt && this.expiresAt - Date.now() > 5000) return false;
+    if (this.expiresAt && this.expiresAt - now() > 5000) return false;
 
     // Check against API just in case of config issue
     return !(await this.spotifyIsConnectedAsync(accessToken));

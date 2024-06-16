@@ -62,12 +62,22 @@ type LyricsLine = {
   endTimeMs: string;
 };
 
+type FormattedLyricsLine = Overwrite<
+  LyricsLine,
+  {
+    startTimeMs: number;
+    endTimeMs: number;
+  }
+>;
+
+type LyricsSyncType = "LINE_SYNCED" | "UNSYNCED";
+
 type LyricsData = {
-  syncType: string;
   lyrics: {
+    syncType: LyricsSyncType;
     lines: LyricsLine[];
     provider: string;
-    providerLyricsId: number;
+    providerLyricsId: string;
     providerDisplayName: string;
     syncLyricsUri: string;
     isDenseTypeface: boolean;
@@ -84,3 +94,10 @@ type LyricsData = {
   };
   hasVocalRemoval: boolean;
 };
+
+type FormattedLyricsData = Overwrite<
+  LyricsData,
+  {
+    lines: FormattedLyricsLine[];
+  }
+>;

@@ -1,12 +1,21 @@
 import { chatFeedAlert, logger } from "@utils/firebot";
 import { SpotifyService } from ".";
 import ResponseError from "@/models/responseError";
+import { formatMsToTimecode, getErrorMessage } from "../string";
 
 type SpotifyRateLimits = {
   [endpoint: string]: number;
 };
 
-export default class SpotifyApiService {
+type SpotifyFetchResponse<T> = {
+  status: number;
+  ok: boolean;
+  data: T | null;
+};
+
+type SpotifyHttpRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
+
+export class SpotifyApiService {
   private readonly spotify: SpotifyService;
   private rateLimits: SpotifyRateLimits = {};
 
@@ -17,22 +26,32 @@ export default class SpotifyApiService {
   public readonly baseUrl = "https://api.spotify.com/v1";
   public getUrlFromPath = (path: string): string => `${this.baseUrl}${path}`;
 
+  /**
+   * Makes a request to the Spotify API.
+   * @param endpoint The API endpoint to request.
+   * @param method The HTTP method to use. Defaults to GET.
+   * @param options Additional fetch options.
+   * @returns An object containing the response status, ok status, and data.
+   * @throws {ResponseError} If the response status is not OK.
+   * @throws {Error} If there is an error with the request.
+   */
   public async fetch<T>(
     endpoint: string,
-    method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+    method: SpotifyHttpRequestMethod = "GET",
     options?: any
-  ) {
+  ): Promise<SpotifyFetchResponse<T>> {
     try {
       const sanitizedEndpoint = endpoint.split("?")[0];
+      const now = performance.now();
 
       if (
         this.rateLimits.hasOwnProperty(sanitizedEndpoint) &&
-        Date.now() < this.rateLimits[sanitizedEndpoint]
+        now < this.rateLimits[sanitizedEndpoint]
       ) {
         throw new Error(
-          `API endpoint ${endpoint} Rate Limit Exceeded, will be able to use again after ${new Date(
-            this.rateLimits[sanitizedEndpoint]
-          ).toUTCString()}`
+          `API endpoint ${endpoint} Rate Limit Exceeded, will be able to use again after ${formatMsToTimecode(
+            this.rateLimits[sanitizedEndpoint] - now
+          )}`
         );
       }
 
@@ -56,7 +75,8 @@ export default class SpotifyApiService {
           case 429:
             const retryAfter = response.headers.get("retry-after");
             this.rateLimits[sanitizedEndpoint] =
-              Date.now() + (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
+              performance.now() +
+              (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
             throw new ResponseError(
               `Spotify API endpoint ${endpoint} responded Rate Limit Exceeded, will be able to use again after ${new Date(
                 this.rateLimits[sanitizedEndpoint]
@@ -77,13 +97,10 @@ export default class SpotifyApiService {
         data: response.status === 204 ? null : ((await response.json()) as T),
       };
     } catch (error) {
-      let message =
-        error instanceof Error
-          ? error.message
-          : "Unspecified Error with Spotify API request " + endpoint;
+      const message = getErrorMessage(error);
       chatFeedAlert(message);
 
-      logger.error("Error making Spotify API request", error);
+      logger.error(message, error);
       throw error;
     }
   }

@@ -45,7 +45,7 @@ type SpotifyUserProfile = {
   id: string;
   images: SpotifyImage[];
   product: string;
-  type: SpotifyContextType;
+  type: string;
   uri: string;
 };
 
@@ -139,15 +139,7 @@ type SpotifyPlaylistDetails = {
   primary_color: string | null;
   public: boolean;
   snapshot_id: string;
-  tracks: {
-    href: string;
-    items: SpotifyTrackDetails[];
-    limit: number;
-    next: string;
-    offset: number;
-    previous: string;
-    total: number;
-  };
+  tracks: SpotifySearchDetails<SpotifyTrackDetails>;
   type: SpotifyContextType;
   uri: string;
 };
@@ -212,6 +204,10 @@ type SpotifyAlbumDetails = {
   uri: string;
   artists: SpotifyAlbumArtistDetails[];
 };
+
+type SpotifyAudiobookDetails = {};
+type SpotifyEpisodeDetails = {};
+type SpotifyShowDetails = {};
 
 type SpotifySearchCategory<T> = {
   href: string;

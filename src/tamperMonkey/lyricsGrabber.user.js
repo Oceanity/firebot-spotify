@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Lyric Grabber
 // @namespace    https://oceanity.github.io
-// @version      0.7.0
+// @version      0.7.1
 // @description  Sends Spotify lyrics to Firebot
 // @author       Oceanity
 // @match        https://open.spotify.com/*
@@ -33,7 +33,7 @@
     localStorage.setItem(FIREBOT_HOST_KEY, firebotHost);
   }
 
-  const firebotApiUrl = () => `${firebotHost}/integrations/oceanity-spotify/lyrics`;
+  const firebotApiUrl = () => `${firebotHost}/integrations/oceanity-spotify`;
 
   // Overload Fetch
   window.fetch = async (...args) => {
@@ -68,7 +68,7 @@
           overflow: hidden;
           color: #fff;
           text-shadow: 1px 1px 2px #000;
-          background-color: rgba(0,45,70,0.8);
+          background-color: rgba(0,45,70,0.85);
           z-index: 999;
       }
       #oceanity-spotify-modal input,
@@ -78,6 +78,18 @@
           padding: 5px;
           color: #ddd;
           background-color: rgba(0, 0, 0, 0.5);
+      }
+      .oceanity-spotify-new-version {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          margin-bottom: 10px;
+          padding: 4px 10px;
+          color: #fff;
+          background-color: darkgoldenrod;
+      }
+      .oceanity-spotify-new-version a {
+          color: cyan;
       }
       .oceanity-spotify-connection-row {
           display: flex;
@@ -111,6 +123,32 @@
     onmousedown: dragOverlayHandler
   });
   overlay.append(overlayHeader);
+
+
+  // Check for new version
+  const versionCheckResponse = await originalFetch(`${firebotApiUrl()}/version`);
+
+  if (versionCheckResponse.ok) {
+    const {
+      currentVersion,
+      latestVersion,
+      newVersionAvailable
+    } = await versionCheckResponse.json();
+
+    if (newVersionAvailable) {
+      console.log(`New version available: ${currentVersion} -> ${latestVersion}`);
+
+      const versionCheckModal = createDomElement("div", {
+        className: "oceanity-spotify-new-version",
+        html: `
+          <h3>New version available! ${currentVersion} -> ${latestVersion}</h3>
+          <p>Click <a href="https://github.com/Oceanity/firebot-spotify/releases/latest" target="_blank">here</a> to download the latest version.</p>
+        `
+      });
+
+      overlay.append(versionCheckModal);
+    }
+  }
 
   const connectionPanel = createDomElement("div", {
     css: {
@@ -168,7 +206,7 @@
   firebotConnectedRow.append(firebotConnectedText);
   async function checkFirebot() {
     try {
-      const firebotResponse = await originalFetch(`${firebotApiUrl()}/ping`);
+      const firebotResponse = await originalFetch(`${firebotApiUrl()}/lyrics/ping`);
 
       const firebotConnected = firebotResponse.ok;
       if (firebotConnected) {
@@ -234,7 +272,7 @@
     try {
       if (savedLyricIds.includes(id)) return;
 
-      const lyricsExistResponse = await originalFetch(`${firebotApiUrl()}/exists?id=${id}`);
+      const lyricsExistResponse = await originalFetch(`${firebotApiUrl()}/lyrics/exists?id=${id}`);
 
       if (lyricsExistResponse.ok) {
         const lyricsExist = (await lyricsExistResponse.json()).exists;
@@ -248,7 +286,7 @@
 
       console.log(lyricsExistResponse);
 
-      const firebotResponse = await originalFetch(`${firebotApiUrl()}/save`, {
+      const firebotResponse = await originalFetch(`${firebotApiUrl()}/lyrics/save`, {
         headers: {
           "Content-Type": "application/json",
         },
