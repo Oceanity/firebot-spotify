@@ -44,7 +44,7 @@ export default class SpotifyApiService {
 
       if (
         this.rateLimits.hasOwnProperty(sanitizedEndpoint) &&
-        Date.now() < this.rateLimits[sanitizedEndpoint]
+        performance.now() < this.rateLimits[sanitizedEndpoint]
       ) {
         throw new Error(
           `API endpoint ${endpoint} Rate Limit Exceeded, will be able to use again after ${new Date(
@@ -73,7 +73,8 @@ export default class SpotifyApiService {
           case 429:
             const retryAfter = response.headers.get("retry-after");
             this.rateLimits[sanitizedEndpoint] =
-              Date.now() + (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
+              performance.now() +
+              (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
             throw new ResponseError(
               `Spotify API endpoint ${endpoint} responded Rate Limit Exceeded, will be able to use again after ${new Date(
                 this.rateLimits[sanitizedEndpoint]

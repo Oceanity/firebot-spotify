@@ -1,11 +1,10 @@
+import { testLyricData } from "@/testData";
 import { SpotifyService } from "..";
 import { SpotifyLyricsService, LyricsHelpers } from "./lyrics";
 
 describe("SpotifyLyricsService", () => {
   let spotify: SpotifyService;
   let lyrics: SpotifyLyricsService;
-
-  const goodLyricId = "1234";
 
   const defaults = {
     trackHasLyrics: false,
@@ -17,8 +16,14 @@ describe("SpotifyLyricsService", () => {
     lyrics = new SpotifyLyricsService(spotify);
 
     jest
-      .spyOn(LyricsHelpers, "fileExistsAsync")
-      .mockImplementation(() => Promise.resolve(false));
+      .spyOn(LyricsHelpers, "lyricsFileExistsAsync")
+      .mockImplementation(() => Promise.resolve(true));
+    jest
+      .spyOn(LyricsHelpers, "lyricsFilePathFromId")
+      .mockImplementation(() => "good file path");
+    jest
+      .spyOn(LyricsHelpers, "loadLyricsFileAsync")
+      .mockImplementation(() => Promise.resolve(testLyricData));
   });
 
   afterEach(() => {
@@ -26,6 +31,10 @@ describe("SpotifyLyricsService", () => {
   });
 
   it("should have default getter values", async () => {
+    jest
+      .spyOn(LyricsHelpers, "lyricsFileExistsAsync")
+      .mockImplementation(() => Promise.resolve(false));
+
     const fileExists = await lyrics.trackHasLyricsFile;
     expect(fileExists).toBe(false);
 
@@ -34,12 +43,22 @@ describe("SpotifyLyricsService", () => {
     }
   });
 
-  it("should return true if file exists", async () => {
-    jest
-      .spyOn(LyricsHelpers, "fileExistsAsync")
-      .mockImplementation(() => Promise.resolve(true));
-
+  it("should return true if file exists if path check resolves true", async () => {
     const fileExists = await lyrics.trackHasLyricsFile;
     expect(fileExists).toBe(true);
+  });
+
+  it("should load lyrics file if file exists", async () => {
+    await lyrics.loadLyricsFileAsync();
+
+    const response = await lyrics.formatLines(testLyricData);
+
+    expect(response).toEqual(
+      testLyricData.lyrics.lines.map((l) => ({
+        ...l,
+        startTimeMs: Number(l.startTimeMs),
+        endTimeMs: Number(l.endTimeMs),
+      }))
+    );
   });
 });

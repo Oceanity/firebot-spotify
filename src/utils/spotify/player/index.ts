@@ -197,7 +197,7 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async nextAsync() {
     try {
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to skip tracks");
 
       await this.spotify.api.fetch("/me/player/next", "POST");
@@ -216,7 +216,7 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async previousAsync() {
     try {
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to skip tracks");
 
       await this.spotify.api.fetch("/me/player/previous", "POST");
@@ -238,7 +238,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     try {
       if (positionMS < 0) positionMS = 0;
 
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to seek");
 
       await this.spotify.api.fetch(
@@ -298,7 +298,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     repeatState: SpotifyRepeatState
   ): Promise<void> {
     try {
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to set repeat state");
 
       await this.spotify.api.fetch(

@@ -177,3 +177,82 @@ export const testQueue: SpotifyQueueResponse = {
     getTestTrack("second queued track", "173358134545"),
   ],
 };
+
+export const testLyricData: LyricsData = {
+  lyrics: {
+    syncType: "LINE_SYNCED",
+    lines: [
+      {
+        startTimeMs: "230",
+        words: "Somebody once told me",
+        syllables: [],
+        endTimeMs: "0",
+      },
+      {
+        startTimeMs: "2730",
+        words: "The world is gonna roll me",
+        syllables: [],
+        endTimeMs: "0",
+      },
+      {
+        startTimeMs: "5240",
+        words: "I ain't the sharpest tool in the shed",
+        syllables: [],
+        endTimeMs: "0",
+      },
+      {
+        startTimeMs: "9370",
+        words: "She was looking kind of dumb",
+        syllables: [],
+        endTimeMs: "0",
+      },
+      {
+        startTimeMs: "11850",
+        words: "With her finger and her thumb",
+        syllables: [],
+        endTimeMs: "0",
+      },
+      {
+        startTimeMs: "14190",
+        words: 'In the shape of an "L" on her forehead',
+        syllables: [],
+        endTimeMs: "0",
+      },
+    ],
+    provider: "MusixMatch",
+    providerLyricsId: "86149",
+    providerDisplayName: "Musixmatch",
+    syncLyricsUri: "",
+    isDenseTypeface: false,
+    alternatives: [],
+    language: "en",
+    isRtlLanguage: false,
+    showUpsell: false,
+    capStatus: "NONE",
+  },
+  colors: { background: -7712260, text: -16777216, highlightText: -1 },
+  hasVocalRemoval: false,
+};
+
+export const testUser: SpotifyUserProfile = {
+  display_name: "Oceanity",
+  email: "birdwithgoggles@test.com",
+  external_urls: {
+    spotify: "https://open.spotify.com/user/oceanity",
+  },
+  followers: {
+    href: "",
+    total: 9001,
+  },
+  href: "https://twitch.tv/oceanity",
+  id: "oceanity",
+  images: testImages,
+  product: "premium",
+  type: "user",
+  uri: "spotify:user:oceanity",
+  country: "US",
+  explicit_content: {
+    filter_enabled: false,
+    filter_locked: false,
+  },
+};

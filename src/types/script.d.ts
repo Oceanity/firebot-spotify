@@ -70,12 +70,14 @@ type FormattedLyricsLine = Overwrite<
   }
 >;
 
+type LyricsSyncType = "LINE_SYNCED" | "UNSYNCED";
+
 type LyricsData = {
-  syncType: string;
   lyrics: {
+    syncType: LyricsSyncType;
     lines: LyricsLine[];
     provider: string;
-    providerLyricsId: number;
+    providerLyricsId: string;
     providerDisplayName: string;
     syncLyricsUri: string;
     isDenseTypeface: boolean;

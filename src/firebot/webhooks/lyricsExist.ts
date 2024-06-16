@@ -18,7 +18,7 @@ export const LyricsExistEndpoint: ApiEndpoint = [
       }
 
       res.status(200).send({
-        exists: await LyricsHelpers.fileExistsAsync(id as string),
+        exists: await LyricsHelpers.lyricsFileExistsAsync(id as string),
       });
     } catch (error) {
       res.status(500).send({

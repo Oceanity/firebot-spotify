@@ -21,7 +21,9 @@ describe("getBiggestImageUrl", () => {
   });
 
   it("should return empty string if no images", () => {
-    expect(getBiggestImageUrl([])).toBe("");
+    const images: SpotifyImage[] = [];
+
+    expect(getBiggestImageUrl(images)).toBe("");
   });
 });
 //#endregion

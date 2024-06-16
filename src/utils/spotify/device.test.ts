@@ -3,13 +3,19 @@ import { SpotifyDeviceService } from "@utils/spotify/device";
 describe("SpotifyDeviceService", () => {
   let spotifyDevice: SpotifyDeviceService;
 
+  const defaults = {
+    isAvailable: false,
+    id: "",
+  };
+
   beforeEach(() => {
     spotifyDevice = new SpotifyDeviceService();
   });
 
   it("should have default getter values", () => {
-    expect(spotifyDevice.isAvailable).toBe(false);
-    expect(spotifyDevice.id).toBe("");
+    for (const [key, value] of Object.entries(defaults)) {
+      expect(spotifyDevice[key as keyof SpotifyDeviceService]).toBe(value);
+    }
   });
 
   it("should update device id", () => {

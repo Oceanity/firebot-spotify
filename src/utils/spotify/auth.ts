@@ -56,7 +56,7 @@ export default class SpotifyAuthService {
         throw new Error("Failed to refresh token");
       }
 
-      this.expiresAt = Date.now() + refreshResponse.expires_in * 1000;
+      this.expiresAt = performance.now() + refreshResponse.expires_in * 1000;
 
       logger.info(
         `Refreshed Spotify Token. New Token will expire at ${new Date(
@@ -67,7 +67,7 @@ export default class SpotifyAuthService {
       return refreshResponse.access_token;
     } catch (error) {
       logger.error(getErrorMessage(error), error);
-      throw error;
+      return "";
     }
   }
 
@@ -77,7 +77,8 @@ export default class SpotifyAuthService {
   private async tokenExpiredAsync(accessToken: string | undefined) {
     if (!accessToken) return true;
 
-    if (this.expiresAt && this.expiresAt - Date.now() > 5000) return false;
+    if (this.expiresAt && this.expiresAt - performance.now() > 5000)
+      return false;
 
     // Check against API just in case of config issue
     return !(await this.spotifyIsConnectedAsync(accessToken));

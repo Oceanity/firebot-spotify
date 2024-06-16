@@ -17,7 +17,7 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   public async init() {
-    for (const event of ["track-state-changed", "state-cleared"]) {
+    for (const event of ["track-changed", "state-cleared"]) {
       this.spotify.player.state.on(event, this.trackChangedHandler);
     }
 

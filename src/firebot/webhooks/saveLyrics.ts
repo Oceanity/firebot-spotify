@@ -30,7 +30,7 @@ export const SaveLyricsEndpoint: ApiEndpoint = [
 
       if (data === "{}") return;
 
-      if (await LyricsHelpers.fileExistsAsync(id)) {
+      if (await LyricsHelpers.lyricsFileExistsAsync(id)) {
         res.status(409).send({
           status: 409,
           message: "File already exists",

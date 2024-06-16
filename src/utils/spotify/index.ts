@@ -3,7 +3,7 @@ import SpotifyApiService from "./api";
 import SpotifyAuthService from "./auth";
 import { SpotifyDeviceService } from "./device";
 import { SpotifyEventService } from "./events";
-import SpotifyProfileService from "./me";
+import SpotifyProfileService from "./user";
 import SpotifyPlayerService from "./player";
 import { getErrorMessage } from "../string";
 
@@ -12,7 +12,7 @@ export class SpotifyService {
   public readonly auth: SpotifyAuthService;
   public readonly device: SpotifyDeviceService;
   public readonly events: SpotifyEventService;
-  public readonly me: SpotifyProfileService;
+  public readonly user: SpotifyProfileService;
   public readonly player: SpotifyPlayerService;
 
   constructor() {
@@ -20,7 +20,7 @@ export class SpotifyService {
     this.auth = new SpotifyAuthService(this);
     this.device = new SpotifyDeviceService();
     this.events = new SpotifyEventService();
-    this.me = new SpotifyProfileService(this);
+    this.user = new SpotifyProfileService(this);
     this.player = new SpotifyPlayerService(this);
   }
 
