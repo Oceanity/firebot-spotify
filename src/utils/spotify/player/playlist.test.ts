@@ -54,7 +54,7 @@ describe("SpotifyPlaylistService", () => {
     expect(playlist.id).toBe(testPlaylist.id);
     expect(playlist.name).toBe(testPlaylist.name);
     expect(playlist.description).toBe(testPlaylist.description);
-    expect(playlist.url).toBe(testPlaylist.external_urls.spotify);
+    expect(playlist.url).toBe(testPlaylist.href);
     expect(playlist.uri).toBe(testPlaylist.uri);
     expect(playlist.coverImageUrl).toBe(
       getBiggestImageUrl(testPlaylist.images)

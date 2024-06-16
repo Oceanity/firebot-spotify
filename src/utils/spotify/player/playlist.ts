@@ -38,7 +38,7 @@ export class SpotifyPlaylistService {
   }
 
   public get url(): string {
-    return this._playlist?.external_urls.spotify ?? "";
+    return this._playlist?.href ?? "";
   }
 
   public get uri(): string {
