@@ -1,4 +1,4 @@
-name: Run Jest Tests
+name: All Jest tests pass
 
 on:
   push:
