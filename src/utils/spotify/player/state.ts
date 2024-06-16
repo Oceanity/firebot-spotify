@@ -1,5 +1,5 @@
-import { eventManager, logger } from "@utils/firebot";
-import { delay } from "@utils/timing";
+import { logger } from "@utils/firebot";
+import { delay, now } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
@@ -19,7 +19,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
   }
 
   private async updatePlaybackStateAsync(): Promise<void> {
-    const startTime = performance.now();
+    const startTime = now();
 
     try {
       if (!this.spotify.auth.isLinked) {
@@ -83,7 +83,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
   }
 
   private async tick(delayMs: number, startTime: number): Promise<void> {
-    const diffedMs = performance.now() - startTime + this._progressMs;
+    const diffedMs = now() - startTime + this._progressMs;
     this.spotify.events.trigger("tick", { progressMs: diffedMs });
     this.emit("tick", this._progressMs);
     await delay(delayMs, startTime);

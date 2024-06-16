@@ -1,4 +1,4 @@
-import { delay } from "@utils/timing";
+import { delay, now } from "@utils/time";
 import { logger } from "@utils/firebot";
 import { jest } from "@jest/globals";
 
@@ -10,13 +10,13 @@ jest.mock("@utils/firebot", () => ({
 
 describe("delay", () => {
   it("resolves after ms", async () => {
-    const startTime = performance.now();
+    const startTime = now();
     await delay(100);
-    expect(performance.now() - startTime).toBeGreaterThanOrEqual(100);
+    expect(now() - startTime).toBeGreaterThanOrEqual(100);
   });
 
   it("logs warning if method took longer than expected", async () => {
-    const startTime = performance.now() - 5000;
+    const startTime = now() - 5000;
 
     await delay(1000, startTime);
 

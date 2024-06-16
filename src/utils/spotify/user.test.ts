@@ -28,73 +28,81 @@ describe("SpotifyProfileService", () => {
     jest.clearAllMocks();
   });
 
-  it("fetches user profile on first call", async () => {
-    const response = await user.getProfileAsync();
+  //#region getProfileAsync Unit Tests
+  describe("getProfileAsync", () => {
+    it("fetches user profile on first call", async () => {
+      const response = await user.getProfileAsync();
 
-    expect(spotify.api.fetch).toHaveBeenCalledTimes(1);
-    expect(response).toBe(testUser);
-  });
-
-  it("uses cached data on subsequent calls", async () => {
-    const responses: SpotifyUserProfile[] = [];
-
-    for (let i = 0; i < 10; i++) {
-      responses.push(await user.getProfileAsync());
-    }
-
-    // Should only fetch again after an hour
-    expect(spotify.api.fetch).toHaveBeenCalledTimes(1);
-
-    for (const response of responses) {
+      expect(spotify.api.fetch).toHaveBeenCalledTimes(1);
       expect(response).toBe(testUser);
-    }
+    });
+
+    it("uses cached profile on subsequent calls", async () => {
+      const responses: SpotifyUserProfile[] = [];
+
+      for (let i = 0; i < 10; i++) {
+        responses.push(await user.getProfileAsync());
+      }
+
+      // Should only fetch again after an hour
+      expect(spotify.api.fetch).toHaveBeenCalledTimes(1);
+
+      for (const response of responses) {
+        expect(response).toBe(testUser);
+      }
+    });
+
+    it("fetches user profile when cached profile expires", async () => {
+      jest.spyOn(require("@utils/time"), "now").mockReturnValue(-3660000);
+      const firstResponse = await user.getProfileAsync();
+      expect(firstResponse).toBe(testUser);
+
+      jest.spyOn(require("@utils/time"), "now").mockReturnValue(0);
+      const secondResponse = await user.getProfileAsync();
+      expect(secondResponse).toBe(testUser);
+
+      expect(spotify.api.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("throws error if fetch fails", async () => {
+      jest
+        .spyOn(spotify.api, "fetch")
+        .mockReturnValue(
+          Promise.resolve({ ok: false, status: 500, data: null })
+        );
+
+      await expect(user.getProfileAsync()).rejects.toThrow();
+    });
   });
+  //#endregion
 
-  it("fetches again when user profile expires", async () => {
-    jest.spyOn(performance, "now").mockReturnValueOnce(-3660000); // Force expiry to pass
+  //#region isPremiumAsync Unit Tests
+  describe("isPremiumAsync", () => {
+    it("returns true if user is premium", async () => {
+      const premiumUser = { ...testUser, product: "premium" };
 
-    const firstResponse = await user.getProfileAsync();
-    expect(firstResponse).toBe(testUser);
+      jest
+        .spyOn(spotify.api, "fetch")
+        .mockReturnValue(
+          Promise.resolve({ ok: true, status: 200, data: premiumUser })
+        );
 
-    jest.spyOn(performance, "now").mockReturnValueOnce(0);
+      const response = await user.isPremiumAsync();
+      expect(response).toBe(true);
+    });
 
-    const secondResponse = await user.getProfileAsync();
-    expect(secondResponse).toBe(testUser);
+    it("returns false if user not premium", async () => {
+      const notPremiumUser = { ...testUser, product: "free" };
 
-    expect(spotify.api.fetch).toHaveBeenCalledTimes(2);
+      jest
+        .spyOn(spotify.api, "fetch")
+        .mockReturnValue(
+          Promise.resolve({ ok: true, status: 200, data: notPremiumUser })
+        );
+
+      const response = await user.isPremiumAsync();
+      expect(response).toBe(false);
+    });
   });
-
-  it("throws error if fetch fails", async () => {
-    jest
-      .spyOn(spotify.api, "fetch")
-      .mockReturnValue(Promise.resolve({ ok: false, status: 500, data: null }));
-
-    await expect(user.getProfileAsync()).rejects.toThrow();
-  });
-
-  it("returns true if user is premium", async () => {
-    const premiumUser = { ...testUser, product: "premium" };
-
-    jest
-      .spyOn(spotify.api, "fetch")
-      .mockReturnValue(
-        Promise.resolve({ ok: true, status: 200, data: premiumUser })
-      );
-
-    const response = await user.isPremiumAsync();
-    expect(response).toBe(true);
-  });
-
-  it("returns false if user not premium", async () => {
-    const notPremiumUser = { ...testUser, product: "free" };
-
-    jest
-      .spyOn(spotify.api, "fetch")
-      .mockReturnValue(
-        Promise.resolve({ ok: true, status: 200, data: notPremiumUser })
-      );
-
-    const response = await user.isPremiumAsync();
-    expect(response).toBe(false);
-  });
+  //#endregion
 });

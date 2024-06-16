@@ -1,7 +1,7 @@
-import DbService from "@/utils/db";
-import { logger } from "@/utils/firebot";
-import { getErrorMessage } from "@/utils/string";
-import { delay } from "@/utils/timing";
+import DbService from "@utils/db";
+import { logger } from "@utils/firebot";
+import { getErrorMessage } from "@utils/string";
+import { delay } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 import { ensureDir, pathExists, readFile } from "fs-extra";

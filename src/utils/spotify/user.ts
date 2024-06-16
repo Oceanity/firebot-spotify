@@ -1,5 +1,6 @@
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@utils/string";
+import { now } from "@utils/time";
 import { logger } from "@utils/firebot";
 
 export default class SpotifyProfileService {
@@ -15,9 +16,7 @@ export default class SpotifyProfileService {
 
   public async getProfileAsync(): Promise<SpotifyUserProfile> {
     try {
-      const now = performance.now();
-
-      if (this._userProfile && this._pollUserAt > now) {
+      if (this._userProfile && this._pollUserAt > now()) {
         return this._userProfile;
       }
 
@@ -28,7 +27,7 @@ export default class SpotifyProfileService {
       }
 
       this._userProfile = response.data;
-      this._pollUserAt = now + 1000 * 60 * this.minutesToRefresh;
+      this._pollUserAt = now() + 1000 * 60 * this.minutesToRefresh;
 
       return this._userProfile;
     } catch (error) {
