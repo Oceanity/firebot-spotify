@@ -4,7 +4,7 @@ import { SpotifyPlaylistService } from "@utils/spotify/player/playlist";
 import { testPlaylist } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
 
-describe("SpotifyDeviceService", () => {
+describe("SpotifyPlaylistService", () => {
   let spotify: SpotifyService;
   let playlist: SpotifyPlaylistService;
 

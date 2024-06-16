@@ -13,7 +13,6 @@ export class SpotifyLyricsService extends EventEmitter {
 
   private _trackId?: string;
   private _lines?: FormattedLyricsLine[];
-  private _lyricsData?: LyricsData;
   private _currentLine?: LyricsLine;
   private _queuedLine?: LyricsLine;
 
@@ -47,7 +46,6 @@ export class SpotifyLyricsService extends EventEmitter {
   private tickHandler = (progressMs: number) => this.handleNextTick(progressMs);
 
   private trackChangedHandler = async (track?: SpotifyTrackDetails) => {
-    this._lyricsData = undefined;
     this._lines = undefined;
     this._trackId = track?.id;
 
@@ -69,22 +67,23 @@ export class SpotifyLyricsService extends EventEmitter {
 
     const lyricsData = await db.getAsync<LyricsData>("/");
 
-    if (!lyricsData) {
-      this.spotify.player.state.off("tick", this.tickHandler);
-      return;
-    }
+    this._lines = this.formatLines(lyricsData);
 
-    this._lyricsData = lyricsData;
-    this._lines = lyricsData.lyrics.lines.map((l) => ({
-      startTimeMs: Number(l.startTimeMs),
-      words: l.words,
-      syllables: l.syllables,
-      endTimeMs: Number(l.endTimeMs),
-    }));
-
-    this.spotify.player.state.on("tick", this.tickHandler);
-    return;
+    // Enable tick listener if we have lyrics
+    return lyricsData
+      ? this.spotify.player.state.on("tick", this.tickHandler)
+      : this.spotify.player.state.off("tick", this.tickHandler);
   };
+
+  public formatLines = (lyricsData?: LyricsData) =>
+    (this._lines = lyricsData
+      ? lyricsData.lyrics.lines.map((l) => ({
+          startTimeMs: Number(l.startTimeMs),
+          words: l.words,
+          syllables: l.syllables,
+          endTimeMs: Number(l.endTimeMs),
+        }))
+      : undefined);
 
   public async saveLyrics(id: string, lyricsData: LyricsData) {
     const filePath = lyricsFilePath(id);
@@ -94,8 +93,7 @@ export class SpotifyLyricsService extends EventEmitter {
 
     // If current track, let's make it live
     if (this._trackId === id) {
-      this._lyricsData = lyricsData;
-
+      this.formatLines(lyricsData);
       this.spotify.player.state.on("tick", this.tickHandler);
     }
 
