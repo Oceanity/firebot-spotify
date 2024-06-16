@@ -1,5 +1,5 @@
-import { eventManager, logger } from "@utils/firebot";
-import { delay } from "@utils/timing";
+import { logger } from "@utils/firebot";
+import { delay, now } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
@@ -19,7 +19,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
   }
 
   private async updatePlaybackStateAsync(): Promise<void> {
-    const startTime = performance.now();
+    const startTime = now();
 
     try {
       if (!this.spotify.auth.isLinked) {
@@ -50,10 +50,12 @@ export class SpotifyPlayerStateService extends EventEmitter {
         switch (state.context.type) {
           case "playlist":
             if (state.context.uri !== this.spotify.player.playlist.uri) {
-              this.spotify.player.playlist.update(state.context.uri);
+              this.emit("playlist-state-changed", state.context.uri);
             }
             break;
         }
+      } else {
+        this.emit("playlist-state-changed", null);
       }
 
       // If target volume, user has manually changed volume and we don't want it falling back
@@ -70,7 +72,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
 
       // If track has changed, fire event
       if (this.spotify.player.trackService.uri != nextTrack?.uri) {
-        this.emit("track-state-changed", nextTrack);
+        this.emit("track-changed", nextTrack);
         this.spotify.events.trigger("track-changed", nextTrack ?? null);
       }
       return this.tick(state.is_playing ? 1000 : 5000, startTime);
@@ -81,7 +83,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
   }
 
   private async tick(delayMs: number, startTime: number): Promise<void> {
-    const diffedMs = performance.now() - startTime + this._progressMs;
+    const diffedMs = now() - startTime + this._progressMs;
     this.spotify.events.trigger("tick", { progressMs: diffedMs });
     this.emit("tick", this._progressMs);
     await delay(delayMs, startTime);

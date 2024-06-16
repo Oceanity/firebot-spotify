@@ -4,9 +4,22 @@ import { SpotifyPlaylistService } from "@utils/spotify/player/playlist";
 import { testPlaylist } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
 
-describe("SpotifyDeviceService", () => {
+describe("SpotifyPlaylistService", () => {
   let spotify: SpotifyService;
   let playlist: SpotifyPlaylistService;
+
+  const defaults = {
+    isActive: false,
+    id: "",
+    name: "",
+    description: "",
+    url: "",
+    uri: "",
+    coverImageUrl: "",
+    owner: "",
+    ownerUrl: "",
+    length: -1,
+  };
 
   beforeEach(() => {
     spotify = new SpotifyService();
@@ -24,16 +37,9 @@ describe("SpotifyDeviceService", () => {
   });
 
   it("should have default getter values", () => {
-    expect(playlist.isActive).toBe(false);
-    expect(playlist.id).toBe("");
-    expect(playlist.name).toBe("");
-    expect(playlist.description).toBe("");
-    expect(playlist.url).toBe("");
-    expect(playlist.uri).toBe("");
-    expect(playlist.coverImageUrl).toBe("");
-    expect(playlist.owner).toBe("");
-    expect(playlist.ownerUrl).toBe("");
-    expect(playlist.length).toBe(-1);
+    for (const [key, value] of Object.entries(defaults)) {
+      expect(playlist[key as keyof SpotifyPlaylistService]).toBe(value);
+    }
   });
 
   it("should fetch playlist by uri", async () => {
@@ -42,7 +48,7 @@ describe("SpotifyDeviceService", () => {
   });
 
   it("should update current playlist", async () => {
-    playlist.update(testPlaylist);
+    await playlist.updateByUriAsync(testPlaylist.uri);
 
     expect(playlist.isActive).toBe(true);
     expect(playlist.id).toBe(testPlaylist.id);
@@ -56,5 +62,16 @@ describe("SpotifyDeviceService", () => {
     expect(playlist.owner).toBe(testPlaylist.owner.display_name);
     expect(playlist.ownerUrl).toBe(testPlaylist.owner.external_urls.spotify);
     expect(playlist.length).toBe(testPlaylist.tracks.total);
+  });
+
+  it("should clear playlist if null is passed through update", async () => {
+    // fill playlist to ensure null update actually has to do something
+    await playlist.updateByUriAsync(testPlaylist.uri);
+
+    await playlist.updateByUriAsync(null);
+
+    for (const [key, value] of Object.entries(defaults)) {
+      expect(playlist[key as keyof SpotifyPlaylistService]).toBe(value);
+    }
   });
 });

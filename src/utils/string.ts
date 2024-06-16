@@ -1,4 +1,7 @@
-export function formatMsToTimecode(ms: number, showHours: boolean): string {
+export function formatMsToTimecode(
+  ms: number,
+  showHours: boolean = false
+): string {
   const normalizedSeconds = ~~(ms / 1000);
   const hours = ~~(normalizedSeconds / 3600);
   const minutes = ~~((normalizedSeconds / 60) % 60);

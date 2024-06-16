@@ -38,9 +38,14 @@ export default class SpotifyPlayerService extends EventEmitter {
     await this.lyrics.init();
     await this.state.init();
     await this.trackService.init();
+    await this.playlist.init();
 
-    this.state.on("is-playing-state-changed", this.isPlayingChangedHandler);
-    this.state.on("volume-state-changed", this.volumeChangedHandler);
+    this.state.on("is-playing-state-changed", (isPlaying) => {
+      this.updateIsPlaying(isPlaying);
+    });
+    this.state.on("volume-state-changed", (volumePercent) => {
+      this.updateVolume(volumePercent);
+    });
   }
 
   //#region Getters
@@ -67,9 +72,6 @@ export default class SpotifyPlayerService extends EventEmitter {
     return this._targetVolume !== -1;
   }
 
-  private isPlayingChangedHandler = (isPlaying: boolean) =>
-    this.updateIsPlaying(isPlaying);
-
   private updateIsPlaying = (isPlaying: boolean) => {
     if (this._targetIsPlaying === isPlaying) {
       this._targetIsPlaying = null;
@@ -80,11 +82,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     this.spotify.events.trigger("playback-state-changed", { isPlaying });
   };
 
-  private volumeChangedHandler = (volume: number) => this.updateVolume(volume);
-
   private updateVolume = (volume: number) => {
-    logger.info(`Changing Spotify volume to ${volume} from ${this._volume}`);
-
     // If first value set or target volume not met, do not emit
     if (this._volume === -1 || this._targetVolume === volume) {
       this._targetVolume = -1;
@@ -95,7 +93,6 @@ export default class SpotifyPlayerService extends EventEmitter {
     this._volume = volume;
     this.spotify.events.trigger("volume-changed", { volume });
   };
-
   //#endregion
 
   /**
@@ -200,7 +197,7 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async nextAsync() {
     try {
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to skip tracks");
 
       await this.spotify.api.fetch("/me/player/next", "POST");
@@ -219,7 +216,7 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async previousAsync() {
     try {
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to skip tracks");
 
       await this.spotify.api.fetch("/me/player/previous", "POST");
@@ -241,7 +238,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     try {
       if (positionMS < 0) positionMS = 0;
 
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to seek");
 
       await this.spotify.api.fetch(
@@ -301,7 +298,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     repeatState: SpotifyRepeatState
   ): Promise<void> {
     try {
-      if (!(await this.spotify.me.isUserPremiumAsync()))
+      if (!(await this.spotify.user.isPremiumAsync()))
         throw new Error("Spotify Premium required to set repeat state");
 
       await this.spotify.api.fetch(

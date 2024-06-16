@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ApiEndpoint } from ".";
 import { spotify } from "@/main";
-import { lyricsFileExistsAsync } from "@/utils/spotify/player/lyrics";
+import { LyricsHelpers } from "@/utils/spotify/player/lyrics";
 
 export const SaveLyricsEndpoint: ApiEndpoint = [
   "/lyrics/save",
@@ -30,7 +30,7 @@ export const SaveLyricsEndpoint: ApiEndpoint = [
 
       if (data === "{}") return;
 
-      if (await lyricsFileExistsAsync(id)) {
+      if (await LyricsHelpers.lyricsFileExistsAsync(id)) {
         res.status(409).send({
           status: 409,
           message: "File already exists",

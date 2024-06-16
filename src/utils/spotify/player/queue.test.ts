@@ -3,7 +3,7 @@ import { SpotifyService } from "@utils/spotify";
 import { testQueue } from "@/testData";
 import { SpotifyQueueService } from "./queue";
 
-describe("SpotifyTrackService", () => {
+describe("SpotifyQueueService", () => {
   let spotify: SpotifyService;
   let queue: SpotifyQueueService;
 

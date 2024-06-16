@@ -14,6 +14,7 @@ import { AllSpotifyReplaceVariables } from "./firebot/variables";
 import { AllSpotifyWebhooks } from "./firebot/webhooks";
 import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
+import { now } from "@utils/time";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -82,7 +83,7 @@ export class SpotifyIntegration extends EventEmitter {
       if (
         currentAuth.access_token &&
         this.expiresAt &&
-        this.expiresAt - Date.now() > 5000
+        this.expiresAt - now() > 5000
       ) {
         return currentAuth;
       }
@@ -125,7 +126,7 @@ export class SpotifyIntegration extends EventEmitter {
         const data = (await response.json()) as SpotifyRefreshTokenResponse;
         data.refresh_token = auth.refresh_token;
 
-        this.expiresAt = Date.now() + data.expires_in * 1000;
+        this.expiresAt = now() + data.expires_in * 1000;
         logger.info(
           `New token expires at ${new Date(this.expiresAt).toUTCString()}`
         );

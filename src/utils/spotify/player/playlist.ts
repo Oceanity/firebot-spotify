@@ -13,6 +13,13 @@ export class SpotifyPlaylistService {
     this.spotify = spotifyService;
   }
 
+  public async init() {
+    this.spotify.player.state.on(
+      "playlist-state-changed",
+      async (uri?) => await this.updateByUriAsync(uri)
+    );
+  }
+
   /* Getters */
   public get isActive(): boolean {
     return !!this._playlist;
@@ -54,14 +61,14 @@ export class SpotifyPlaylistService {
     return this._playlist?.tracks.total ?? -1;
   }
 
-  public async updateByUriAsync(playlistUri?: string): Promise<void> {
+  public async updateByUriAsync(playlistUri?: string | null): Promise<void> {
     const playlist = await this.fetchByUriAsync(playlistUri);
 
     this.update(playlist);
   }
 
   public async fetchByUriAsync(
-    playlistUri?: string
+    playlistUri?: string | null
   ): Promise<SpotifyPlaylistDetails | null> {
     if (!playlistUri) return null;
 
@@ -74,7 +81,7 @@ export class SpotifyPlaylistService {
     return response.data ?? null;
   }
 
-  public update(playlist: SpotifyPlaylistDetails | null): void {
+  private update(playlist: SpotifyPlaylistDetails | null): void {
     try {
       if (this._playlist?.uri === playlist?.uri) return;
 
