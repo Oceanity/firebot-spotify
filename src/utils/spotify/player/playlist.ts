@@ -54,7 +54,7 @@ export class SpotifyPlaylistService {
   }
 
   public get ownerUrl(): string {
-    return this._playlist?.owner.external_urls.spotify ?? "";
+    return this._playlist?.owner.href ?? "";
   }
 
   public get length(): number {

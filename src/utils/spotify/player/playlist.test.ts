@@ -60,7 +60,7 @@ describe("SpotifyPlaylistService", () => {
       getBiggestImageUrl(testPlaylist.images)
     );
     expect(playlist.owner).toBe(testPlaylist.owner.display_name);
-    expect(playlist.ownerUrl).toBe(testPlaylist.owner.external_urls.spotify);
+    expect(playlist.ownerUrl).toBe(testPlaylist.owner.href);
     expect(playlist.length).toBe(testPlaylist.tracks.total);
   });
 

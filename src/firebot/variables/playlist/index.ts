@@ -1,15 +1,19 @@
 import { SpotifyIsPlaylistActiveVariable } from "./spotifyIsPlaylistActive";
-import { SpotifyPlaylistDescriptionVariable } from "./spotifyPlaylistDescription";
-import { SpotifyPlaylistUrlVariable } from "./spotifyPlaylistUrl";
-import { SpotifyPlaylistNameVariable } from "./spotifyPlaylistName";
 import { SpotifyPlaylistCoverImageUrlVariable } from "./spotifyPlaylistCoverImageUrl";
+import { SpotifyPlaylistDescriptionVariable } from "./spotifyPlaylistDescription";
 import { SpotifyPlaylistLengthVariable } from "./spotifyPlaylistLength";
+import { SpotifyPlaylistNameVariable } from "./spotifyPlaylistName";
+import { SpotifyPlaylistOwnerVariable } from "./spotifyPlaylistOwner";
+import { SpotifyPlaylistOwnerUrlVariable } from "./spotifyPlaylistOwnerUrl";
+import { SpotifyPlaylistUrlVariable } from "./spotifyPlaylistUrl";
 
 export const AllSpotifyPlaylistVariables = [
   SpotifyIsPlaylistActiveVariable,
-  SpotifyPlaylistDescriptionVariable,
-  SpotifyPlaylistUrlVariable,
-  SpotifyPlaylistNameVariable,
   SpotifyPlaylistCoverImageUrlVariable,
+  SpotifyPlaylistDescriptionVariable,
   SpotifyPlaylistLengthVariable,
+  SpotifyPlaylistNameVariable,
+  SpotifyPlaylistOwnerVariable,
+  SpotifyPlaylistOwnerUrlVariable,
+  SpotifyPlaylistUrlVariable,
 ];
