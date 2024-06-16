@@ -65,23 +65,29 @@ describe("SpotifyApiService", () => {
     expect(response.data).toBe(null);
   });
 
-  it("should throw error if response is 404", async () => {
+  it("should throw error if response has expected error code", async () => {
     const endpoint = "/foo/bar";
-    const status = 404;
+    for (const status of [400, 401, 403, 404, 500]) {
+      // @ts-expect-error ts2322
+      global.fetch = jest.fn(() => ({
+        ok: false,
+        status,
+      }));
 
-    // @ts-expect-error ts2322
-    global.fetch = jest.fn(() => ({
-      ok: false,
-      status,
-    }));
+      jest.mock("@utils/firebot", () => ({
+        logger: {
+          error: jest.fn(),
+        },
+        chatFeedAlert: jest.fn(() => {}),
+      }));
 
-    jest.mock("@utils/firebot", () => ({
-      logger: {
-        error: jest.fn(),
-      },
-      chatFeedAlert: jest.fn(() => {}),
-    }));
-
-    await expect(api.fetch<DummyDataType>(endpoint)).rejects.toThrow();
+      await expect(api.fetch<DummyDataType>(endpoint)).rejects.toThrow();
+      // expect(logger.error).toHaveBeenCalledTimes(1);
+      // expect(logger.error).toHaveBeenCalledWith(
+      //   expect.stringMatching(
+      //     `Spotify API ${endpoint} returned status ${status}`
+      //   )
+      // );
+    }
   });
 });
