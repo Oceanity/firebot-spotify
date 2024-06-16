@@ -1,7 +1,6 @@
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyApiService } from "@utils/spotify/api";
 import { jest } from "@jest/globals";
-import { integrationManager, logger } from "@utils/firebot";
 
 type DummyDataType = {
   foo: string;
@@ -18,7 +17,7 @@ jest.mock("@utils/firebot", () => ({
   chatFeedAlert: jest.fn(() => {}),
 }));
 
-describe("SpotifyApiService", () => {
+describe("Spotify - Api Service", () => {
   let spotify: SpotifyService;
   let api: SpotifyApiService;
 

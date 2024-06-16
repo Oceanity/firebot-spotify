@@ -21,6 +21,6 @@ jobs:
         with:
           node-version: 18.x
       - run: npm install
-      - run: npm test
+      - run: npm test -- --verbose
       - if: ${{ failure() }}
         run: exit 1
