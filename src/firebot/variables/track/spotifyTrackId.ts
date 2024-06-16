@@ -9,5 +9,5 @@ export const SpotifyTrackIdVariable: ReplaceVariable = {
     usage: "spotifyTrackId",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track?.id ?? "",
+  evaluator: async () => spotify.player.trackService.id,
 };

@@ -9,6 +9,5 @@ export const SpotifyTrackPositionMsVariable: ReplaceVariable = {
     usage: "spotifyTrackPositionMs",
     possibleDataOutput: ["number"],
   },
-  evaluator: async () =>
-    spotify.player.track ? spotify.player.track.positionMs : -1,
+  evaluator: async () => spotify.player.trackService.positionMs,
 };

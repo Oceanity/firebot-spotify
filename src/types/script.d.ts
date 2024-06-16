@@ -62,6 +62,14 @@ type LyricsLine = {
   endTimeMs: string;
 };
 
+type FormattedLyricsLine = Overwrite<
+  LyricsLine,
+  {
+    startTimeMs: number;
+    endTimeMs: number;
+  }
+>;
+
 type LyricsData = {
   syncType: string;
   lyrics: {
@@ -84,3 +92,10 @@ type LyricsData = {
   };
   hasVocalRemoval: boolean;
 };
+
+type FormattedLyricsData = Overwrite<
+  LyricsData,
+  {
+    lines: FormattedLyricsLine[];
+  }
+>;

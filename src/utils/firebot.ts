@@ -1,4 +1,3 @@
-import { integrationId } from "@/main";
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 import { HttpServerManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/http-server-manager";
 

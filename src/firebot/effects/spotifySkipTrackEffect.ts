@@ -1,5 +1,5 @@
 import { spotify } from "@/main";
-import { getErrorMessage } from "@utils/errors";
+import { getErrorMessage } from "@/utils/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
 export enum SpotifySkipTarget {

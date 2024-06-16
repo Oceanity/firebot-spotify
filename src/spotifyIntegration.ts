@@ -38,7 +38,7 @@ export class SpotifyIntegration extends EventEmitter {
     spotifyDefinition = generateSpotifyDefinition(client);
   }
 
-  init() {
+  async init() {
     logger.info("Initializing Spotify Integration...");
 
     // Register Effects
@@ -62,8 +62,7 @@ export class SpotifyIntegration extends EventEmitter {
       httpServer.registerCustomRoute(integrationId, path, method, handler);
     }
 
-    spotify.player.init();
-    spotify.player.lyrics.init();
+    await spotify.init();
   }
 
   async connect() {}

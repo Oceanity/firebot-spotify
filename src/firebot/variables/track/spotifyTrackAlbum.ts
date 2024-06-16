@@ -9,5 +9,5 @@ export const SpotifyTrackAlbumVariable: ReplaceVariable = {
     usage: "spotifyTrackAlbum",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track?.album ?? "",
+  evaluator: async () => spotify.player.trackService.album,
 };

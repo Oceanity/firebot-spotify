@@ -6,6 +6,14 @@ type SpotifyRateLimits = {
   [endpoint: string]: number;
 };
 
+type SpotifyFetchResponse = {
+  status: number;
+  ok: boolean;
+  data: any;
+};
+
+type SpotifyHttpRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
+
 export default class SpotifyApiService {
   private readonly spotify: SpotifyService;
   private rateLimits: SpotifyRateLimits = {};
@@ -17,11 +25,20 @@ export default class SpotifyApiService {
   public readonly baseUrl = "https://api.spotify.com/v1";
   public getUrlFromPath = (path: string): string => `${this.baseUrl}${path}`;
 
+  /**
+   * Makes a request to the Spotify API.
+   * @param endpoint The API endpoint to request.
+   * @param method The HTTP method to use. Defaults to GET.
+   * @param options Additional fetch options.
+   * @returns An object containing the response status, ok status, and data.
+   * @throws {ResponseError} If the response status is not OK.
+   * @throws {Error} If there is an error with the request.
+   */
   public async fetch<T>(
     endpoint: string,
-    method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+    method: SpotifyHttpRequestMethod = "GET",
     options?: any
-  ) {
+  ): Promise<SpotifyFetchResponse> {
     try {
       const sanitizedEndpoint = endpoint.split("?")[0];
 
