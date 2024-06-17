@@ -1,4 +1,5 @@
-import { eventManager, logger } from "../firebot";
+import { eventManager, logger } from "@utils/firebot";
+import { getErrorMessage } from "@utils/string";
 
 export class SpotifyEventService {
   constructor() {}
@@ -19,9 +20,7 @@ export class SpotifyEventService {
     try {
       eventManager.triggerEvent("oceanity-spotify", eventId, meta, isManual);
     } catch (error) {
-      let message =
-        error instanceof Error ? error.message : "Unhandled Exception";
-      logger.error(message, error);
+      logger.error(getErrorMessage(error), error);
     }
   }
 }

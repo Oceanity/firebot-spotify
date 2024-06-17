@@ -26,6 +26,14 @@ describe("String Helpers", () => {
     it("returns expected string value for silly number", () => {
       expect(formatMsToTimecode(817000)).toBe("13:37");
     });
+
+    it("returns 0:00 if ms is -1", () => {
+      expect(formatMsToTimecode(-1)).toBe("0:00");
+    });
+
+    it("returns 0:00:00 if ms is -1", () => {
+      expect(formatMsToTimecode(-1, true)).toBe("0:00:00");
+    });
   });
   //#endregion
 

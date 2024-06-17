@@ -1,14 +1,13 @@
 import { formatMsToTimecode } from "@/utils/string";
 import { getBiggestImageUrl } from "@utils/array";
-import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
-  private _track?: SpotifyTrackDetails;
-  private _progressMs?: number;
+  private _track?: SpotifyTrackDetails | null;
+  private _progressMs?: number | null;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -91,7 +90,7 @@ export class SpotifyTrackService extends EventEmitter {
   private tickHandler = (progressMs: number) => this.handleNextTick(progressMs);
   //#endregion
 
-  public update(track?: SpotifyTrackDetails): void {
+  public update(track?: SpotifyTrackDetails | null): void {
     if (this._track?.uri != track?.uri) {
       this._track = track;
 
@@ -100,7 +99,7 @@ export class SpotifyTrackService extends EventEmitter {
     }
   }
 
-  public async handleNextTick(progressMs?: number) {
+  public async handleNextTick(progressMs?: number | null) {
     this._progressMs = progressMs;
     this.emit("tick", progressMs);
   }

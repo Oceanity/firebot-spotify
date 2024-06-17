@@ -9,6 +9,23 @@ describe("Spotify - Track Service", () => {
   let spotify: SpotifyService;
   let track: SpotifyTrackService;
 
+  const defaults = {
+    isTrackLoaded: false,
+    id: "",
+    title: "",
+    artist: "",
+    artists: [],
+    album: "",
+    albumArtUrl: "",
+    durationMs: -1,
+    duration: "0:00",
+    positionMs: -1,
+    position: "0:00",
+    relativePosition: 0,
+    url: "",
+    uri: "",
+  };
+
   beforeEach(() => {
     spotify = new SpotifyService();
     track = new SpotifyTrackService(spotify);
@@ -16,44 +33,71 @@ describe("Spotify - Track Service", () => {
     jest.spyOn(spotify.events, "trigger").mockImplementation(() => {});
   });
 
-  it("should have default getter values", () => {
-    expect(track.isTrackLoaded).toBe(false);
-    expect(track.id).toBe("");
-    expect(track.title).toBe("");
-    expect(track.artist).toBe("");
-    expect(track.artists).toEqual([]);
-    expect(track.album).toBe("");
-    expect(track.albumArtUrl).toBe("");
-    expect(track.durationMs).toBe(-1);
-    expect(track.duration).toBe("0:00");
-    expect(track.positionMs).toBe(-1);
-    expect(track.position).toBe("0:00");
-    expect(track.relativePosition).toBe(0);
-    expect(track.url).toBe("");
-    expect(track.uri).toBe("");
+  describe("Getters", () => {
+    it("should have default getter values", () => {
+      for (const [key, value] of Object.entries(defaults)) {
+        if (Array.isArray(value)) {
+          expect(track[key as keyof SpotifyTrackService]).toEqual(value);
+        } else {
+          expect(track[key as keyof SpotifyTrackService]).toBe(value);
+        }
+      }
+    });
   });
 
-  it("should update current track", async () => {
-    const position = 5000;
+  describe("update", () => {
+    it("should update current track", async () => {
+      const position = 5000;
 
-    track.update(testTrack);
-    track.handleNextTick(position);
+      track.update(testTrack);
+      track.handleNextTick(position);
 
-    expect(track.isTrackLoaded).toBe(true);
-    expect(track.id).toBe(testTrack.id);
-    expect(track.title).toBe(testTrack.name);
-    expect(track.artist).toBe(testTrack.artists[0].name);
-    expect(track.artists).toEqual(
-      testTrack.artists.map((artist) => artist.name)
-    );
-    expect(track.album).toBe(testTrack.album.name);
-    expect(track.albumArtUrl).toBe(getBiggestImageUrl(testTrack.album.images));
-    expect(track.durationMs).toBe(testTrack.duration_ms);
-    expect(track.duration).toBe(formatMsToTimecode(testTrack.duration_ms));
-    expect(track.positionMs).toBe(position);
-    expect(track.position).toBe(formatMsToTimecode(position));
-    expect(track.relativePosition).toBe(position / testTrack.duration_ms);
-    expect(track.url).toBe(testTrack.external_urls.spotify);
-    expect(track.uri).toBe(testTrack.uri);
+      expect(track.isTrackLoaded).toBe(true);
+      expect(track.id).toBe(testTrack.id);
+      expect(track.title).toBe(testTrack.name);
+      expect(track.artist).toBe(testTrack.artists[0].name);
+      expect(track.artists).toEqual(
+        testTrack.artists.map((artist) => artist.name)
+      );
+      expect(track.album).toBe(testTrack.album.name);
+      expect(track.albumArtUrl).toBe(
+        getBiggestImageUrl(testTrack.album.images)
+      );
+      expect(track.durationMs).toBe(testTrack.duration_ms);
+      expect(track.duration).toBe(formatMsToTimecode(testTrack.duration_ms));
+      expect(track.positionMs).toBe(position);
+      expect(track.position).toBe(formatMsToTimecode(position));
+      expect(track.relativePosition).toBe(position / testTrack.duration_ms);
+      expect(track.url).toBe(testTrack.external_urls.spotify);
+      expect(track.uri).toBe(testTrack.uri);
+    });
+
+    it("should clear current track if passed null", () => {
+      track.update(testTrack);
+      track.update(null);
+
+      for (const [key, value] of Object.entries(defaults)) {
+        if (Array.isArray(value)) {
+          expect(track[key as keyof SpotifyTrackService]).toEqual(value);
+        } else {
+          expect(track[key as keyof SpotifyTrackService]).toBe(value);
+        }
+      }
+    });
+  });
+
+  describe("handleNextTick", () => {
+    it("should update position", () => {
+      const position = 5000;
+      track.handleNextTick(position);
+      expect(track.positionMs).toBe(position);
+      expect(track.position).toBe(formatMsToTimecode(position));
+    });
+
+    it("should read -1 if passed null", () => {
+      track.handleNextTick(null);
+      expect(track.positionMs).toBe(-1);
+      expect(track.position).toBe("0:00");
+    });
   });
 });
