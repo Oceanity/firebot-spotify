@@ -29,28 +29,36 @@ describe("String Helpers", () => {
       expect(formatMsToTimecode(-1)).toBe("0:00");
     });
 
-    it("returns 0:00:00 if ms is -1", () => {
+    it("returns 0:00:00 if ms is -1 and showHours is true", () => {
       expect(formatMsToTimecode(-1, true)).toBe("0:00:00");
     });
   });
   //#endregion
 
   //#region getErrorMessage
+  const errorMessage = "some fancy error message";
+
   describe("getErrorMessage", () => {
     it("returns error message for Error", () => {
-      expect(getErrorMessage(new Error("test"))).toBe("test");
+      expect(getErrorMessage(new Error(errorMessage))).toBe(errorMessage);
     });
 
     it("returns error message for ResponseError", () => {
-      expect(getErrorMessage(new ResponseError("test", {}))).toBe("test");
+      expect(
+        getErrorMessage(new ResponseError(errorMessage, { foo: "bar" }))
+      ).toBe(errorMessage);
     });
 
     it("returns expected string value for string", () => {
-      expect(getErrorMessage("test")).toBe("test");
+      expect(getErrorMessage(errorMessage)).toBe(errorMessage);
     });
 
     it("returns expected string value for number", () => {
       expect(getErrorMessage(123)).toBe("123");
+    });
+
+    it("retuns expected string value for boolean", () => {
+      expect(getErrorMessage(true)).toBe("true");
     });
 
     it("returns `Unhandled Exception` when no message found", () => {
