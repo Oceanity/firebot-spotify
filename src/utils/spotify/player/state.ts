@@ -7,6 +7,7 @@ export class SpotifyStateService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
   private _progressMs: number = 0;
+  private _isReady: boolean = false;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -16,9 +17,15 @@ export class SpotifyStateService extends EventEmitter {
 
   init() {
     this.updatePlaybackStateAsync();
+
+    this._isReady = true;
   }
 
-  private async updatePlaybackStateAsync(): Promise<void> {
+  public get isReady(): boolean {
+    return this._isReady;
+  }
+
+  public async updatePlaybackStateAsync(): Promise<void> {
     const startTime = now();
 
     try {
