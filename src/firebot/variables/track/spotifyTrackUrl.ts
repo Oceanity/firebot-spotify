@@ -9,5 +9,5 @@ export const SpotifyTrackUrlVariable: ReplaceVariable = {
     usage: "spotifyTrackUrl",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.trackService.url,
+  evaluator: async () => spotify.player.track.url,
 };

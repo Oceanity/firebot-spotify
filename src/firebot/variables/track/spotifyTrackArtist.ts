@@ -9,5 +9,5 @@ export const SpotifyTrackArtistVariable: ReplaceVariable = {
     usage: "spotifyTrackArtist",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.trackService.artist,
+  evaluator: async () => spotify.player.track.artist,
 };

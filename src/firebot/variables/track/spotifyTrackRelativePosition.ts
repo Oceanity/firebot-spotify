@@ -9,5 +9,5 @@ export const SpotifyTrackRelativePositionVariable: ReplaceVariable = {
     usage: "spotifyTrackRelativePosition",
     possibleDataOutput: ["number"],
   },
-  evaluator: async () => spotify.player.trackService.relativePosition,
+  evaluator: async () => spotify.player.track.relativePosition,
 };

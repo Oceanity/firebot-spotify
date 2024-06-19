@@ -32,6 +32,10 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   //#region Getters
+  public get raw(): SpotifyTrackDetails | null {
+    return this._track ?? null;
+  }
+
   public get isTrackLoaded(): boolean {
     return !!this._track;
   }

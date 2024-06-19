@@ -13,12 +13,11 @@ export default class SpotifyPlayerService extends EventEmitter {
   public readonly playlist: SpotifyPlaylistService;
   public readonly lyrics: SpotifyLyricsService;
   public readonly state: SpotifyPlayerStateService;
-  public readonly trackService: SpotifyTrackService;
+  public readonly track: SpotifyTrackService;
 
   // Obscured vars
   private _isPlaying: boolean = false;
   private _targetIsPlaying: boolean | null = null;
-  private _track: SpotifyTrackDetails | null = null;
   private _volume: number = -1;
   private _targetVolume: number = -1;
 
@@ -31,13 +30,13 @@ export default class SpotifyPlayerService extends EventEmitter {
     this.playlist = new SpotifyPlaylistService(this.spotify);
     this.lyrics = new SpotifyLyricsService(this.spotify);
     this.state = new SpotifyPlayerStateService(this.spotify);
-    this.trackService = new SpotifyTrackService(this.spotify);
+    this.track = new SpotifyTrackService(this.spotify);
   }
 
   public async init() {
     await this.lyrics.init();
     await this.state.init();
-    await this.trackService.init();
+    await this.track.init();
     await this.playlist.init();
 
     this.state.on("is-playing-state-changed", (isPlaying) => {
@@ -114,14 +113,6 @@ export default class SpotifyPlayerService extends EventEmitter {
       throw error;
     }
   }
-
-  /**
-   * Gets the currently playing track.
-   *
-   * @return {SpotifyTrackDetails | null} The currently playing track, or null if no track is playing.
-   */
-  public readonly getCurrentlyPlaying = (): SpotifyTrackDetails | null =>
-    this._track;
 
   /**
    * Resumes the current playback of the user's Spotify player if it is currently paused.
