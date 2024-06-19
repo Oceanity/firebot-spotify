@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Lyric Grabber
 // @namespace    https://oceanity.github.io
-// @version      0.7.1
+// @version      0.7.1a
 // @description  Sends Spotify lyrics to Firebot
 // @author       Oceanity
 // @match        https://open.spotify.com/*
