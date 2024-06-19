@@ -1,4 +1,4 @@
-const EventEmitter = require("events");
+import { EventEmitter } from "events";
 import ResponseError from "@models/responseError";
 import {
   logger,
@@ -147,7 +147,8 @@ export const generateSpotifyDefinition = (
 ): IntegrationDefinition => ({
   id: integrationId,
   name: "Spotify (by Oceanity)",
-  description: "Integrations with Spotify including song requests",
+  description:
+    "Integrations with Spotify that can show now playing information and control your Spotify devices.",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},
