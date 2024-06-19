@@ -18,10 +18,17 @@ export class SpotifyTrackService extends EventEmitter {
 
   public async init() {
     for (const event of ["track-changed", "state-cleared"]) {
-      this.spotify.player.state.on(event, this.trackChangedHandler);
+      this.spotify.player.state.on(
+        event,
+        async (track?: SpotifyTrackDetails) => {
+          this.update(track);
+        }
+      );
     }
 
-    this.spotify.player.state.on("tick", this.tickHandler);
+    this.spotify.player.state.on("tick", (progressMs: number) => {
+      this.handleNextTick(progressMs);
+    });
   }
 
   //#region Getters
@@ -84,24 +91,13 @@ export class SpotifyTrackService extends EventEmitter {
   }
   //#endregion
 
-  //#region Event Handlers
-  private trackChangedHandler = async (track?: SpotifyTrackDetails) =>
-    this.update(track);
-
-  private tickHandler = (progressMs: number) => this.handleNextTick(progressMs);
-  //#endregion
-
   public update(track?: SpotifyTrackDetails): void {
     if (this._track?.uri != track?.uri) {
       this._track = track;
-
-      this.emit("track-changed", track);
-      this.spotify.events.trigger("track-changed", { track });
     }
   }
 
   public async handleNextTick(progressMs?: number) {
     this._progressMs = progressMs;
-    this.emit("tick", progressMs);
   }
 }
