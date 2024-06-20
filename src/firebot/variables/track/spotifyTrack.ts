@@ -38,10 +38,12 @@ export const SpotifyTrackVariable: ReplaceVariable = {
       },
     ],
   },
-  evaluator: async (_trigger, subject: string) =>
-    spotify.player.track.summary
-      ? spotify.player.track.summary[
-          subject as keyof SpotifyTrackSummaryWithPosition
-        ]
-      : "",
+  evaluator: async (_trigger, subject: string) => {
+    let track = spotify.player.track.summary ?? null;
+
+    if (!subject) return track;
+    if (!track) return "";
+
+    return track[subject as keyof SpotifyTrackSummaryWithPosition] ?? "";
+  },
 };
