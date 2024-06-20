@@ -58,11 +58,13 @@ export async function checkRemoteVersionAsync(
       if (!splitRemote[i]) splitRemote[i] = "0";
 
       // Check numerically and alphabetically
-      const localInt = Number(splitLocal[i]);
-      const remoteInt = Number(splitRemote[i]);
+      const localInt = parseInt(splitLocal[i]);
+      const remoteInt = parseInt(splitRemote[i]);
 
       if (remoteInt > localInt || splitRemote[i] > splitLocal[i]) {
         remoteIsNewer = true;
+        break;
+      } else if (remoteInt < localInt || splitRemote[i] < splitLocal[i]) {
         break;
       }
     }
