@@ -24,7 +24,7 @@ export class SpotifyTrackService extends EventEmitter {
 
   private _track?: SpotifyTrackDetails;
   private _trackSummary?: SpotifyTrackSummary;
-  private _progressMs: number = 0;
+  private _progressMs: number = -1;
 
   constructor(spotifyService: SpotifyService) {
     super();
