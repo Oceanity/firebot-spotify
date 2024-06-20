@@ -5,9 +5,9 @@ export const SpotifyTrackAlbumArtUrlVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackAlbumArtUrl",
     description:
-      "Gets the album art url of the currently playing track on Spotify or empty string if not playing",
+      "DEPRECATED, use $spotifyTrack[albumArtUrl]. Gets the album art url of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackAlbumArtUrl",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track.albumArtUrl,
+  evaluator: async () => spotify.player.track.summary?.albumArtUrl ?? "",
 };
