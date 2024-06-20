@@ -1,7 +1,7 @@
 import { spotify } from "@/main";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
-export const SpotifyRawTrackVariable: ReplaceVariable = {
+export const RawSpotifyTrackVariable: ReplaceVariable = {
   definition: {
     handle: "rawSpotifyTrack",
     description:
