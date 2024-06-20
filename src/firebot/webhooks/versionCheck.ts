@@ -7,9 +7,13 @@ import { logger } from "@/utils/firebot";
 export const VersionCheckEndpoint: ApiEndpoint = [
   "/version",
   "GET",
-  async (_req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
-      res.status(200).send(await checkRemoteVersionAsync());
+      const { v } = req.query;
+
+      res
+        .status(200)
+        .send(await checkRemoteVersionAsync(v as string | undefined));
     } catch (error) {
       res.status(500).send({
         status: 500,
@@ -25,9 +29,13 @@ type RemoteVersionCheckResponse = {
   newVersionAvailable: boolean;
 };
 
-export async function checkRemoteVersionAsync(): Promise<RemoteVersionCheckResponse> {
+export async function checkRemoteVersionAsync(
+  providedVersion?: string
+): Promise<RemoteVersionCheckResponse> {
   let remoteVersion: string | null = null;
   let remoteIsNewer = false;
+
+  const checkedVersion = providedVersion ?? localVersion;
 
   try {
     const githubPackageResponse = await fetch(
@@ -41,7 +49,7 @@ export async function checkRemoteVersionAsync(): Promise<RemoteVersionCheckRespo
         githubPackageResponse
       );
 
-    const splitLocal = localVersion.split(".");
+    const splitLocal = checkedVersion.split(".");
     const splitRemote = remoteVersion.split(".");
 
     for (let i = 0; i < Math.min(splitLocal.length, splitRemote.length); i++) {
@@ -63,7 +71,7 @@ export async function checkRemoteVersionAsync(): Promise<RemoteVersionCheckRespo
   }
 
   return {
-    localVersion,
+    localVersion: checkedVersion,
     remoteVersion,
     newVersionAvailable: remoteIsNewer,
   };
