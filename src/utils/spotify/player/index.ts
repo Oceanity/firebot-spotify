@@ -38,6 +38,7 @@ export default class SpotifyPlayerService extends EventEmitter {
     await this.state.init();
     await this.track.init();
     await this.playlist.init();
+    await this.queue.init();
 
     this.state.on("is-playing-state-changed", (isPlaying) => {
       this.updateIsPlaying(isPlaying);
