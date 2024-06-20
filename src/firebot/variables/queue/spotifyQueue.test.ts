@@ -77,22 +77,22 @@ describe("Spotify Queue Replace Variable", () => {
     }
   });
 
-  it("should return empty string if index is less than 0", async () => {
+  it("should return null if index is less than 0", async () => {
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "-1");
-    expect(response).toBe("");
+    expect(response).toBe(null);
   });
 
-  it("should return empty string if index is out of bounds", async () => {
+  it("should return null if index is out of bounds", async () => {
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       `${testQueue.length}`
     );
-    expect(response).toBe("");
+    expect(response).toBe(null);
   });
 
-  it("should return empty string if index is not a number", async () => {
+  it("should return null if index is not a number", async () => {
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "a");
-    expect(response).toBe("");
+    expect(response).toBe(null);
   });
 
   it("should return empty string if passed invalid field", async () => {
@@ -115,13 +115,13 @@ describe("Spotify Queue Replace Variable", () => {
     expect(response).toEqual([]);
   });
 
-  it("should return empty string if index passed when queue does not exist", async () => {
+  it("should return null if index passed when queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
       get: jest.fn(() => null),
       configurable: true,
     });
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "0");
-    expect(response).toBe("");
+    expect(response).toBe(null);
   });
 
   it("should return empty string if index and field passed when queue does not exist", async () => {

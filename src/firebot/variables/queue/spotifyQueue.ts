@@ -24,31 +24,17 @@ export const SpotifyQueueVariable: ReplaceVariable = {
       },
     ],
   },
-  evaluator: async (_trigger, subject: string) => {
+  evaluator: async (_trigger, subject: string = "") => {
     let queue = spotify.player.queue.summary ?? [];
+    const [index, key] = subject.split(".");
 
-    if (!subject) return queue;
+    if (!index) return queue;
 
-    let indexNum = Number(subject);
+    let indexNum = Number(index);
+    if (isNaN(indexNum) || indexNum < 0 || indexNum >= queue.length)
+      return key ? "" : null;
 
-    if (!isNaN(indexNum) && indexNum >= 0 && indexNum < queue.length) {
-      return queue[indexNum];
-    }
-
-    if (subject.indexOf(".") !== -1) {
-      const [index, key] = subject.split(".");
-
-      indexNum = Number(index);
-
-      if (!isNaN(indexNum) && indexNum >= 0 && indexNum < queue.length) {
-        const currentSummary = queue[indexNum];
-        let summaryKey = key as keyof SpotifyTrackSummary;
-        return currentSummary.hasOwnProperty(summaryKey)
-          ? currentSummary[summaryKey]
-          : "";
-      }
-    }
-
-    return "";
+    let track = queue[indexNum] as SpotifyTrackSummary;
+    return key ? track[key as keyof SpotifyTrackSummary] ?? "" : track;
   },
 };
