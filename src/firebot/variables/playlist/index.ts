@@ -1,3 +1,4 @@
+import { RawSpotifyPlaylistVariable } from "./rawSpotifyPlaylist";
 import { SpotifyIsPlaylistActiveVariable } from "./spotifyIsPlaylistActive";
 import { SpotifyPlaylistCoverImageUrlVariable } from "./spotifyPlaylistCoverImageUrl";
 import { SpotifyPlaylistDescriptionVariable } from "./spotifyPlaylistDescription";
@@ -8,6 +9,7 @@ import { SpotifyPlaylistOwnerUrlVariable } from "./spotifyPlaylistOwnerUrl";
 import { SpotifyPlaylistUrlVariable } from "./spotifyPlaylistUrl";
 
 export const AllSpotifyPlaylistVariables = [
+  RawSpotifyPlaylistVariable,
   SpotifyIsPlaylistActiveVariable,
   SpotifyPlaylistCoverImageUrlVariable,
   SpotifyPlaylistDescriptionVariable,

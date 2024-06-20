@@ -21,6 +21,10 @@ export class SpotifyPlaylistService {
   }
 
   /* Getters */
+  public get raw(): SpotifyPlaylistDetails | null {
+    return this._playlist;
+  }
+
   public get isActive(): boolean {
     return !!this._playlist;
   }
