@@ -85,6 +85,8 @@ const script: Firebot.CustomScript<Params> = {
         `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
       );
     });
+
+    await spotify.init();
   },
 };
 
