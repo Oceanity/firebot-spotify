@@ -1,4 +1,5 @@
 import { spotify } from "@/main";
+import { trackSummaryFromDetails } from "@/utils/spotify/player/track";
 import { getErrorMessage } from "@/utils/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
@@ -21,6 +22,11 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
         description:
           "True if the track was enqueued successfully, false if not.",
         defaultName: "trackWasEnqueued",
+      },
+      {
+        label: "Found Track",
+        description: "Summary of the track that was enqueued",
+        defaultName: "spotifyTrack",
       },
       {
         label: "Response Data",
@@ -82,6 +88,7 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
         outputs: {
           trackWasEnqueued: true,
           spotifyResponse: track,
+          spotifyTrack: trackSummaryFromDetails(track),
         },
       };
     } catch (error) {
@@ -90,6 +97,7 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
         outputs: {
           trackWasEnqueued: false,
           error: getErrorMessage(error),
+          spotifyTrack: "",
         },
       };
     }
