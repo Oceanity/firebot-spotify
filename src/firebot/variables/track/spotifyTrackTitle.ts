@@ -5,9 +5,9 @@ export const SpotifyTrackTitleVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackTitle",
     description:
-      "Gets the title of the currently playing track on Spotify or empty string if not playing",
+      "DEPRECATED, use $spotifyTrack[title]. Gets the title of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackTitle",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track.title,
+  evaluator: async () => spotify.player.track.summary?.title ?? "",
 };
