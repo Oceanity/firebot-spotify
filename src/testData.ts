@@ -1,4 +1,5 @@
-import { SpotifyQueueService } from "./utils/spotify/player/queue";
+import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
+import { SpotifyTrackSummary } from "./utils/spotify/player/track";
 
 export const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
   href: "",
@@ -129,6 +130,18 @@ export const getTestTrack = (
   uri: `spotify:track:${id}`,
 });
 
+export const getTestTrackSummary = (
+  title: string = "some track"
+): SpotifyTrackSummary => ({
+  title,
+  artist: "some artist",
+  artists: ["some artist"],
+  album: "some album",
+  albumArtUrl: "some url",
+  durationMs: 0,
+  duration: "0:00",
+});
+
 export const testPlaylist: SpotifyPlaylistDetails = {
   collaborative: false,
   description: "my cool playlist",
@@ -254,5 +267,12 @@ export const testUser: SpotifyUserProfile = {
   explicit_content: {
     filter_enabled: false,
     filter_locked: false,
+  },
+};
+
+export const testTrigger: Effects.Trigger = {
+  type: "manual",
+  metadata: {
+    username: "some username",
   },
 };
