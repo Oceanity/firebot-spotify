@@ -9,5 +9,5 @@ export const RawSpotifyTrackVariable: ReplaceVariable = {
     usage: "rawSpotifyTrack",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track.raw,
+  evaluator: async () => spotify.player.track.raw ?? null,
 };
