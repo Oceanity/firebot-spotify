@@ -1,7 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
-import { SpotifyTrackSummary } from "@utils/spotify/player/track";
 
 export const SpotifyQueueVariable: ReplaceVariable = {
   definition: {
