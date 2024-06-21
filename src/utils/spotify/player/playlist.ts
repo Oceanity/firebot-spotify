@@ -18,7 +18,7 @@ export class SpotifyPlaylistService {
   public async init() {
     this.spotify.player.state.on(
       "playlist-state-changed",
-      async (uri?, snapshot?) => await this.updateByUriAsync(uri, snapshot)
+      async (uri?) => await this.updateByUriAsync(uri)
     );
   }
 
@@ -71,13 +71,16 @@ export class SpotifyPlaylistService {
     return this._playlist?.tracks.total ?? -1;
   }
 
-  public async updateByUriAsync(
-    playlistUri?: string | null,
-    snapshotId?: string | null
-  ): Promise<void> {
-    if (this._playlist?.snapshot_id === snapshotId) return;
+  public async updateByUriAsync(playlistUri?: string | null): Promise<void> {
+    if (!playlistUri) {
+      this.update(null);
+      return;
+    }
 
     const playlist = await this.fetchByUriAsync(playlistUri);
+
+    if (this._playlist && this._playlist.snapshot_id === playlist?.snapshot_id)
+      return;
 
     this.update(playlist);
   }
