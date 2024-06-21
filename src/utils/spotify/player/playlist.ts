@@ -115,8 +115,8 @@ export function playlistSummaryFromDetails(
 
   return Object.freeze({
     id,
-    name,
-    description,
+    name: decode(name),
+    description: decode(description),
     imageUrl: getBiggestImageUrl(images),
     owner,
     isPublic: playlist.public,
