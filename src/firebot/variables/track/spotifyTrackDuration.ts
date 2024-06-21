@@ -5,7 +5,7 @@ export const SpotifyTrackDurationVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackDuration",
     description:
-      "Gets total length of playing track on Spotify as formatted string or empty string if not playing",
+      "DEPRECATED, use $spotifyTrack[duration]. Gets total length of playing track on Spotify as formatted string or empty string if not playing",
     usage: "spotifyTrackDuration",
     possibleDataOutput: ["text"],
   },

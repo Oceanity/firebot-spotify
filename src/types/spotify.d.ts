@@ -198,6 +198,7 @@ type SpotifyTrackDetails = {
 };
 
 type SpotifyTrackSummary = {
+  id: string;
   title: string;
   artist: string;
   artists: string[];
@@ -205,6 +206,8 @@ type SpotifyTrackSummary = {
   albumArtUrl: string;
   durationMs: number;
   duration: string;
+  url: string;
+  uri: string;
 };
 
 type SpotifyTrackSummaryWithPosition = SpotifyTrackSummary & {

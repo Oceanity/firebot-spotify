@@ -124,6 +124,7 @@ export function trackSummaryFromDetails(
   if (!track) return null;
 
   return Object.freeze({
+    id: track.id,
     title: track.name,
     artist: track.artists[0].name,
     artists: track.artists.map((a) => a.name),
@@ -131,5 +132,7 @@ export function trackSummaryFromDetails(
     albumArtUrl: getBiggestImageUrl(track.album.images),
     durationMs: track.duration_ms,
     duration: formatMsToTimecode(track.duration_ms),
+    url: track.external_urls.spotify,
+    uri: track.uri,
   });
 }

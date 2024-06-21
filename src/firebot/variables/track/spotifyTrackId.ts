@@ -5,7 +5,7 @@ export const SpotifyTrackIdVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackId",
     description:
-      "Gets the Id of the currently playing track on Spotify or empty string if not playing",
+      "DEPRECATED, use $spotifyTrack[id]. Gets the Id of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackId",
     possibleDataOutput: ["text"],
   },

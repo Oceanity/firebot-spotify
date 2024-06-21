@@ -5,7 +5,7 @@ export const SpotifyTrackUriVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackUri",
     description:
-      "Gets the unique Uri of the currently playing track on Spotify or empty string if not playing",
+      "DEPRECATED, use $spotifyTrack[trackUri]. Gets the unique Uri of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackUri",
     possibleDataOutput: ["text"],
   },

@@ -6,7 +6,7 @@ export const SpotifyTrackArtistsVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackArtists",
     description:
-      "Gets all the artists of the currently playing track on Spotify as array or empty array if not playing",
+      "DEPRECATED, use $spotifyTrack[artists]. Gets all the artists of the currently playing track on Spotify as array or empty array if not playing",
     usage: "spotifyTrackArtists",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.ARRAY],

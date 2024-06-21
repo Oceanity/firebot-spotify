@@ -131,15 +131,20 @@ export const getTestTrack = (
 });
 
 export const getTestTrackSummary = (
-  title: string = "some track"
+  title: string = "some track",
+  artists: string[] = ["some artist"],
+  id: string = "123"
 ): SpotifyTrackSummary => ({
+  id,
   title,
-  artist: "some artist",
-  artists: ["some artist"],
+  artist: artists[0],
+  artists,
   album: "some album",
   albumArtUrl: "some url",
   durationMs: 0,
   duration: "0:00",
+  url: "some url",
+  uri: `spotify:track:${id}`,
 });
 
 export const testPlaylist: SpotifyPlaylistDetails = {
