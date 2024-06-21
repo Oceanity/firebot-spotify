@@ -7,21 +7,8 @@ import { SpotifyService } from "@/utils/spotify";
 // Mocking the entire @/main module to provide the mocked spotify instance
 jest.mock("@/main", () => ({
   spotify: {
-    events: {},
-    api: {
-      fetch: jest.fn(),
-    },
     player: {
-      currentTrack: {
-        get: jest.fn(),
-      },
       queue: {},
-    },
-    search: {
-      forTrack: jest.fn(),
-    },
-    user: {
-      me: jest.fn(),
     },
   },
 }));
