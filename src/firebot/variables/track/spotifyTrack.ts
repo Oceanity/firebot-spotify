@@ -7,9 +7,9 @@ export const SpotifyTrackVariable: ReplaceVariable = {
     handle: "spotifyTrack",
     description:
       "Gets an object containing information about the currently playing track",
-    usage: "spotifyTrack[field]",
-    //@ts-expect-error ts2322
-    possibleDataOutput: [OutputDataType.OBJECT],
+    usage: "spotifyTrack",
+    //@ts-ignore
+    possibleDataOutput: [OutputDataType.OBJECT, OutputDataType.TEXT],
     examples: [
       {
         usage: "spotifyTrack[title]",
@@ -34,6 +34,31 @@ export const SpotifyTrackVariable: ReplaceVariable = {
         usage: "spotifyTrack[albumArtUrl]",
         description:
           "Outputs the url of the album art of the currently playing Spotify track",
+      },
+      {
+        usage: "spotifyTrack[duration]",
+        description:
+          "Outputs the duration of the currently playing Spotify track formatted as hh:mm:ss",
+      },
+      {
+        usage: "spotifyTrack[durationMs]",
+        description:
+          "Outputs the duration of the currently playing Spotify track in milliseconds",
+      },
+      {
+        usage: "spotifyTrack[position]",
+        description:
+          "Outputs the position of the currently playing Spotify track formatted as hh:mm:ss",
+      },
+      {
+        usage: "spotifyTrack[positionMs]",
+        description:
+          "Outputs the position of the currently playing Spotify track in milliseconds",
+      },
+      {
+        usage: "spotifyTrack[relativePosition]",
+        description:
+          "Outputs the relative position of the currently playing Spotify track as a value from 0.0 to 1.0 inclusive",
       },
     ],
   },
