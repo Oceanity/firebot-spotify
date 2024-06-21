@@ -1,6 +1,6 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import { SpotifyTrackSummary, trackSummaryFromDetails } from "./track";
+import { trackSummaryFromDetails } from "./track";
 import { getErrorMessage } from "@/utils/string";
 
 export class SpotifyQueueService {

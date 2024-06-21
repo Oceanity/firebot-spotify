@@ -117,12 +117,12 @@ export function playlistSummaryFromDetails(
     id,
     name,
     description,
-    images,
+    imageUrl: getBiggestImageUrl(images),
     owner,
     isPublic: playlist.public,
-    tracks: playlist.tracks.items.map((t: SpotifyTrackDetails) =>
-      trackSummaryFromDetails(t)
-    ),
+    tracks: playlist.tracks.items
+      .map((entry) => trackSummaryFromDetails(entry.track))
+      .filter((t) => t !== null) as SpotifyTrackSummary[],
     url: playlist.external_urls.spotify,
   });
 }

@@ -3,22 +3,6 @@ import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
-export type SpotifyTrackSummary = {
-  title: string;
-  artist: string;
-  artists: string[];
-  album: string;
-  albumArtUrl: string;
-  durationMs: number;
-  duration: string;
-};
-
-export type SpotifyTrackSummaryWithPosition = SpotifyTrackSummary & {
-  positionMs: number;
-  position: string;
-  relativePosition: number;
-};
-
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
