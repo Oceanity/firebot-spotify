@@ -25,7 +25,7 @@ describe("Spotify - Raw Queue Replace Variable", () => {
     });
   });
 
-  it("should return entire queue", async () => {
+  it("should return all details on current queue", async () => {
     const response = await RawSpotifyQueueVariable.evaluator(testTrigger);
     expect(response).toEqual(testQueue);
   });
