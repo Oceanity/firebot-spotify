@@ -13,7 +13,7 @@ jest.mock("@/main", () => ({
   },
 }));
 
-describe("Spotify Queue Replace Variable", () => {
+describe("Spotify - Track Replace Variable", () => {
   let spotify: SpotifyService;
   let testTrack: SpotifyTrackSummary;
 
