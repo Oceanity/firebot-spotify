@@ -11,5 +11,5 @@ export const RawSpotifyQueueVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],
   },
-  evaluator: async () => spotify.player.queue.raw,
+  evaluator: async () => spotify.player.queue.raw ?? null,
 };
