@@ -1,5 +1,6 @@
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import { SpotifyTrackSummary } from "./utils/spotify/player/track";
+import { playlistSummaryFromDetails } from "./utils/spotify/player/playlist";
 
 export const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
   href: "",
@@ -181,6 +182,13 @@ export const testPlaylist: SpotifyPlaylistDetails = {
   type: "playlist",
   uri: "playlist-uri",
 };
+
+export const getTestPlaylistSummary = (
+  name: string = "some playlist"
+): SpotifyPlaylistSummary => ({
+  ...(playlistSummaryFromDetails(testPlaylist) as SpotifyPlaylistSummary),
+  name,
+});
 
 export const testQueue: SpotifyQueueResponse = {
   currently_playing: getTestTrack("currently playing track", "89072134"),
