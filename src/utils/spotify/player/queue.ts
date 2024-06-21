@@ -111,9 +111,14 @@ export class SpotifyQueueService {
 
         if (!queueResponse) return;
 
-        const { queue, currently_playing } = queueResponse;
+        const { queue } = queueResponse;
 
-        this._currentlyPlaying = trackSummaryFromDetails(currently_playing);
+        let summary = queue
+          .map((track) => trackSummaryFromDetails(track))
+          .filter((n) => n) as SpotifyTrackSummary[];
+
+        if (summary.map((t) => t.uri) === queue.map((t) => t.uri)) return;
+
         this._queueSummary = queue
           .map((q) => trackSummaryFromDetails(q))
           .filter((n) => n) as SpotifyTrackSummary[];
@@ -134,17 +139,16 @@ export class SpotifyQueueService {
   ) {
     if (!queue1 || !queue2) {
       return queue1 === queue2;
-    } else if (
+    }
+
+    if (
       queue1.currently_playing.uri !== queue2.currently_playing.uri ||
-      queue1.queue.length !== queue2.queue.length
+      queue1.queue.length !== queue2.queue.length ||
+      queue1.queue.some((track, i) => track.uri !== queue2.queue[i].uri)
     ) {
       return false;
     }
 
-    for (let i = 0; i < queue1?.queue.length; i++) {
-      if (queue1.queue[i].uri !== queue2.queue[i].uri) {
-        return false;
-      }
-    }
+    return true;
   }
 }
