@@ -83,8 +83,9 @@ describe("Spotify - Playlist Replace Variable", () => {
         testTrigger,
         `tracks.${i}`
       );
+
       expect(response).toBe(testPlaylist.tracks[i]);
-      expect(response.name).toBe(testPlaylist.tracks[i].name);
+      expect(response.title).toBe(testPlaylist.tracks[i].title);
     }
   });
 

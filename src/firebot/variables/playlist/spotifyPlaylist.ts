@@ -1,7 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
-import { SpotifyTrackSummary } from "@utils/spotify/player/track";
 
 export const SpotifyPlaylistVariable: ReplaceVariable = {
   definition: {
@@ -30,13 +29,14 @@ export const SpotifyPlaylistVariable: ReplaceVariable = {
 
     if (!key) return playlist;
     if (!playlist) return null;
+    if (!trackIndex) return playlist[key as keyof SpotifyPlaylistSummary] ?? "";
 
-    if (key !== "tracks" || !trackIndex)
-      return playlist[key as keyof SpotifyPlaylistSummary] ?? "";
+    const indexNum = Number(trackIndex);
 
-    let indexNum = Number(trackIndex);
     if (isNaN(indexNum) || indexNum < 0 || indexNum >= playlist.tracks.length)
       return trackKey ? "" : null;
+
+    if (!key) return playlist.tracks[indexNum];
 
     let track = playlist.tracks[indexNum] as SpotifyTrackSummary;
 
