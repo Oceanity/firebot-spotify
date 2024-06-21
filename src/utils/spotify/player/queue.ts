@@ -141,14 +141,10 @@ export class SpotifyQueueService {
       return queue1 === queue2;
     }
 
-    if (
-      queue1.currently_playing.uri !== queue2.currently_playing.uri ||
-      queue1.queue.length !== queue2.queue.length ||
-      queue1.queue.some((track, i) => track.uri !== queue2.queue[i].uri)
-    ) {
+    if (queue1.queue.length !== queue2.queue.length) {
       return false;
     }
 
-    return true;
+    return queue1.queue.every((track, i) => track.uri === queue2.queue[i].uri);
   }
 }
