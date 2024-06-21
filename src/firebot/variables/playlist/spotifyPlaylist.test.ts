@@ -60,6 +60,14 @@ describe("Spotify - Playlist Replace Variable", () => {
     expect(response).toBe(testPlaylist.name);
   });
 
+  it("should return empty string when passed invalid field", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      "invalid"
+    );
+    expect(response).toBe("");
+  });
+
   it("should return tracks of playlist when passed tracks", async () => {
     const response = await SpotifyPlaylistVariable.evaluator(
       testTrigger,
@@ -94,5 +102,21 @@ describe("Spotify - Playlist Replace Variable", () => {
       `tracks.${testPlaylist.tracks.length}`
     );
     expect(response).toBe(null);
+  });
+
+  it("should return track field when passed tracks, index and field", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      "tracks.0.title"
+    );
+    expect(response).toBe(testPlaylist.tracks[0].title);
+  });
+
+  it("should return empty string when passed tracks, index and invalid field", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      "tracks.0.invalid"
+    );
+    expect(response).toBe("");
   });
 });

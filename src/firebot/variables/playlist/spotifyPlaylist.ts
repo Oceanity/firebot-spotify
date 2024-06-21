@@ -32,7 +32,7 @@ export const SpotifyPlaylistVariable: ReplaceVariable = {
     if (!playlist) return null;
 
     if (key !== "tracks" || !trackIndex)
-      return playlist[key as keyof SpotifyPlaylistSummary];
+      return playlist[key as keyof SpotifyPlaylistSummary] ?? "";
 
     let indexNum = Number(trackIndex);
     if (isNaN(indexNum) || indexNum < 0 || indexNum >= playlist.tracks.length)
