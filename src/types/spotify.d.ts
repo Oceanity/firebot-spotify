@@ -144,6 +144,16 @@ type SpotifyPlaylistDetails = {
   uri: string;
 };
 
+type SpotifyPlaylistSummary = {
+  id: string;
+  name: string;
+  description: string;
+  images: SpotifyImage[];
+  owner: SpotifyUserProfile;
+  isPublic: boolean;
+  tracks: SpotifyTrackSummary[];
+  url: string;
+};
 //#region Spotify API /search types
 type SpotifyTrackDetails = {
   album: SpotifyAlbumDetails;
