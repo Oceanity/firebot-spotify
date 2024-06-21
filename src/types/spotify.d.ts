@@ -148,11 +148,13 @@ type SpotifyPlaylistSummary = {
   id: string;
   name: string;
   description: string;
-  imageUrl: string;
+  coverImageUrl: string;
   owner: SpotifyUserProfile;
   isPublic: boolean;
   tracks: SpotifyTrackSummary[];
   url: string;
+  uri: string;
+  length: number;
 };
 
 type SpotifyAddedBy = {

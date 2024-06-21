@@ -18,7 +18,7 @@ export class SpotifyPlaylistService {
   public async init() {
     this.spotify.player.state.on(
       "playlist-state-changed",
-      async (uri?) => await this.updateByUriAsync(uri)
+      async (uri?, snapshot?) => await this.updateByUriAsync(uri, snapshot)
     );
   }
 
@@ -71,7 +71,12 @@ export class SpotifyPlaylistService {
     return this._playlist?.tracks.total ?? -1;
   }
 
-  public async updateByUriAsync(playlistUri?: string | null): Promise<void> {
+  public async updateByUriAsync(
+    playlistUri?: string | null,
+    snapshotId?: string | null
+  ): Promise<void> {
+    if (this._playlist?.snapshot_id === snapshotId) return;
+
     const playlist = await this.fetchByUriAsync(playlistUri);
 
     this.update(playlist);
@@ -111,18 +116,20 @@ export function playlistSummaryFromDetails(
 ): SpotifyPlaylistSummary | null {
   if (!playlist) return null;
 
-  const { id, name, description, images, owner } = playlist;
+  const { id, name, description, images, owner, uri } = playlist;
 
   return Object.freeze({
     id,
     name: decode(name),
     description: decode(description),
-    imageUrl: getBiggestImageUrl(images),
+    coverImageUrl: getBiggestImageUrl(images),
     owner,
     isPublic: playlist.public,
     tracks: playlist.tracks.items
       .map((entry) => trackSummaryFromDetails(entry.track))
       .filter((t) => t !== null) as SpotifyTrackSummary[],
     url: playlist.external_urls.spotify,
+    uri,
+    length: playlist.tracks.total,
   });
 }
