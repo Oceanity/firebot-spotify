@@ -97,7 +97,7 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
         outputs: {
           trackWasEnqueued: false,
           error: getErrorMessage(error),
-          spotifyTrack: "",
+          spotifyTrack: null,
         },
       };
     }
