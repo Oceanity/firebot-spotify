@@ -1,5 +1,4 @@
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
-import { SpotifyTrackSummary } from "./utils/spotify/player/track";
 import { playlistSummaryFromDetails } from "./utils/spotify/player/playlist";
 
 export const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
@@ -178,7 +177,7 @@ export const testPlaylist: SpotifyPlaylistDetails = {
   },
   public: false,
   snapshot_id: "",
-  tracks: emptySearchCategory<SpotifyTrackDetails>(),
+  tracks: emptySearchCategory<SpotifyPlaylistEntry>(),
   type: "playlist",
   uri: "playlist-uri",
 };
