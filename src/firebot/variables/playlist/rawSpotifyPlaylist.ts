@@ -11,5 +11,5 @@ export const RawSpotifyPlaylistVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.BOOLEAN],
   },
-  evaluator: async () => spotify.player.playlist.raw,
+  evaluator: async () => spotify.player.playlist.raw ?? null,
 };
