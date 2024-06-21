@@ -19,7 +19,7 @@ jest.mock("@/main", () => ({
   },
 }));
 
-describe("Spotify Queue Replace Variable", () => {
+describe("Spotify - Playlist Replace Variable", () => {
   let spotify: SpotifyService;
   let testPlaylist: SpotifyPlaylistSummary;
 
@@ -43,11 +43,56 @@ describe("Spotify Queue Replace Variable", () => {
     });
   });
 
-  it("should return entire queue with expected number of tracks when not passed argument", async () => {
+  it("should return playlist with expected number of tracks when not passed argument", async () => {
     const response = await SpotifyPlaylistVariable.evaluator(
       testTrigger,
       undefined
     );
     expect(response).toEqual(testPlaylist);
+    expect(response.tracks).toHaveLength(testPlaylist.tracks.length);
+  });
+
+  it("should return field of playlist when passed field", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      "name"
+    );
+    expect(response).toBe(testPlaylist.name);
+  });
+
+  it("should return tracks of playlist when passed tracks", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      "tracks"
+    );
+    expect(response).toBe(testPlaylist.tracks);
+    expect(response).toHaveLength(testPlaylist.tracks.length);
+  });
+
+  it("should return expected track of playlist when passed tracks and index", async () => {
+    for (let i = 0; i < testPlaylist.tracks.length; i++) {
+      const response = await SpotifyPlaylistVariable.evaluator(
+        testTrigger,
+        `tracks.${i}`
+      );
+      expect(response).toBe(testPlaylist.tracks[i]);
+      expect(response.name).toBe(testPlaylist.tracks[i].name);
+    }
+  });
+
+  it("should return null when passed tracks and index less than 0", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      "tracks.-1"
+    );
+    expect(response).toBe(null);
+  });
+
+  it("should return null when passed tracks and index out of bounds", async () => {
+    const response = await SpotifyPlaylistVariable.evaluator(
+      testTrigger,
+      `tracks.${testPlaylist.tracks.length}`
+    );
+    expect(response).toBe(null);
   });
 });
