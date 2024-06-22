@@ -5,7 +5,7 @@ export const SpotifyPlaylistOwnerVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylistOwner",
     description:
-      "DEPRECATED, use $spotifyPlaylist[owner]. Gets the Owner of the currently playing Spotify Playlist",
+      "(Deprecated; use $spotifyPlaylist[owner]) Gets the Owner of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistOwner",
     possibleDataOutput: ["text"],
   },

@@ -5,7 +5,7 @@ export const SpotifyTrackUrlVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackUrl",
     description:
-      "DEPRECATED, use $spotifyTrack[url]. Gets the shareable Url of the currently playing track on Spotify or empty string if not playing",
+      "(Deprecated; use $spotifyTrack[url]) Gets the shareable Url of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackUrl",
     possibleDataOutput: ["text"],
   },

@@ -7,7 +7,7 @@ export const SpotifyTrackArtistVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackArtist",
     description:
-      "DEPRECATED, use $spotifyTrack[artist]. Gets the primary artist of the currently playing track on Spotify or empty string if not playing",
+      "(Deprecated; use $spotifyTrack[artist]) Gets the primary artist of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackArtist",
     possibleDataOutput: ["text"],
   },

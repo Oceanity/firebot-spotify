@@ -5,7 +5,7 @@ export const SpotifyPlaylistLengthVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylistLength",
     description:
-      "DEPRECATED, use $spotifyPlaylist[length]. Gets the Length of the currently playing Spotify Playlist",
+      "(Deprecated; use $spotifyPlaylist[length]) Gets the Length of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistLength",
     possibleDataOutput: ["number"],
   },

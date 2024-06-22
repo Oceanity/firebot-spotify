@@ -14,12 +14,12 @@ export const SpotifyQueueVariable: ReplaceVariable = {
       {
         usage: "spotifyQueue[0]",
         description:
-          "Outputs an object with summary of the track in the queue at index 0 (has same fields as $spotifyTrack)",
+          "Outputs an object with summary of the track in the queue at index 0",
       },
       {
-        usage: "spotifyQueue[0.field]",
+        usage: "spotifyQueue[0.title]",
         description:
-          "Outputs the field of the track in the queue at index 0 (has same fields as $spotifyTrack[field])",
+          "Outputs the title of the track in the queue at index 0 (has same fields as $spotifyTrack[])",
       },
     ],
   },

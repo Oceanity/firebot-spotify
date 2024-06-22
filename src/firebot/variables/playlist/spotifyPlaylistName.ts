@@ -5,7 +5,7 @@ export const SpotifyPlaylistNameVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylistName",
     description:
-      "DEPRECATED, use $spotifyPlaylist[name]. Gets the Name of the currently playing Spotify Playlist",
+      "(Deprecated; use $spotifyPlaylist[name]) Gets the Name of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistName",
     possibleDataOutput: ["text"],
   },

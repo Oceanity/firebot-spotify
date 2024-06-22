@@ -5,7 +5,7 @@ export const SpotifyTrackPositionVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackPosition",
     description:
-      "DEPRECATED, use $spotifyTrack[position]. Gets current position in playing track on Spotify as formatted string or empty string if not playing",
+      "(Deprecated; use $spotifyTrack[position]) Gets current position in playing track on Spotify as formatted string or empty string if not playing",
     usage: "spotifyTrackPosition",
     possibleDataOutput: ["text"],
   },

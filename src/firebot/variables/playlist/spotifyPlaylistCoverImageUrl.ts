@@ -5,7 +5,7 @@ export const SpotifyPlaylistCoverImageUrlVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylistCoverImageUrl",
     description:
-      "DEPRECATED, use $spotifyPlaylist[coverImageUrl]. Gets the Cover Image Url of the currently playing Spotify Playlist",
+      "(Deprecated; use $spotifyPlaylist[coverImageUrl]) Gets the Cover Image Url of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistCoverImageUrl",
     possibleDataOutput: ["text"],
   },

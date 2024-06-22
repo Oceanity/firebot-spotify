@@ -5,7 +5,7 @@ export const SpotifyTrackAlbumVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackAlbum",
     description:
-      "DEPRECATED, use $spotifyTrack[album]. Gets the album of the currently playing track on Spotify or empty string if not playing",
+      "(Deprecated; use $spotifyTrack[album]) Gets the album of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackAlbum",
     possibleDataOutput: ["text"],
   },
