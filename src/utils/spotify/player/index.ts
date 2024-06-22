@@ -20,6 +20,7 @@ export default class SpotifyPlayerService extends EventEmitter {
   private _targetIsPlaying: boolean | null = null;
   private _volume: number = -1;
   private _targetVolume: number = -1;
+  private _isChangingPlayback: boolean = false;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -73,11 +74,11 @@ export default class SpotifyPlayerService extends EventEmitter {
   }
 
   private updateIsPlaying = (isPlaying: boolean) => {
+    this._isPlaying = isPlaying;
     if (this._targetIsPlaying === isPlaying) {
       this._targetIsPlaying = null;
       return;
     }
-    this._isPlaying = isPlaying;
 
     this.spotify.events.trigger("playback-state-changed", { isPlaying });
   };
@@ -125,14 +126,13 @@ export default class SpotifyPlayerService extends EventEmitter {
   public async playAsync(): Promise<void> {
     try {
       if (this.isPlaying) return;
+      this.updateIsPlaying(true);
 
       const response = await this.spotify.api.fetch("/me/player/play", "PUT", {
         device_id: this.spotify.device.id,
       });
 
       if (response.ok) {
-        this._targetIsPlaying = true;
-
         this.spotify.events.trigger("playback-state-changed", {
           isPlaying: true,
         });
@@ -152,13 +152,14 @@ export default class SpotifyPlayerService extends EventEmitter {
   public async pauseAsync(): Promise<void> {
     try {
       if (!this.isPlaying) return;
+      this.updateIsPlaying(false);
 
       const response = await this.spotify.api.fetch("/me/player/pause", "PUT", {
         device_id: this.spotify.device.id,
       });
 
       if (response.ok) {
-        this._targetIsPlaying = false;
+        this.updateIsPlaying(false);
 
         this.spotify.events.trigger("playback-state-changed", {
           isPlaying: false,
@@ -189,9 +190,6 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async nextAsync() {
     try {
-      if (!(await this.spotify.user.isPremiumAsync()))
-        throw new Error("Spotify Premium required to skip tracks");
-
       await this.spotify.api.fetch("/me/player/next", "POST");
     } catch (error) {
       logger.error("Error skipping to next track on Spotify", error);
@@ -208,9 +206,6 @@ export default class SpotifyPlayerService extends EventEmitter {
    */
   public async previousAsync() {
     try {
-      if (!(await this.spotify.user.isPremiumAsync()))
-        throw new Error("Spotify Premium required to skip tracks");
-
       await this.spotify.api.fetch("/me/player/previous", "POST");
     } catch (error) {
       logger.error("Error skipping to previous track on Spotify", error);
@@ -229,9 +224,6 @@ export default class SpotifyPlayerService extends EventEmitter {
   public async seekToPositionAsync(positionMS: number) {
     try {
       if (positionMS < 0) positionMS = 0;
-
-      if (!(await this.spotify.user.isPremiumAsync()))
-        throw new Error("Spotify Premium required to seek");
 
       await this.spotify.api.fetch(
         `/me/player/seek?position_ms=${positionMS}`,
@@ -290,9 +282,6 @@ export default class SpotifyPlayerService extends EventEmitter {
     repeatState: SpotifyRepeatState
   ): Promise<void> {
     try {
-      if (!(await this.spotify.user.isPremiumAsync()))
-        throw new Error("Spotify Premium required to set repeat state");
-
       await this.spotify.api.fetch(
         `/me/player/repeat?state=${repeatState}`,
         "PUT"
@@ -301,19 +290,4 @@ export default class SpotifyPlayerService extends EventEmitter {
       logger.error("Error toggling Spotify playback", error);
     }
   }
-
-  // public async getCurrentPlaylistName(): Promise<string> {
-  //   try {
-  //     if (!this._context || this._context.type != "playlist") return "";
-
-  //     const playlist = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
-  //       `/playlists/${this._context.uri.split(":")[2]}`
-  //     );
-
-  //     return playlist.data?.name ?? "";
-  //   } catch (error) {
-  //     logger.error("Error getting current playlist name", error);
-  //     return "";
-  //   }
-  // }
 }
