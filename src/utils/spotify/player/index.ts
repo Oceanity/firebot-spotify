@@ -6,6 +6,8 @@ import { SpotifyLyricsService } from "./lyrics";
 import { SpotifyPlayerStateService } from "./state";
 import { SpotifyTrackService } from "./track";
 import { EventEmitter } from "events";
+import ResponseError from "@/models/responseError";
+import { randomUUID } from "crypto";
 
 export default class SpotifyPlayerService extends EventEmitter {
   private readonly spotify: SpotifyService;
@@ -20,7 +22,8 @@ export default class SpotifyPlayerService extends EventEmitter {
   private _targetIsPlaying: boolean | null = null;
   private _volume: number = -1;
   private _targetVolume: number = -1;
-  private _isChangingPlayback: boolean = false;
+  private _lastCallId?: string | null;
+  private _playbackChangePending: boolean = false;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -45,7 +48,9 @@ export default class SpotifyPlayerService extends EventEmitter {
       this.updateIsPlaying(isPlaying);
     });
     this.state.on("volume-state-changed", (volumePercent) => {
-      this.updateVolume(volumePercent);
+      if (!this._playbackChangePending) {
+        this.updateVolume(volumePercent);
+      }
     });
   }
 
@@ -71,6 +76,11 @@ export default class SpotifyPlayerService extends EventEmitter {
 
   public get volumeWasManuallyChanged(): boolean {
     return this._targetVolume !== -1;
+  }
+
+  private get callId() {
+    this._lastCallId = randomUUID();
+    return this._lastCallId;
   }
 
   private updateIsPlaying = (isPlaying: boolean) => {
@@ -124,18 +134,28 @@ export default class SpotifyPlayerService extends EventEmitter {
    * @throws {Error} If the Spotify player is already playing.
    */
   public async playAsync(): Promise<void> {
+    const callId = this.callId;
+
     try {
       if (this.isPlaying) return;
-      this.updateIsPlaying(true);
+      this._playbackChangePending = true;
 
       const response = await this.spotify.api.fetch("/me/player/play", "PUT", {
         device_id: this.spotify.device.id,
       });
 
-      if (response.ok) {
-        this.spotify.events.trigger("playback-state-changed", {
-          isPlaying: true,
-        });
+      if (!response.ok) {
+        throw new ResponseError("Error playing Spotify playback", response);
+      }
+
+      this._isPlaying = true;
+
+      this.spotify.events.trigger("playback-state-changed", {
+        isPlaying: true,
+      });
+
+      if (callId === this._lastCallId) {
+        this._playbackChangePending = false;
       }
     } catch (error) {
       logger.error("Error resuming Spotify playback", error);
@@ -150,20 +170,28 @@ export default class SpotifyPlayerService extends EventEmitter {
    * @throws {Error} If the Spotify player is not currently playing.
    */
   public async pauseAsync(): Promise<void> {
+    const callId = this.callId;
+
     try {
       if (!this.isPlaying) return;
-      this.updateIsPlaying(false);
+      this._playbackChangePending = true;
 
       const response = await this.spotify.api.fetch("/me/player/pause", "PUT", {
         device_id: this.spotify.device.id,
       });
 
-      if (response.ok) {
-        this.updateIsPlaying(false);
+      if (!response.ok) {
+        throw new ResponseError("Error pausing Spotify playback", response);
+      }
 
-        this.spotify.events.trigger("playback-state-changed", {
-          isPlaying: false,
-        });
+      this._isPlaying = false;
+
+      this.spotify.events.trigger("playback-state-changed", {
+        isPlaying: false,
+      });
+
+      if (callId === this._lastCallId) {
+        this._playbackChangePending = false;
       }
     } catch (error) {
       logger.error("Error pausing Spotify playback", error);
