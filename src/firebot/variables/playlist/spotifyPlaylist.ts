@@ -12,14 +12,54 @@ export const SpotifyPlaylistVariable: ReplaceVariable = {
     possibleDataOutput: [OutputDataType.OBJECT],
     examples: [
       {
-        usage: "spotifyPlaylist[field]",
+        usage: "spotifyPlaylist[name]",
         description:
-          "Outputs an object with summary of the track in the queue at index 0 (has same fields as $spotifyTrack)",
+          "Outputs the name of the currently playing Spotify Playlist",
+      },
+      {
+        usage: "spotifyPlaylist[description]",
+        description:
+          "Outputs the description of the currently playing Spotify Playlist",
+      },
+      {
+        usage: "spotifyPlaylist[tracks]",
+        description:
+          "Outputs the Description of the currently playing Spotify Playlist)",
       },
       {
         usage: "spotifyPlaylist[tracks.0]",
         description:
-          "Outputs the track in the playlist at index 0 (has same fields as $spotifyTrack[field])",
+          "Outputs an object containing a summary of the track in the playlist at index 0",
+      },
+      {
+        usage: "spotifyPlaylist[tracks.0.title]",
+        description:
+          "Outputs the title of the track in the playlist at index 0 (has same fields as $spotifyTrack[])",
+      },
+      {
+        usage: "spotifyPlaylist[length]",
+        description:
+          "Outputs the total number of tracks of the currently playing Spotify Playlist",
+      },
+      {
+        usage: "spotifyPlaylist[coverImageUrl]",
+        description:
+          "Outputs the url of the cover image of the currently playing Spotify Playlist",
+      },
+      {
+        usage: "spotifyPlaylist[owner]",
+        description:
+          "Outputs the owner of the currently playing Spotify Playlist",
+      },
+      {
+        usage: "spotifyPlaylist[ownerUrl]",
+        description:
+          "Outputs the url to the profile of the owner of the currently playing Spotify Playlist)",
+      },
+      {
+        usage: "spotifyPlaylist[url]",
+        description:
+          "Outputs the shareable url of the currently playing Spotify Playlist)",
       },
     ],
   },
