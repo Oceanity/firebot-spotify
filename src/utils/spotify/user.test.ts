@@ -3,7 +3,7 @@ import { jest } from "@jest/globals";
 import { testSearchResponse, testUser } from "@/testData";
 import SpotifyProfileService from "./user";
 
-describe("SpotifyProfileService", () => {
+describe("Spotify - Profile Service", () => {
   let spotify: SpotifyService;
   let user: SpotifyProfileService;
 

@@ -1,5 +1,6 @@
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 import { HttpServerManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/http-server-manager";
+import { getErrorMessage } from "./string";
 
 export let logger: ScriptModules["logger"];
 export let effectRunner: ScriptModules["effectRunner"];
@@ -24,23 +25,27 @@ export function initModules(scriptModules: ScriptModules) {
 }
 
 export async function chatFeedAlert(message: string) {
-  //@ts-expect-error ts2339
-  const effect = effectManager.getEffectById("firebot:chat-feed-alert");
+  try {
+    //@ts-expect-error ts2339
+    const effect = effectManager.getEffectById("firebot:chat-feed-alert");
 
-  if (!effect || !effect.onTriggerEvent) {
-    logger.error("Unable to trigger chat feed alert");
-    return;
-  }
+    if (!effect || !effect.onTriggerEvent) {
+      throw new Error("Unable to trigger chat feed alert");
+    }
 
-  await effect.onTriggerEvent({
-    effect: {
-      message,
-    },
-    trigger: {
-      type: "custom_script",
-      metadata: {
-        username: "script",
+    await effect.onTriggerEvent({
+      effect: {
+        message,
       },
-    },
-  });
+      trigger: {
+        type: "custom_script",
+        metadata: {
+          username: "script",
+        },
+      },
+    });
+  } catch (error) {
+    logger.error(getErrorMessage(error), error);
+    throw error;
+  }
 }

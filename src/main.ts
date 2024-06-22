@@ -45,8 +45,6 @@ const script: Firebot.CustomScript<Params> = {
     const { spotifyClientId, spotifyClientSecret } = runRequest.parameters;
     const { integrationManager, logger } = runRequest.modules;
 
-    spotify = new SpotifyService();
-
     if (!spotifyClientId || !spotifyClientSecret) {
       logger.error(
         "Missing required Spotify Client ID or Client Secret",
@@ -55,6 +53,8 @@ const script: Firebot.CustomScript<Params> = {
       );
       return;
     }
+
+    spotify = new SpotifyService();
 
     // Setup globals
     initModules(runRequest.modules);

@@ -1,6 +1,7 @@
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyApiService } from "@utils/spotify/api";
 import { jest } from "@jest/globals";
+import { logger } from "../firebot";
 
 type DummyDataType = {
   foo: string;
@@ -81,12 +82,10 @@ describe("Spotify - Api Service", () => {
       }));
 
       await expect(api.fetch<DummyDataType>(endpoint)).rejects.toThrow();
-      // expect(logger.error).toHaveBeenCalledTimes(1);
-      // expect(logger.error).toHaveBeenCalledWith(
-      //   expect.stringMatching(
-      //     `Spotify API ${endpoint} returned status ${status}`
-      //   )
-      // );
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Error)
+      );
     }
   });
 });

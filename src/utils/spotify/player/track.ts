@@ -6,7 +6,7 @@ import { EventEmitter } from "events";
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
-  private _track?: SpotifyTrackDetails;
+  private _track?: SpotifyTrackDetails | null;
   private _trackSummary?: SpotifyTrackSummary;
   private _progressMs: number = -1;
 
@@ -106,20 +106,20 @@ export class SpotifyTrackService extends EventEmitter {
   }
   //#endregion
 
-  public update(track?: SpotifyTrackDetails): void {
+  public update(track?: SpotifyTrackDetails | null): void {
     if (this._track?.uri != track?.uri) {
       this._track = track;
       this._trackSummary = trackSummaryFromDetails(track) ?? undefined;
     }
   }
 
-  public async handleNextTick(progressMs?: number) {
-    this._progressMs = progressMs ?? 0;
+  public async handleNextTick(progressMs?: number | null) {
+    this._progressMs = progressMs ?? -1;
   }
 }
 
 export function trackSummaryFromDetails(
-  track?: SpotifyTrackDetails
+  track?: SpotifyTrackDetails | null
 ): SpotifyTrackSummary | null {
   if (!track) return null;
 
