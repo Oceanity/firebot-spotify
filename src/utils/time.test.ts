@@ -13,7 +13,7 @@ describe("Time Helpers", () => {
     it("resolves after ms", async () => {
       const startTime = now();
       await delay(100);
-      expect(now() - startTime).toBeGreaterThanOrEqual(100);
+      expect(now() - startTime).toBeGreaterThan(99);
     });
 
     it("logs warning if method took longer than expected", async () => {

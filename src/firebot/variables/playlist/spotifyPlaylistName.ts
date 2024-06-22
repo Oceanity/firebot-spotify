@@ -4,7 +4,8 @@ import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/type
 export const SpotifyPlaylistNameVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylistName",
-    description: "Gets the Name of the currently playing Spotify Playlist",
+    description:
+      "(Deprecated; use $spotifyPlaylist[name]) Gets the Name of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistName",
     possibleDataOutput: ["text"],
   },

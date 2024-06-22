@@ -5,9 +5,9 @@ export const SpotifyTrackDurationMsVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackDurationMs",
     description:
-      "Gets total length of playing track on Spotify as milliseconds or -1 if not playing",
+      "(Deprecated; use $spotifyTrack[durationMs]) Gets total length of playing track on Spotify as milliseconds or -1 if not playing",
     usage: "spotifyTrackDurationMs",
     possibleDataOutput: ["number"],
   },
-  evaluator: async () => spotify.player.trackService.durationMs,
+  evaluator: async () => spotify.player.track.durationMs,
 };

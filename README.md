@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity <sub style="color:gray">v0.7.1</sub>
+# Spotify Integration by Oceanity <sub style="color:gray">v0.7.2</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
@@ -26,6 +26,11 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
 - Go to Settings > Integrations and click Link next to Spotify (by Oceanity)
   - Log in and authorize on the page that pops up
 - You should now have the ability to use this script's Effects, Events and Replace Variables in Firebot
+
+### Updating
+
+- Overwrite existing `oceanitySpotifyIntegration.js` with new version
+- Restart Firebot
 
 ### Lyrics Setup
 
@@ -64,24 +69,31 @@ This script adds the following features to Firebot
     - spotifyPlayerVolume: `integer`
   - Playlist
     - spotifyIsPlaylistActive: `bool`
-    - spotifyCoverImageUrl: `string`
-    - spotifyPlaylistDescription: `string`
-    - spotifyPlaylistLength: `integer`
-    - spotifyPlaylistUrl: `string`
+    - spotifyPlaylist: `object`
+      - spotifyPlaylist[id]: `string`
+      - spotifyPlaylist[name]: `string`
+      - spotifyPlaylist[description]: `string`
+      - spotifyPlaylist[length]: `integer`
+      - spotifyPlaylist[coverImageUrl]: `string`
+      - spotifyPlaylist[owner]: `string`
+      - spotifyPlaylist[ownerUrl]: `string`
+      - spotifyPlaylist[url]: `string`
+      - spotifyPlaylist[uri]: `string`
   - Track
-    - spotifyTrackAlbum: `string`
-    - spotifyTrackAlbumArtUrl: `string`
-    - spotifyTrackArtist: `string`
-    - spotifyTrackArtists: `string[]`
-    - spotifyTrackDuration: `string`
-    - spotifyTrackDurationMs: `integer`
-    - spotifyTrackId: `string`
-    - spotifyTrackPosition: `string`
-    - spotifyTrackPositionMs: `integer`
-    - spotifyTrackRelativePosition: `float`
-    - spotifyTrackTitle: `string`
-    - spotifyTrackUri: `string`
-    - spotifyTrackUrl: `string`
+    - spotifyTrack: `object`
+      - spotifyTrack[id]: `string`
+      - spotifyTrack[title]: `string`
+      - spotifyTrack[artist]: `string`
+      - spotifyTrack[artists]: `string[]`
+      - spotifyTrack[album]: `string`
+      - spotifyTrack[albumArtUrl]: `string`
+      - spotifyTrack[duration]: `string`
+      - spotifyTrack[durationMs]: `integer`
+      - spotifyTrack[position]: `string`
+      - spotifyTrack[positionMs]: `integer`
+      - spotifyTrack[relativePosition]: `float`
+      - spotifyTrack[url]: `string`
+      - spotifyTrack[uri]: `string`
 - Events
   - Lyrics Changed
   - Playback State Changed

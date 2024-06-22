@@ -78,9 +78,11 @@ export class SpotifyStateService extends EventEmitter {
       const nextTrack = state.item;
 
       // If track has changed, fire event
-      if (this.spotify.player.trackService.uri != nextTrack?.uri) {
+      if (this.spotify.player.track.uri != nextTrack?.uri) {
         this.emit("track-changed", nextTrack);
-        this.spotify.events.trigger("track-changed", nextTrack ?? null);
+        this.spotify.events.trigger("track-changed", {
+          track: nextTrack ?? null,
+        });
       }
       return this.tick(state.is_playing ? 1000 : 5000, startTime);
     } catch (error) {

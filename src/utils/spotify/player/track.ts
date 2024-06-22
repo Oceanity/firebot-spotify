@@ -6,8 +6,9 @@ import { EventEmitter } from "events";
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
-  private _track?: SpotifyTrackDetails | null;
-  private _progressMs?: number | null;
+  private _track?: SpotifyTrackDetails;
+  private _trackSummary?: SpotifyTrackSummary;
+  private _progressMs: number = -1;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -17,13 +18,35 @@ export class SpotifyTrackService extends EventEmitter {
 
   public async init() {
     for (const event of ["track-changed", "state-cleared"]) {
-      this.spotify.player.state.on(event, this.trackChangedHandler);
+      this.spotify.player.state.on(
+        event,
+        async (track?: SpotifyTrackDetails) => {
+          this.update(track);
+        }
+      );
     }
 
-    this.spotify.player.state.on("tick", this.tickHandler);
+    this.spotify.player.state.on("tick", (progressMs: number) => {
+      this.handleNextTick(progressMs);
+    });
   }
 
   //#region Getters
+  public get raw(): SpotifyTrackDetails | null {
+    return this._track ?? null;
+  }
+
+  public get summary(): SpotifyTrackSummaryWithPosition | null {
+    return this._trackSummary
+      ? {
+          ...this._trackSummary,
+          positionMs: this._progressMs,
+          position: formatMsToTimecode(this._progressMs),
+          relativePosition: this._progressMs / this._trackSummary.durationMs,
+        }
+      : null;
+  }
+
   public get isTrackLoaded(): boolean {
     return !!this._track;
   }
@@ -83,24 +106,33 @@ export class SpotifyTrackService extends EventEmitter {
   }
   //#endregion
 
-  //#region Event Handlers
-  private trackChangedHandler = async (track?: SpotifyTrackDetails) =>
-    this.update(track);
-
-  private tickHandler = (progressMs: number) => this.handleNextTick(progressMs);
-  //#endregion
-
-  public update(track?: SpotifyTrackDetails | null): void {
+  public update(track?: SpotifyTrackDetails): void {
     if (this._track?.uri != track?.uri) {
       this._track = track;
-
-      this.emit("track-changed", track);
-      this.spotify.events.trigger("track-changed", { track });
+      this._trackSummary = trackSummaryFromDetails(track) ?? undefined;
     }
   }
 
-  public async handleNextTick(progressMs?: number | null) {
-    this._progressMs = progressMs;
-    this.emit("tick", progressMs);
+  public async handleNextTick(progressMs?: number) {
+    this._progressMs = progressMs ?? 0;
   }
+}
+
+export function trackSummaryFromDetails(
+  track?: SpotifyTrackDetails
+): SpotifyTrackSummary | null {
+  if (!track) return null;
+
+  return Object.freeze({
+    id: track.id,
+    title: track.name,
+    artist: track.artists[0].name,
+    artists: track.artists.map((a) => a.name),
+    album: track.album.name,
+    albumArtUrl: getBiggestImageUrl(track.album.images),
+    durationMs: track.duration_ms,
+    duration: formatMsToTimecode(track.duration_ms),
+    url: track.external_urls.spotify,
+    uri: track.uri,
+  });
 }

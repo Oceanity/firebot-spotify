@@ -27,6 +27,7 @@ export class SpotifyService {
 
   public async init() {
     await this.player.init();
+    await this.user.init();
   }
 
   public async searchAsync(

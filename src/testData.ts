@@ -1,4 +1,5 @@
-import { SpotifyQueueService } from "./utils/spotify/player/queue";
+import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
+import { playlistSummaryFromDetails } from "./utils/spotify/player/playlist";
 
 export const emptySearchCategory = <T>(): SpotifySearchCategory<T> => ({
   href: "",
@@ -129,6 +130,23 @@ export const getTestTrack = (
   uri: `spotify:track:${id}`,
 });
 
+export const getTestTrackSummary = (
+  title: string = "some track",
+  artists: string[] = ["some artist"],
+  id: string = "123"
+): SpotifyTrackSummary => ({
+  id,
+  title,
+  artist: artists[0],
+  artists,
+  album: "some album",
+  albumArtUrl: "some url",
+  durationMs: 0,
+  duration: "0:00",
+  url: "some url",
+  uri: `spotify:track:${id}`,
+});
+
 export const testPlaylist: SpotifyPlaylistDetails = {
   collaborative: false,
   description: "my cool playlist",
@@ -164,10 +182,17 @@ export const testPlaylist: SpotifyPlaylistDetails = {
   },
   public: false,
   snapshot_id: "",
-  tracks: emptySearchCategory<SpotifyTrackDetails>(),
+  tracks: emptySearchCategory<SpotifyPlaylistEntry>(),
   type: "playlist",
   uri: "playlist-uri",
 };
+
+export const getTestPlaylistSummary = (
+  name: string = "some playlist"
+): SpotifyPlaylistSummary => ({
+  ...(playlistSummaryFromDetails(testPlaylist) as SpotifyPlaylistSummary),
+  name,
+});
 
 export const testQueue: SpotifyQueueResponse = {
   currently_playing: getTestTrack("currently playing track", "89072134"),
@@ -254,5 +279,12 @@ export const testUser: SpotifyUserProfile = {
   explicit_content: {
     filter_enabled: false,
     filter_locked: false,
+  },
+};
+
+export const testTrigger: Effects.Trigger = {
+  type: "manual",
+  metadata: {
+    username: "some username",
   },
 };

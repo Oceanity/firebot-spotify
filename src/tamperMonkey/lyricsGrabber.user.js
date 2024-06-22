@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Lyric Grabber
 // @namespace    https://oceanity.github.io
-// @version      0.7.1
+// @version      0.7.2
 // @description  Sends Spotify lyrics to Firebot
 // @author       Oceanity
 // @match        https://open.spotify.com/*
@@ -15,6 +15,8 @@
   const {
     fetch: originalFetch
   } = window;
+
+  const version = "0.7.2";
 
   // Consts
   const lyricUrlRegex = /https:\/\/spclient\.wg\.spotify\.com\/color-lyrics\/v2\/track\/([a-zA-Z0-9]+)\/image\/.+/;
@@ -130,18 +132,18 @@
 
   if (versionCheckResponse.ok) {
     const {
-      currentVersion,
-      latestVersion,
+      localVersion,
+      remoteVersion,
       newVersionAvailable
     } = await versionCheckResponse.json();
 
     if (newVersionAvailable) {
-      console.log(`New version available: ${currentVersion} -> ${latestVersion}`);
+      console.log(`New version available: ${localVersion} -> ${remoteVersion}`);
 
       const versionCheckModal = createDomElement("div", {
         className: "oceanity-spotify-new-version",
         html: `
-          <h3>New version available! ${currentVersion} -> ${latestVersion}</h3>
+          <h3>New version available! ${localVersion} -> ${remoteVersion}</h3>
           <p>Click <a href="https://github.com/Oceanity/firebot-spotify/releases/latest" target="_blank">here</a> to download the latest version.</p>
         `
       });
