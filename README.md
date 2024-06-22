@@ -27,6 +27,11 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
   - Log in and authorize on the page that pops up
 - You should now have the ability to use this script's Effects, Events and Replace Variables in Firebot
 
+### Updating
+
+- Overwrite existing `oceanitySpotifyIntegration.js` with new version
+- Restart Firebot
+
 ### Lyrics Setup
 
 - Install Tampermonkey from https://www.tampermonkey.net/
