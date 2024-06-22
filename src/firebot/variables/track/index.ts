@@ -11,8 +11,12 @@ import { SpotifyTrackDurationMsVariable } from "./spotifyTrackDurationMs";
 import { SpotifyTrackPositionVariable } from "./spotifyTrackPosition";
 import { SpotifyTrackPositionMsVariable } from "./spotifyTrackPositionMs";
 import { SpotifyTrackRelativePositionVariable } from "./spotifyTrackRelativePosition";
+import { RawSpotifyTrackVariable } from "./rawSpotifyTrack";
+import { SpotifyTrackVariable } from "./spotifyTrack";
 
 export const AllSpotifyTrackVariables = [
+  RawSpotifyTrackVariable,
+  SpotifyTrackVariable,
   SpotifyTrackArtistVariable,
   SpotifyTrackArtistsVariable,
   SpotifyTrackAlbumVariable,

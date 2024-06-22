@@ -5,9 +5,9 @@ export const SpotifyTrackAlbumVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackAlbum",
     description:
-      "Gets the album of the currently playing track on Spotify or empty string if not playing",
+      "(Deprecated; use $spotifyTrack[album]) Gets the album of the currently playing track on Spotify or empty string if not playing",
     usage: "spotifyTrackAlbum",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.trackService.album,
+  evaluator: async () => spotify.player.track.summary?.album ?? "",
 };

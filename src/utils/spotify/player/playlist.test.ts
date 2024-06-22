@@ -4,6 +4,12 @@ import { SpotifyPlaylistService } from "@utils/spotify/player/playlist";
 import { testPlaylist } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
 
+jest.mock("@utils/firebot", () => ({
+  logger: {
+    error: jest.fn(),
+  },
+}));
+
 describe("Spotify - Playlist Service", () => {
   let spotify: SpotifyService;
   let playlist: SpotifyPlaylistService;

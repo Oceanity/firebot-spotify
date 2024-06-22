@@ -19,3 +19,13 @@ export const getErrorMessage = (error: unknown): string => {
   }
   return String(error);
 };
+
+export const getTriggerSource = (trigger: Trigger): string => {
+  if (trigger.metadata.userCommand) {
+    return trigger.metadata.userCommand.trigger;
+  }
+  if (trigger.metadata.event) {
+    return trigger.metadata.event.name;
+  }
+  return "";
+};

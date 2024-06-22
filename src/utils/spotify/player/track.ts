@@ -1,6 +1,5 @@
 import { formatMsToTimecode } from "@/utils/string";
 import { getBiggestImageUrl } from "@utils/array";
-import { eventManager, logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
@@ -8,7 +7,8 @@ export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
   private _track?: SpotifyTrackDetails;
-  private _progressMs?: number;
+  private _trackSummary?: SpotifyTrackSummary;
+  private _progressMs: number = -1;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -32,6 +32,21 @@ export class SpotifyTrackService extends EventEmitter {
   }
 
   //#region Getters
+  public get raw(): SpotifyTrackDetails | null {
+    return this._track ?? null;
+  }
+
+  public get summary(): SpotifyTrackSummaryWithPosition | null {
+    return this._trackSummary
+      ? {
+          ...this._trackSummary,
+          positionMs: this._progressMs,
+          position: formatMsToTimecode(this._progressMs),
+          relativePosition: this._progressMs / this._trackSummary.durationMs,
+        }
+      : null;
+  }
+
   public get isTrackLoaded(): boolean {
     return !!this._track;
   }
@@ -94,10 +109,30 @@ export class SpotifyTrackService extends EventEmitter {
   public update(track?: SpotifyTrackDetails): void {
     if (this._track?.uri != track?.uri) {
       this._track = track;
+      this._trackSummary = trackSummaryFromDetails(track) ?? undefined;
     }
   }
 
   public async handleNextTick(progressMs?: number) {
-    this._progressMs = progressMs;
+    this._progressMs = progressMs ?? 0;
   }
+}
+
+export function trackSummaryFromDetails(
+  track?: SpotifyTrackDetails
+): SpotifyTrackSummary | null {
+  if (!track) return null;
+
+  return Object.freeze({
+    id: track.id,
+    title: track.name,
+    artist: track.artists[0].name,
+    artists: track.artists.map((a) => a.name),
+    album: track.album.name,
+    albumArtUrl: getBiggestImageUrl(track.album.images),
+    durationMs: track.duration_ms,
+    duration: formatMsToTimecode(track.duration_ms),
+    url: track.external_urls.spotify,
+    uri: track.uri,
+  });
 }

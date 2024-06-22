@@ -62,8 +62,6 @@ export class SpotifyIntegration extends EventEmitter {
       const [path, method, handler] = webhook;
       httpServer.registerCustomRoute(integrationId, path, method, handler);
     }
-
-    await spotify.init();
   }
 
   async connect() {}

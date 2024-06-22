@@ -37,9 +37,7 @@ export class SpotifyLyricsService extends EventEmitter {
   }
 
   public get trackHasLyrics(): boolean {
-    return (
-      !!this._lines && this._trackId === this.spotify.player.trackService.id
-    );
+    return !!this._lines && this._trackId === this.spotify.player.track.id;
   }
 
   public get currentLine(): string {

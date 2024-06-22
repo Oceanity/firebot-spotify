@@ -10,10 +10,10 @@ type SpotifyContextType =
   | "episode"
   | "audiobook";
 
-type SpotifyExternalUrls = { [platform: string]: string };
+type SpotifyExternalUrls = { spotify: string };
 
 type SpotifyContext = {
-  external_urls: { [platform: string]: string };
+  external_urls: SpotifyExternalUrls;
   href: string;
   type: SpotifyContextType;
   uri: string;
@@ -139,9 +139,39 @@ type SpotifyPlaylistDetails = {
   primary_color: string | null;
   public: boolean;
   snapshot_id: string;
-  tracks: SpotifySearchDetails<SpotifyTrackDetails>;
+  tracks: SpotifySearchCategory<SpotifyPlaylistEntry>;
   type: SpotifyContextType;
   uri: string;
+};
+
+type SpotifyPlaylistSummary = {
+  id: string;
+  name: string;
+  description: string;
+  coverImageUrl: string;
+  owner: SpotifyUserProfile;
+  isPublic: boolean;
+  tracks: SpotifyTrackSummary[];
+  url: string;
+  uri: string;
+  length: number;
+};
+
+type SpotifyAddedBy = {
+  external_urls: SpotifyExternalUrls;
+  href: string;
+  id: string;
+  type: string;
+  uri: string;
+};
+
+type SpotifyPlaylistEntry = {
+  added_at: string;
+  added_by: AddedBy;
+  is_local: boolean;
+  primary_color: string | null;
+  track: SpotifyTrackDetails;
+  video_thumbnail: VideoThumbnail;
 };
 
 //#region Spotify API /search types
@@ -167,6 +197,25 @@ type SpotifyTrackDetails = {
   uri: string;
   is_local: boolean;
   queue_position?: number;
+};
+
+type SpotifyTrackSummary = {
+  id: string;
+  title: string;
+  artist: string;
+  artists: string[];
+  album: string;
+  albumArtUrl: string;
+  durationMs: number;
+  duration: string;
+  url: string;
+  uri: string;
+};
+
+type SpotifyTrackSummaryWithPosition = SpotifyTrackSummary & {
+  positionMs: number;
+  position: string;
+  relativePosition: number;
 };
 
 type SpotifyAlbumArtistDetails = {

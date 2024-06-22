@@ -4,7 +4,8 @@ import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/type
 export const SpotifyPlaylistOwnerVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylistOwner",
-    description: "Gets the Owner of the currently playing Spotify Playlist",
+    description:
+      "(Deprecated; use $spotifyPlaylist[owner]) Gets the Owner of the currently playing Spotify Playlist",
     usage: "spotifyPlaylistOwner",
     possibleDataOutput: ["text"],
   },
