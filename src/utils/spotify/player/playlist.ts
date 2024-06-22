@@ -3,11 +3,13 @@ import { decode } from "he";
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@/utils/string";
+import { trackSummaryFromDetails } from "./track";
 
 export class SpotifyPlaylistService {
   private readonly spotify: SpotifyService;
 
   private _playlist: SpotifyPlaylistDetails | null = null;
+  private _summary: SpotifyPlaylistSummary | null = null;
 
   public constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -21,6 +23,14 @@ export class SpotifyPlaylistService {
   }
 
   /* Getters */
+  public get raw(): SpotifyPlaylistDetails | null {
+    return this._playlist;
+  }
+
+  public get summary(): SpotifyPlaylistSummary | null {
+    return this._summary;
+  }
+
   public get isActive(): boolean {
     return !!this._playlist;
   }
@@ -62,7 +72,15 @@ export class SpotifyPlaylistService {
   }
 
   public async updateByUriAsync(playlistUri?: string | null): Promise<void> {
+    if (!playlistUri) {
+      this.update(null);
+      return;
+    }
+
     const playlist = await this.fetchByUriAsync(playlistUri);
+
+    if (this._playlist && this._playlist.snapshot_id === playlist?.snapshot_id)
+      return;
 
     this.update(playlist);
   }
@@ -86,6 +104,7 @@ export class SpotifyPlaylistService {
       if (this._playlist?.uri === playlist?.uri) return;
 
       this._playlist = playlist ?? null;
+      this._summary = playlistSummaryFromDetails(playlist);
 
       this.spotify.events.trigger("playlist-changed", { playlist });
     } catch (error) {
@@ -93,4 +112,27 @@ export class SpotifyPlaylistService {
       throw error;
     }
   }
+}
+
+export function playlistSummaryFromDetails(
+  playlist?: SpotifyPlaylistDetails | null
+): SpotifyPlaylistSummary | null {
+  if (!playlist) return null;
+
+  const { id, name, description, images, owner, uri } = playlist;
+
+  return Object.freeze({
+    id,
+    name: decode(name),
+    description: decode(description),
+    coverImageUrl: getBiggestImageUrl(images),
+    owner,
+    isPublic: playlist.public,
+    tracks: playlist.tracks.items
+      .map((entry) => trackSummaryFromDetails(entry.track))
+      .filter((t) => t !== null) as SpotifyTrackSummary[],
+    url: playlist.external_urls.spotify,
+    uri,
+    length: playlist.tracks.total,
+  });
 }

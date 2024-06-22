@@ -3,10 +3,11 @@ import { delay, now } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
 
-export class SpotifyPlayerStateService extends EventEmitter {
+export class SpotifyStateService extends EventEmitter {
   private readonly spotify: SpotifyService;
 
   private _progressMs: number = 0;
+  private _isReady: boolean = false;
 
   constructor(spotifyService: SpotifyService) {
     super();
@@ -16,9 +17,15 @@ export class SpotifyPlayerStateService extends EventEmitter {
 
   init() {
     this.updatePlaybackStateAsync();
+
+    this._isReady = true;
   }
 
-  private async updatePlaybackStateAsync(): Promise<void> {
+  public get isReady(): boolean {
+    return this._isReady;
+  }
+
+  public async updatePlaybackStateAsync(): Promise<void> {
     const startTime = now();
 
     try {
@@ -71,7 +78,7 @@ export class SpotifyPlayerStateService extends EventEmitter {
       const nextTrack = state.item;
 
       // If track has changed, fire event
-      if (this.spotify.player.trackService.uri != nextTrack?.uri) {
+      if (this.spotify.player.track.uri != nextTrack?.uri) {
         this.emit("track-changed", nextTrack);
         this.spotify.events.trigger("track-changed", {
           track: nextTrack ?? null,

@@ -1,4 +1,4 @@
-const EventEmitter = require("events");
+import { EventEmitter } from "events";
 import ResponseError from "@models/responseError";
 import {
   logger,
@@ -62,8 +62,6 @@ export class SpotifyIntegration extends EventEmitter {
       const [path, method, handler] = webhook;
       httpServer.registerCustomRoute(integrationId, path, method, handler);
     }
-
-    await spotify.init();
   }
 
   async connect() {}
@@ -147,7 +145,8 @@ export const generateSpotifyDefinition = (
 ): IntegrationDefinition => ({
   id: integrationId,
   name: "Spotify (by Oceanity)",
-  description: "Integrations with Spotify including song requests",
+  description:
+    "Integrations with Spotify that can show now playing information and control your Spotify devices.",
   connectionToggle: false,
   linkType: "auth",
   settingCategories: {},

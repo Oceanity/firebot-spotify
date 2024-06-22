@@ -9,7 +9,7 @@ import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
 export const integrationId = "oceanity-spotify";
-export const localVersion = "0.7.1a";
+export const localVersion = "0.7.2";
 export let spotify: SpotifyService;
 
 const script: Firebot.CustomScript<Params> = {
@@ -45,8 +45,6 @@ const script: Firebot.CustomScript<Params> = {
     const { spotifyClientId, spotifyClientSecret } = runRequest.parameters;
     const { integrationManager, logger } = runRequest.modules;
 
-    spotify = new SpotifyService();
-
     if (!spotifyClientId || !spotifyClientSecret) {
       logger.error(
         "Missing required Spotify Client ID or Client Secret",
@@ -55,6 +53,8 @@ const script: Firebot.CustomScript<Params> = {
       );
       return;
     }
+
+    spotify = new SpotifyService();
 
     // Setup globals
     initModules(runRequest.modules);
@@ -85,6 +85,8 @@ const script: Firebot.CustomScript<Params> = {
         `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
       );
     });
+
+    await spotify.init();
   },
 };
 

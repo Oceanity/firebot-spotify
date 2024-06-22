@@ -1,11 +1,43 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
+import { trackSummaryFromDetails } from "./track";
+import { getErrorMessage } from "@/utils/string";
 
 export class SpotifyQueueService {
   private readonly spotify: SpotifyService;
+  private tickCounter: number = 0;
+
+  private _queue?: SpotifyQueueResponse;
+  private _currentlyPlaying?: SpotifyTrackSummary | null;
+  private _queueSummary?: SpotifyTrackSummary[];
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
+  }
+
+  public async init() {
+    await this.updateQueueFromApi();
+
+    this.spotify.player.state.on("tick", async () => {
+      await this.handleNextTick();
+    });
+
+    this.spotify.player.state.on("track-changed", async () => {
+      await this.updateQueueFromApi();
+      this.tickCounter = 0;
+    });
+  }
+
+  public get currentlyPlaying(): SpotifyTrackSummary | null {
+    return this._currentlyPlaying ?? null;
+  }
+
+  public get raw(): SpotifyQueueResponse | null {
+    return this._queue ?? null;
+  }
+
+  public get summary(): SpotifyTrackSummary[] {
+    return this._queueSummary ?? [];
   }
 
   public async getAsync(): Promise<SpotifyQueueResponse> {
@@ -46,5 +78,73 @@ export class SpotifyQueueService {
     return [response.currently_playing, ...response.queue].findIndex(
       (a) => a.uri === songUri
     );
+  }
+
+  private async handleNextTick() {
+    try {
+      if (this.tickCounter++ % 15 !== 0) return;
+
+      const queueResponse = await this.getAsync();
+
+      this.updateQueueAsync(queueResponse);
+    } catch (error) {
+      logger.error(getErrorMessage(error), error);
+      throw error;
+    }
+  }
+
+  private async updateQueueFromApi() {
+    try {
+      const queue = await this.getAsync();
+
+      this.updateQueueAsync(queue);
+    } catch (error) {
+      logger.error(getErrorMessage(error), error);
+      throw error;
+    }
+  }
+
+  private updateQueueAsync(queueResponse?: SpotifyQueueResponse) {
+    try {
+      if (!this.queuesAreEqual(this._queue, queueResponse)) {
+        this._queue = queueResponse;
+
+        if (!queueResponse) return;
+
+        const { queue } = queueResponse;
+
+        let summary = queue
+          .map((track) => trackSummaryFromDetails(track))
+          .filter((n) => n) as SpotifyTrackSummary[];
+
+        if (summary.map((t) => t.uri) === queue.map((t) => t.uri)) return;
+
+        this._queueSummary = queue
+          .map((q) => trackSummaryFromDetails(q))
+          .filter((n) => n) as SpotifyTrackSummary[];
+
+        this.spotify.events.trigger("queue-changed", {
+          queue: this._queueSummary,
+        });
+      }
+    } catch (error) {
+      logger.error(getErrorMessage(error), error);
+      throw error;
+    }
+  }
+
+  private queuesAreEqual(
+    queue1?: SpotifyQueueResponse,
+    queue2?: SpotifyQueueResponse
+  ) {
+    if (!queue1 || !queue2) {
+      return queue1 === queue2;
+    }
+
+    if (queue1.queue.length !== queue2.queue.length) {
+      return false;
+    }
+
+    return queue1.queue.every((track, i) => track.uri === queue2.queue[i].uri);
   }
 }

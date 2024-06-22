@@ -6,6 +6,7 @@ import { SpotifyEventService } from "./events";
 import SpotifyProfileService from "./user";
 import SpotifyPlayerService from "./player";
 import { getErrorMessage } from "../string";
+import ResponseError from "@/models/responseError";
 
 export class SpotifyService {
   public readonly api: SpotifyApiService;
@@ -26,6 +27,7 @@ export class SpotifyService {
 
   public async init() {
     await this.player.init();
+    await this.user.init();
   }
 
   public async searchAsync(
@@ -58,7 +60,7 @@ export class SpotifyService {
 
       return response.data;
     } catch (error) {
-      logger.error("Error performing search on Spotify", error);
+      logger.error(getErrorMessage(error), error);
       throw error;
     }
   }
@@ -70,7 +72,7 @@ export class SpotifyService {
       );
 
       if (!response.data) {
-        throw new Error("Could not retrieve Spotify track");
+        throw new ResponseError("Could not retrieve Spotify track", response);
       }
 
       return response.data;
