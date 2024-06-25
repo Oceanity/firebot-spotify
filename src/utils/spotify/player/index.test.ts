@@ -17,4 +17,10 @@ describe("Spotify - Player Service", () => {
       expect(player.volumeWasManuallyChanged).toBe(false);
     });
   });
+
+  describe("playAsync", () => {
+    it("should play", async () => {
+      await player.playAsync(); // TODO
+    });
+  });
 });
