@@ -68,6 +68,8 @@ This script adds the following features to Firebot
     - spotifyPlayerRelativeVolume: `float`
     - spotifyPlayerVolume: `integer`
   - Playlist
+    - rawSpotifyPlaylist: `object`
+      - See [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-playlist) for details
     - spotifyIsPlaylistActive: `bool`
     - spotifyPlaylist: `object`
       - spotifyPlaylist[id]: `string`
@@ -77,9 +79,13 @@ This script adds the following features to Firebot
       - spotifyPlaylist[coverImageUrl]: `string`
       - spotifyPlaylist[owner]: `string`
       - spotifyPlaylist[ownerUrl]: `string`
+      - spotifyPlaylist[tracks]: `array`
+        - 
       - spotifyPlaylist[url]: `string`
       - spotifyPlaylist[uri]: `string`
   - Track
+    - rawSpotifyTrack: `object`
+      - See [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-track) for details
     - spotifyTrack: `object`
       - spotifyTrack[id]: `string`
       - spotifyTrack[title]: `string`
@@ -95,6 +101,8 @@ This script adds the following features to Firebot
       - spotifyTrack[url]: `string`
       - spotifyTrack[uri]: `string`
   - Queue
+    - rawSpotifyQueue: `object`
+      - See [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-queue) for details
     - spotifyQueue: `object`
       - spotifyQueue[0..20]: `object` (same structure as spotifyTrack var)
         - spotifyQueue[0.title]: `string`
