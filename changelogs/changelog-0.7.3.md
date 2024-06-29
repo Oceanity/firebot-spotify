@@ -1,6 +1,6 @@
 ## What's Changed
 
-** Changes **
+**Changes**
 
 - Find and Enqueue Track can now take a direct link to a track on Spotify, eg. https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=ac674684a1d3410c
   - Will automatically determine whether input is a link or search query, no need to check on Firebot's side
