@@ -100,4 +100,49 @@ describe("Spotify - Track Service", () => {
       expect(track.position).toBe("0:00");
     });
   });
+
+  describe("isTrackUrl", () => {
+    it("should return true if track url with parameters", () => {
+      let goodUrl =
+        "https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=ac674684a1d3410c";
+
+      expect(track.isTrackUrl(goodUrl)).toBe(true);
+    });
+
+    it("should return true if track url with no parameters", () => {
+      let goodUrl = "https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8";
+
+      expect(track.isTrackUrl(goodUrl)).toBe(true);
+    });
+
+    it("should return true if track url with extraneous whitespace", () => {
+      let goodUrl =
+        "     https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=ac674684a1d3410c      ";
+
+      expect(track.isTrackUrl(goodUrl)).toBe(true);
+    });
+
+    it("should return true if track url with returns at end", () => {
+      let goodUrl = "https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8\n\n";
+
+      expect(track.isTrackUrl(goodUrl)).toBe(true);
+    });
+
+    it("should return false if not a track url", () => {
+      let badUrl =
+        "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt?si=CoN889-pQY-olEHDsrwYEw";
+
+      expect(track.isTrackUrl(badUrl)).toBe(false);
+    });
+
+    it("should return false if empty string", () => {
+      let badUrl = "";
+
+      expect(track.isTrackUrl(badUrl)).toBe(false);
+    });
+
+    it("should return false if null string", () => {
+      expect(track.isTrackUrl(undefined)).toBe(false);
+    });
+  });
 });
