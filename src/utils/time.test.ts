@@ -1,12 +1,6 @@
+import "@/mocks/firebot";
 import { delay, now } from "@utils/time";
 import { logger } from "@utils/firebot";
-import { jest } from "@jest/globals";
-
-jest.mock("@utils/firebot", () => ({
-  logger: {
-    warn: jest.fn(),
-  },
-}));
 
 describe("Time Helpers", () => {
   describe("delay", () => {

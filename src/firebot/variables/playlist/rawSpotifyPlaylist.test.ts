@@ -1,3 +1,4 @@
+import "@/mocks/firebot";
 import { testTrigger, testPlaylist } from "@/testData";
 import { jest } from "@jest/globals";
 import { SpotifyService } from "@/utils/spotify";

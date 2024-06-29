@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity <sub style="color:gray">v0.7.2</sub>
+# Spotify Integration by Oceanity <sub style="color:gray">v0.7.3</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
@@ -68,6 +68,8 @@ This script adds the following features to Firebot
     - spotifyPlayerRelativeVolume: `float`
     - spotifyPlayerVolume: `integer`
   - Playlist
+    - rawSpotifyPlaylist: `object`
+      - See [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-playlist) for details
     - spotifyIsPlaylistActive: `bool`
     - spotifyPlaylist: `object`
       - spotifyPlaylist[id]: `string`
@@ -77,9 +79,13 @@ This script adds the following features to Firebot
       - spotifyPlaylist[coverImageUrl]: `string`
       - spotifyPlaylist[owner]: `string`
       - spotifyPlaylist[ownerUrl]: `string`
+      - spotifyPlaylist[tracks]: `array`
+        - 
       - spotifyPlaylist[url]: `string`
       - spotifyPlaylist[uri]: `string`
   - Track
+    - rawSpotifyTrack: `object`
+      - See [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-track) for details
     - spotifyTrack: `object`
       - spotifyTrack[id]: `string`
       - spotifyTrack[title]: `string`
@@ -94,6 +100,14 @@ This script adds the following features to Firebot
       - spotifyTrack[relativePosition]: `float`
       - spotifyTrack[url]: `string`
       - spotifyTrack[uri]: `string`
+  - Queue
+    - rawSpotifyQueue: `object`
+      - See [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-queue) for details
+    - spotifyQueue: `object`
+      - spotifyQueue[0..20]: `object` (same structure as spotifyTrack var)
+        - spotifyQueue[0.title]: `string`
+        - spotifyQueue[0.artist]: `string`
+        - etc.  
 - Events
   - Lyrics Changed
   - Playback State Changed

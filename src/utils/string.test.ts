@@ -1,5 +1,9 @@
 import ResponseError from "@/models/responseError";
-import { getErrorMessage, formatMsToTimecode } from "@/utils/string";
+import {
+  getErrorMessage,
+  formatMsToTimecode,
+  getTriggerSource,
+} from "@/utils/string";
 
 describe("String Helpers", () => {
   //#region msToFormattedString
@@ -66,4 +70,33 @@ describe("String Helpers", () => {
     });
   });
   //#endregion
+
+  describe("getTriggerSource", () => {
+    let trigger: Trigger;
+
+    beforeEach(() => {
+      trigger = {
+        type: "manual",
+        metadata: {
+          userCommand: {
+            trigger: "test",
+            args: [],
+          },
+          username: "test",
+        },
+      };
+    });
+
+    it("returns expected string value for user command", () => {
+      let triggerName = "!test";
+
+      trigger.type = "command";
+      trigger.metadata.userCommand = {
+        trigger: triggerName,
+        args: [],
+      };
+
+      expect(getTriggerSource(trigger)).toContain(triggerName);
+    });
+  });
 });
