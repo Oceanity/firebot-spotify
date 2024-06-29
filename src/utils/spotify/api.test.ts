@@ -1,3 +1,4 @@
+import "@/mocks/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyApiService } from "@utils/spotify/api";
 import { jest } from "@jest/globals";

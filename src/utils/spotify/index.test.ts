@@ -1,13 +1,17 @@
+import "@/mocks/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { jest } from "@jest/globals";
-import { getTestTrack, testSearchResponse, testTrack } from "@/testData";
-import { logger } from "../firebot";
-import ResponseError from "@/models/responseError";
+import { getTestTrack, testSearchResponse } from "@/testData";
+import { logger } from "@utils/firebot";
 
 jest.mock("@utils/firebot", () => ({
   logger: {
+    info: jest.fn(),
+    debug: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn(),
   },
+  chatFeedAlert: jest.fn(),
 }));
 
 describe("Spotify Service", () => {
