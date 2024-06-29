@@ -82,14 +82,12 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
 
   onTriggerEvent: async (event) => {
     const { query, queuedBy, allowDuplicates, filterExplicit } = event.effect;
-    const spotifyUrlRegex =
-      /(?:https?:)\/\/open\.spotify\.com\/track\/(.+)(?:\?.+)/;
 
     try {
-      const matches = query.match(spotifyUrlRegex);
+      const linkId = spotify.player.track.getIdFromTrackUrl(query);
 
-      const track = matches
-        ? await spotify.getTrackAsync(matches[1])
+      const track = linkId
+        ? await spotify.getTrackAsync(linkId)
         : (
             await spotify.searchAsync(query, "track", {
               filterExplicit,

@@ -1,10 +1,13 @@
 import { formatMsToTimecode } from "@/utils/string";
 import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyService } from "@utils/spotify";
+import { LargeNumberLike } from "crypto";
 import { EventEmitter } from "events";
 
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
+  private readonly urlRegex: RegExp =
+    /(?:https?:)\/\/open\.spotify\.com\/track\/(.+?)(?:\?.+)?(?:\W|$)/;
 
   private _track?: SpotifyTrackDetails | null;
   private _trackSummary?: SpotifyTrackSummary;
@@ -115,6 +118,14 @@ export class SpotifyTrackService extends EventEmitter {
 
   public async handleNextTick(progressMs?: number | null) {
     this._progressMs = progressMs ?? -1;
+  }
+
+  public isTrackUrl = (input?: string): boolean =>
+    input ? this.urlRegex.test(input.trim()) : false;
+
+  public getIdFromTrackUrl(input: string): string | null {
+    const matches = input.trim().match(this.urlRegex);
+    return matches ? matches[1] : null;
   }
 }
 
