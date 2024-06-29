@@ -9,7 +9,7 @@ import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
 export const integrationId = "oceanity-spotify";
-export const localVersion = "0.7.3";
+export const localVersion = "0.7.3a";
 export let spotify: SpotifyService;
 
 const script: Firebot.CustomScript<Params> = {
