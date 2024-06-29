@@ -1,4 +1,3 @@
-import { chatFeedAlert } from "@/utils/firebot";
 import { jest } from "@jest/globals";
 
 jest.mock("@utils/firebot", () => ({
@@ -9,4 +8,7 @@ jest.mock("@utils/firebot", () => ({
     error: jest.fn(),
   },
   chatFeedAlert: jest.fn(),
+  integrationManager: {
+    getIntegrationById: jest.fn(() => null),
+  },
 }));

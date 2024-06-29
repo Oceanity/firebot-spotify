@@ -4,16 +4,6 @@ import { jest } from "@jest/globals";
 import { getTestTrack, testSearchResponse } from "@/testData";
 import { logger } from "@utils/firebot";
 
-jest.mock("@utils/firebot", () => ({
-  logger: {
-    info: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  },
-  chatFeedAlert: jest.fn(),
-}));
-
 describe("Spotify Service", () => {
   let spotify: SpotifyService;
 
@@ -61,6 +51,7 @@ describe("Spotify Service", () => {
       await expect(spotify.searchAsync("testing", "track")).rejects.toThrow(
         "Could not retrieve Spotify track"
       );
+
       expect(logger.error).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(Error)
