@@ -3,6 +3,8 @@ import { chatFeedAlert } from "@/utils/firebot";
 import { getTriggerSource } from "@/utils/string";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
+let hasAlerted = false;
+
 export const SpotifyTrackTitleVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyTrackTitle",
@@ -13,9 +15,12 @@ export const SpotifyTrackTitleVariable: ReplaceVariable = {
   },
   evaluator: async (trigger: Trigger) => {
     const source = getTriggerSource(trigger);
-    chatFeedAlert(
-      `Using deprecated variable \`$spotifyTrackTitle\` in ${source}, use \`$spotifyTrack[title]\` instead.`
-    );
+    if (!hasAlerted) {
+      hasAlerted = true;
+      chatFeedAlert(
+        `Using deprecated variable \`$spotifyTrackTitle\` in ${source}, use \`$spotifyTrack[title]\` instead.`
+      );
+    }
     return spotify.player.track.summary?.title ?? "";
   },
 };
