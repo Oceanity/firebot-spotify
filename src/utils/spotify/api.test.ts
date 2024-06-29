@@ -1,3 +1,4 @@
+import "@/mocks/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyApiService } from "@utils/spotify/api";
 import { jest } from "@jest/globals";
@@ -7,16 +8,6 @@ type DummyDataType = {
   foo: string;
   bar: number;
 };
-
-jest.mock("@utils/firebot", () => ({
-  logger: {
-    error: jest.fn(),
-  },
-  integrationManager: {
-    getIntegrationById: jest.fn(() => null),
-  },
-  chatFeedAlert: jest.fn(() => {}),
-}));
 
 describe("Spotify - Api Service", () => {
   let spotify: SpotifyService;
@@ -72,13 +63,6 @@ describe("Spotify - Api Service", () => {
       global.fetch = jest.fn(() => ({
         ok: false,
         status,
-      }));
-
-      jest.mock("@utils/firebot", () => ({
-        logger: {
-          error: jest.fn(),
-        },
-        chatFeedAlert: jest.fn(() => {}),
       }));
 
       await expect(api.fetch<DummyDataType>(endpoint)).rejects.toThrow();

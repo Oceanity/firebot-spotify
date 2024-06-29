@@ -8,6 +8,7 @@ import { SpotifyTrackService } from "./track";
 import { EventEmitter } from "events";
 import ResponseError from "@/models/responseError";
 import { randomUUID } from "crypto";
+import { getErrorMessage } from "@/utils/string";
 
 export default class SpotifyPlayerService extends EventEmitter {
   private readonly spotify: SpotifyService;
@@ -145,7 +146,7 @@ export default class SpotifyPlayerService extends EventEmitter {
       });
 
       if (!response.ok) {
-        throw new ResponseError("Error playing Spotify playback", response);
+        throw new ResponseError("Error resuming Spotify playback", response);
       }
 
       this._isPlaying = true;
@@ -158,7 +159,8 @@ export default class SpotifyPlayerService extends EventEmitter {
         this._playbackChangePending = false;
       }
     } catch (error) {
-      logger.error("Error resuming Spotify playback", error);
+      logger.error(getErrorMessage(error), error);
+      throw error;
     }
   }
 
@@ -194,7 +196,8 @@ export default class SpotifyPlayerService extends EventEmitter {
         this._playbackChangePending = false;
       }
     } catch (error) {
-      logger.error("Error pausing Spotify playback", error);
+      logger.error(getErrorMessage(error), error);
+      throw error;
     }
   }
 

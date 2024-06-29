@@ -1,14 +1,9 @@
+import "@/mocks/firebot";
 import { jest } from "@jest/globals";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyPlaylistService } from "@utils/spotify/player/playlist";
 import { testPlaylist } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
-
-jest.mock("@utils/firebot", () => ({
-  logger: {
-    error: jest.fn(),
-  },
-}));
 
 describe("Spotify - Playlist Service", () => {
   let spotify: SpotifyService;

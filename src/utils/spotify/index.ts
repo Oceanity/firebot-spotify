@@ -7,37 +7,50 @@ import SpotifyProfileService from "./user";
 import SpotifyPlayerService from "./player";
 import { getErrorMessage } from "../string";
 import ResponseError from "@/models/responseError";
+import { SpotifySettingsService } from "./settings";
+import { SpotifyArtistService } from "./artist";
+
+type SearchOptions = {
+  limit?: number;
+  offset?: number;
+  filterExplicit?: boolean;
+  maxLength?: number;
+};
 
 export class SpotifyService {
   public readonly api: SpotifyApiService;
+  public readonly artist: SpotifyArtistService;
   public readonly auth: SpotifyAuthService;
   public readonly device: SpotifyDeviceService;
   public readonly events: SpotifyEventService;
   public readonly user: SpotifyProfileService;
   public readonly player: SpotifyPlayerService;
+  public readonly settings: SpotifySettingsService;
 
   constructor() {
     this.api = new SpotifyApiService(this);
+    this.artist = new SpotifyArtistService(this);
     this.auth = new SpotifyAuthService(this);
     this.device = new SpotifyDeviceService();
     this.events = new SpotifyEventService();
     this.user = new SpotifyProfileService(this);
     this.player = new SpotifyPlayerService(this);
+    this.settings = new SpotifySettingsService(this);
   }
 
   public async init() {
     await this.player.init();
+    await this.settings.init();
     await this.user.init();
   }
 
   public async searchAsync(
     query: string,
     types: SpotifyContextType[] | SpotifyContextType,
-    limit: number = 20,
-    offset: number = 0
+    options: SearchOptions = {}
   ): Promise<SpotifySearchResponse> {
     try {
-      if (!(types instanceof Array)) {
+      if (!Array.isArray(types)) {
         types = [types];
       }
 
@@ -46,8 +59,8 @@ export class SpotifyService {
       const params = new URLSearchParams({
         q: encodedQuery,
         type: types.join(","),
-        limit: limit.toString(),
-        offset: offset.toString(),
+        limit: String(options.limit ?? 50),
+        offset: String(options.offset ?? 0),
       }).toString();
 
       const response = await this.api.fetch<SpotifySearchResponse>(
@@ -56,6 +69,18 @@ export class SpotifyService {
 
       if (!response.data) {
         throw new Error("Could not retrieve Spotify track");
+      }
+
+      if (options.filterExplicit) {
+        response.data.tracks.items = response.data.tracks.items.filter(
+          (track) => !track.explicit
+        );
+      }
+
+      if (options.maxLength && options.maxLength > 0) {
+        response.data.tracks.items = response.data.tracks.items.filter(
+          (track) => track.duration_ms < options.maxLength! * 1000 * 60
+        );
       }
 
       return response.data;
@@ -83,4 +108,6 @@ export class SpotifyService {
   }
 
   public getIdFromUri = (uri?: string) => uri?.split(":")[2] ?? "";
+
+  public getUriFromId = (id?: string) => (id ? `spotify:track:${id}` : "");
 }
