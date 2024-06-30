@@ -5,13 +5,12 @@ import {
 } from "@/spotifyIntegration";
 import * as packageJson from "../package.json";
 
-export const { version, name } = packageJson;
+export const { version, name: namespace } = packageJson;
 
 import { chatFeedAlert, initModules } from "@utils/firebot";
 import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
-export const integrationId = "oceanity-spotify";
 export let spotify: SpotifyService;
 
 const script: Firebot.CustomScript<Params> = {

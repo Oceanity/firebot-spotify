@@ -1,9 +1,9 @@
 import { integrationManager, logger } from "@utils/firebot";
-import { integrationId } from "@/main";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@/utils/string";
 import { now } from "@utils/time";
+import { namespace } from "@/main";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;
@@ -22,8 +22,7 @@ export default class SpotifyAuthService {
    */
   public get isLinked(): boolean {
     try {
-      return integrationManager.getIntegrationById(integrationId).definition
-        .linked;
+      return integrationManager.getIntegrationById(namespace).definition.linked;
     } catch (error) {
       return false;
     }
@@ -73,7 +72,7 @@ export default class SpotifyAuthService {
   }
 
   private getSpotifyAuthFromIntegration = (): AuthDefinition =>
-    integrationManager.getIntegrationById(integrationId).definition.auth;
+    integrationManager.getIntegrationById(namespace).definition.auth;
 
   private async tokenExpiredAsync(accessToken: string | undefined) {
     if (!accessToken) return true;

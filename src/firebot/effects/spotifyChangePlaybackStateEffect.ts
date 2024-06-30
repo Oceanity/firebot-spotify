@@ -15,7 +15,7 @@ export type SpotifyChangePlaybackStateOptions = {
 export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<SpotifyChangePlaybackStateOptions> =
   {
     definition: {
-      id: "oceanity-spotify:change-playback-state",
+      id: "change-playback-state",
       name: "Spotify Premium: Change Playback State",
       description: "Changes playback state of active Spotify device",
       icon: "fab fa-spotify",

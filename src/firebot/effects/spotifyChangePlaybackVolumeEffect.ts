@@ -6,7 +6,7 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<{
   volume: number;
 }> = {
   definition: {
-    id: "oceanity-spotify:change-playback-volume",
+    id: "change-playback-volume",
     name: "Spotify Premium: Change Playback Volume",
     description: "Changes playback volume of active Spotify device",
     icon: "fab fa-spotify",
