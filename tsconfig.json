@@ -10,6 +10,7 @@
     "alwaysStrict": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "moduleResolution": "node",

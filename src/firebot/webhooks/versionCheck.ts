@@ -1,4 +1,4 @@
-import { localVersion } from "@/main";
+import { version as localVersion } from "@/main";
 import ResponseError from "@/models/responseError";
 import { logger } from "@/utils/firebot";
 
