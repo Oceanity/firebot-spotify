@@ -1,5 +1,3 @@
-import { Request, Response } from "express";
-import { ApiEndpoint } from ".";
 import { localVersion } from "@/main";
 import ResponseError from "@/models/responseError";
 import { logger } from "@/utils/firebot";
@@ -7,7 +5,7 @@ import { logger } from "@/utils/firebot";
 export const VersionCheckEndpoint: ApiEndpoint = [
   "/version",
   "GET",
-  async (req: Request, res: Response) => {
+  async (req: HttpRequest, res: HttpResponse) => {
     try {
       const { v } = req.query;
 
