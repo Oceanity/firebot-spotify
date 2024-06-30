@@ -11,7 +11,7 @@ export const SpotifySkipTrackEffect: Firebot.EffectType<{
   target: SpotifySkipTarget;
 }> = {
   definition: {
-    id: "oceanity-spotify:skip-track",
+    id: "skip-track",
     name: "Spotify Premium: Skip Track",
     description: "Skip current track on active Spotify device",
     icon: "fab fa-spotify",

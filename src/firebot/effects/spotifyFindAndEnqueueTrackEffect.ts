@@ -11,7 +11,7 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<{
   allowDuplicates: boolean;
 }> = {
   definition: {
-    id: "oceanity-spotify:request-song",
+    id: "request-song",
     name: "Spotify Premium: Find and Enqueue Track",
     description: "Searches for a track to add to your Spotify queue",
     icon: "fab fa-spotify",

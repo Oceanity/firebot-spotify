@@ -6,7 +6,7 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<{
   seekPosition: number;
 }> = {
   definition: {
-    id: "oceanity-spotify:seek-to-position",
+    id: "seek-to-position",
     name: "Spotify Premium: Seek To Position",
     description: "Seeks to position in track",
     icon: "fab fa-spotify",
