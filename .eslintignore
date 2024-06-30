@@ -1,0 +1,5 @@
+# Ignore changelogs directory
+changelogs/
+
+# Ignore package.json file
+package.json
