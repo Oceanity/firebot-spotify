@@ -28,10 +28,13 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams>
         },
       ],
     },
-
     optionsTemplate: `
         <eos-container header="Playback Volume" pad-top="true">
-          <input ng-model="effect.volume" class="form-control" type="text" placeholder="Enter number between 0 - 100" replace-variables menu-position="below">
+          <firebot-input 
+            input-title="Volume"
+            model="effect.volume" 
+            placeholder-text="Enter number between 0 - 100"
+            style="border-radius:8px;overflow:hidden;" />
         </eos-container>
       `,
 
