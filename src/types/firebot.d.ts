@@ -71,3 +71,8 @@ type TriggerType =
   | "preset"
   | "quick_action"
   | "manual";
+
+type EffectScope<EffectParams> = {
+  effect: EffectParams;
+  [x: string]: any;
+};

@@ -7,9 +7,9 @@ export enum SpotifySkipTarget {
   Next = "Next",
 }
 
-export const SpotifySkipTrackEffect: Firebot.EffectType<{
-  target: SpotifySkipTarget;
-}> = {
+type EffectParams = { target: string };
+
+export const SpotifySkipTrackEffect: Firebot.EffectType<EffectParams> = {
   definition: {
     id: "skip-track",
     name: "Spotify Premium: Skip Track",
@@ -28,25 +28,14 @@ export const SpotifySkipTrackEffect: Firebot.EffectType<{
   },
 
   optionsTemplate: `
-    <eos-container header="Skip Direction">
-      <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="list-effect-type">{{effect.target ? effect.target : 'Skip Direction...'}}</span> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li ng-click="effect.target = 'Next'">
-            <a href>Next</a>
-          </li>
-          <li ng-click="effect.target = 'Previous'">
-            <a href>Previous</a>
-          </li>
-        </ul>
-      </div>
-    </eos-container>
-  `,
+      <eos-container header="Skip Direction" pad-top="true">
+        <dropdown-select options="targetOptions" selected="effect.target"></dropdown-select>
+      </eos-container>
+    `,
 
-  // @ts-expect-error ts6133: Variables must be named consistently
-  optionsController: ($scope: any, backendCommunicator: any, $q: any) => {},
+  optionsController: ($scope: EffectScope<EffectParams>) => {
+    $scope.targetOptions = ["Next", "Previous"];
+  },
 
   optionsValidator: (effect) => {
     var errors = [];
