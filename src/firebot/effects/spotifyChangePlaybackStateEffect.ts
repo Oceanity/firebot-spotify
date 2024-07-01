@@ -30,7 +30,7 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> 
     },
 
     optionsTemplate: `
-      <eos-container header="Playback State">
+      <eos-container header="Playback State" pad-top="true">
         <dropdown-select options="playbackStateOptions" selected="effect.playbackState"></dropdown-select>
       </eos-container>
     `,
