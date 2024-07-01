@@ -2,7 +2,7 @@ import { spotify } from "@/main";
 import { getErrorMessage } from "@/utils/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
-type EffectParams = { volume: number };
+type EffectParams = { volume: string };
 
 export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams> =
   {
@@ -30,28 +30,37 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams>
     },
 
     optionsTemplate: `
-    <eos-container header="Playback Volume" pad-top="true">
-      <p class="muted">Playback Volume (must be integer between 0-100)</p>
-      <input ng-model="effect.volume" type="text" class="form-control" id="chat-text-setting" placeholder="Volume" menu-position="under" replace-variables/>
-    </eos-container>
-  `,
+        <eos-container header="Playback Volume" pad-top="true">
+          <input ng-model="effect.volume" class="form-control" type="text" placeholder="Enter number between 0 - 100" replace-variables menu-position="below">
+        </eos-container>
+      `,
 
     // @ts-expect-error ts6133: Variables must be named consistently
     optionsController: ($scope: EffectScope<EffectParams>) => {},
 
     optionsValidator: (effect) => {
       const errors = [];
+
+      // Validate volume
       if (!effect.volume) {
         errors.push("Volume field is required!");
+      } else {
+        const volumeInt = Number(effect.volume);
+        if (isNaN(volumeInt)) {
+          errors.push("Volume must be a number!");
+        } else if (volumeInt < 0 || volumeInt > 100) {
+          errors.push("Volume must be between 0 and 100!");
+        }
       }
+
       return errors;
     },
 
     onTriggerEvent: async (event) => {
-      const { volume } = event.effect;
+      const volumeInt = Number(event.effect.volume);
 
       try {
-        await spotify.player.setVolumeAsync(volume);
+        await spotify.player.setVolumeAsync(volumeInt);
 
         return {
           success: true,
