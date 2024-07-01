@@ -42,28 +42,28 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
     },
 
     optionsTemplate: `
-    <!--<eos-container header="Queued By (Optional)" pad-top="true">
-      <p class="muted">Username of user who queued the track (for cancelling/skipping purposes)</p>
-      <input ng-model="effect.queuedBy" type="text" class="form-control" id="chat-text-setting" placeholder="Queued By" menu-position="under" replace-variables/>
-    </eos-container>-->
-    <eos-container header="Track Info" pad-top="true">
-      <firebot-input 
-        input-title="Search"
-        model="effect.query" 
-        placeholder-text="Search query or link to track to add to your Spotify Queue"
-        style="border-radius:8px;overflow:hidden;" />
-      <div style="display: flex; flex-direction: column; margin: 15px 0 0px;">
-        <firebot-checkbox
-          label="Exclude explicit tracks"
-          tooltip="Ignores explicit content from search results"
-          model="effect.filterExplicit" />
-        <firebot-checkbox
-          label="Allow duplicate tracks"
-          tooltip="Allow users to queue songs that are already in the queue"
-          model="effect.allowDuplicates" />
-      </div>
-    </eos-container>
-  `,
+        <!--<eos-container header="Queued By (Optional)" pad-top="true">
+          <p class="muted">Username of user who queued the track (for cancelling/skipping purposes)</p>
+          <input ng-model="effect.queuedBy" type="text" class="form-control" id="chat-text-setting" placeholder="Queued By" menu-position="under" replace-variables/>
+        </eos-container>-->
+        <eos-container header="Track Info" pad-top="true">
+          <firebot-input 
+            input-title="Search"
+            model="effect.query" 
+            placeholder-text="Search query or link to track to add to your Spotify Queue"
+            style="border-radius:8px;overflow:hidden;" />
+          <div style="display: flex; flex-direction: column; margin: 15px 0 0px;">
+            <firebot-checkbox
+              label="Exclude explicit tracks"
+              tooltip="Ignores explicit content from search results"
+              model="effect.filterExplicit" />
+            <firebot-checkbox
+              label="Allow duplicate tracks"
+              tooltip="Allow users to queue songs that are already in the queue"
+              model="effect.allowDuplicates" />
+          </div>
+        </eos-container>
+      `,
 
     // @ts-expect-error ts6133: Variables must be named consistently
     optionsController: ($scope: EffectScope<EffectParams>) => {},
