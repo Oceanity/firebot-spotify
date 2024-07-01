@@ -47,9 +47,13 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams>
     },
 
     onTriggerEvent: async (event) => {
-      const volumeInt = Number(event.effect.volume);
-
       try {
+        const volumeInt = Number(event.effect.volume);
+
+        if (isNaN(volumeInt)) {
+          throw new Error("Volume must be a number!");
+        }
+
         await spotify.player.setVolumeAsync(volumeInt);
 
         return {
