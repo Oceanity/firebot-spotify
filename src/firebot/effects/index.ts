@@ -1,7 +1,4 @@
-import {
-  SpotifyChangePlaybackStateEffect,
-  SpotifyChangePlaybackStateOptions,
-} from "./spotifyChangePlaybackStateEffect";
+import { SpotifyChangePlaybackStateEffect } from "./spotifyChangePlaybackStateEffect";
 import { SpotifyChangePlaybackVolumeEffect } from "./spotifyChangePlaybackVolumeEffect";
 import { SpotifyChangeRepeatStateEffect } from "./spotifyChangeRepeatStateEffect";
 import { SpotifyFindAndEnqueueTrackEffect } from "./spotifyFindAndEnqueueTrackEffect";
