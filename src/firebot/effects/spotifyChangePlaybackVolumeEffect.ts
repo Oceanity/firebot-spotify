@@ -40,19 +40,9 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams>
 
     optionsValidator: (effect) => {
       const errors = [];
-
-      // Validate volume
       if (!effect.volume) {
         errors.push("Volume field is required!");
-      } else {
-        const volumeInt = Number(effect.volume);
-        if (isNaN(volumeInt)) {
-          errors.push("Volume must be a number!");
-        } else if (volumeInt < 0 || volumeInt > 100) {
-          errors.push("Volume must be between 0 and 100!");
-        }
       }
-
       return errors;
     },
 
