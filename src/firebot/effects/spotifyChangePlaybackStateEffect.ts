@@ -31,26 +31,14 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> 
 
     optionsTemplate: `
       <eos-container header="Playback State">
-        <div class="mt-0 mr-0 mb-6 ml-6">
-          <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="list-effect-type">{{ effect.playbackState }}</span> <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-              <li role="menuitem" ng-repeat="state in playbackStateOptions" ng-click="effect.playbackState = state">
-                <a href>{{ state }}</a>
-              </li>
-            </ul>
-            <p>{{ effect.playbackState }}</p>
-          </div>
-        </div>
+        <dropdown-select options="playbackStateOptions" selected="effect.playbackState"></dropdown-select>
       </eos-container>
     `,
 
-    optionsController: ($scope: any) => {
+    optionsController: ($scope: EffectScope<EffectParams>) => {
       $scope.playbackStateOptions = ["Play", "Pause", "Toggle"];
 
-      if (!$scope.playbackStateOptions.includes($scope.effect.playbackState)) {
+      if ($scope.effect.playbackState == null) {
         $scope.effect.playbackState = $scope.playbackStateOptions[0];
       }
     },
