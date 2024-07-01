@@ -48,9 +48,9 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> 
     },
 
     onTriggerEvent: async (event) => {
-      const { playbackState } = event.effect;
-
       try {
+        const { playbackState } = event.effect;
+
         switch (playbackState) {
           case "Play":
             await spotify.player.playAsync();
