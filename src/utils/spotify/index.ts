@@ -14,7 +14,7 @@ type SearchOptions = {
   limit?: number;
   offset?: number;
   filterExplicit?: boolean;
-  maxLength?: number;
+  maxLengthMinutes?: number;
 };
 
 export class SpotifyService {
@@ -71,15 +71,35 @@ export class SpotifyService {
         throw new Error("Could not retrieve Spotify track");
       }
 
+      const results = response.data;
+      results.filtered = {
+        filteredTracks: [],
+      };
+
       if (options.filterExplicit) {
         response.data.tracks.items = response.data.tracks.items.filter(
-          (track) => !track.explicit
+          (track) => {
+            if (!track.explicit) return true;
+            results.filtered.filteredTracks?.push({
+              reason: "explicit",
+              item: track,
+            });
+            return false;
+          }
         );
       }
 
-      if (options.maxLength && options.maxLength > 0) {
+      if (options.maxLengthMinutes && options.maxLengthMinutes > 0) {
         response.data.tracks.items = response.data.tracks.items.filter(
-          (track) => track.duration_ms < options.maxLength! * 1000 * 60
+          (track) => {
+            if (track.duration_ms < options.maxLengthMinutes! * 1000 * 60)
+              return true;
+            results.filtered.filteredTracks?.push({
+              reason: "duration",
+              item: track,
+            });
+            return false;
+          }
         );
       }
 
