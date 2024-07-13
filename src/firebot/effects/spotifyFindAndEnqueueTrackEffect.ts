@@ -80,15 +80,17 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
       const { query, queuedBy, allowDuplicates, filterExplicit } = event.effect;
 
       try {
+        const searchOptions = {
+          filterExplicit,
+          allowDuplicates,
+        };
+
         const linkId = spotify.player.track.getIdFromTrackUrl(query);
 
         const track = linkId
-          ? await spotify.getTrackAsync(linkId)
-          : (
-              await spotify.searchAsync(query, "track", {
-                filterExplicit,
-              })
-            ).tracks.items[0];
+          ? await spotify.getTrackAsync(linkId, searchOptions)
+          : (await spotify.searchAsync(query, "track", searchOptions)).tracks
+              .items[0];
 
         if (!track) throw new Error("Track not found");
 
@@ -112,7 +114,6 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
           outputs: {
             trackWasEnqueued: false,
             error: getErrorMessage(error),
-            spotifyTrack: null,
           },
         };
       }

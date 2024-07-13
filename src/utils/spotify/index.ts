@@ -15,6 +15,7 @@ type SearchOptions = {
   offset?: number;
   filterExplicit?: boolean;
   maxLengthMinutes?: number;
+  allowDuplicates?: boolean;
 };
 
 export class SpotifyService {
@@ -110,7 +111,7 @@ export class SpotifyService {
     }
   }
 
-  public async getTrackAsync(id: string) {
+  public async getTrackAsync(id: string, options?: SearchOptions) {
     try {
       const response = await this.api.fetch<SpotifyTrackDetails>(
         `/tracks/${id}`
@@ -118,6 +119,16 @@ export class SpotifyService {
 
       if (!response.data) {
         throw new ResponseError("Could not retrieve Spotify track", response);
+      }
+
+      const filterConflicts = this.trackFilterIssues(response.data, options);
+      if (filterConflicts.length) {
+        throw new ResponseError(
+          `Spotify track was filtered for reasons: ${filterConflicts.join(
+            ", "
+          )}`,
+          response
+        );
       }
 
       return response.data;
@@ -130,4 +141,27 @@ export class SpotifyService {
   public getIdFromUri = (uri?: string) => uri?.split(":")[2] ?? "";
 
   public getUriFromId = (id?: string) => (id ? `spotify:track:${id}` : "");
+
+  private trackFilterIssues = (
+    track: SpotifyTrackDetails,
+    options?: SearchOptions
+  ): FilterReason[] => {
+    const reasons: FilterReason[] = [];
+
+    if (!options) return reasons;
+
+    if (options.filterExplicit && track.explicit) {
+      reasons.push("explicit");
+    }
+
+    if (
+      options.maxLengthMinutes &&
+      options.maxLengthMinutes > 0 &&
+      track.duration_ms < options.maxLengthMinutes! * 1000 * 60
+    ) {
+      reasons.push("duration");
+    }
+
+    return reasons;
+  };
 }

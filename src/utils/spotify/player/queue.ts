@@ -61,11 +61,15 @@ export class SpotifyQueueService {
         throw new Error("Song already exists in queue");
       }
 
+      logger.info(`Device: ${this.spotify.device.id}, Song Uri: ${songUri}`);
+
       await this.spotify.api.fetch(`/me/player/queue?uri=${songUri}`, "POST", {
         body: {
           device_id: this.spotify.device.id,
         },
       });
+
+      logger.info("didn't throw?");
     } catch (error) {
       logger.error("Error pushing song to Spotify Queue", error);
       throw error;
