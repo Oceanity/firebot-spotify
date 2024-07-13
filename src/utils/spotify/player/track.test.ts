@@ -160,5 +160,11 @@ describe("Spotify - Track Service", () => {
 
       expect(track.getIdFromTrackUrl(url)).toBe(null);
     });
+
+    it("returns null if input is a non-Url string", () => {
+      const input = "this is not a url";
+
+      expect(track.getIdFromTrackUrl(input)).toBe(null);
+    });
   });
 });
