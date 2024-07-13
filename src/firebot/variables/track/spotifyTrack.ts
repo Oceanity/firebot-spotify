@@ -60,6 +60,19 @@ export const SpotifyTrackVariable: ReplaceVariable = {
         description:
           "Outputs the relative position of the currently playing Spotify track as a value from 0.0 to 1.0 inclusive",
       },
+      {
+        usage: "spotifyTrack[url]",
+        description: "Outputs the url of the currently playing Spotify track",
+      },
+      {
+        usage: "spotifyTrack[uri]",
+        description: "Outputs the uri of the currently playing Spotify track",
+      },
+      {
+        usage: "spotifyTrack[queuedBy]",
+        description:
+          "Outputs the username of the user who queued the current track on Spotify",
+      },
     ],
   },
   evaluator: async (_trigger, subject: string) => {

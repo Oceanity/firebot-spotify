@@ -211,6 +211,7 @@ type SpotifyTrackSummary = {
   url: string;
   uri: string;
   queuePosition?: number;
+  queuedBy?: string;
 };
 
 type SpotifyTrackSummaryWithPosition = SpotifyTrackSummary & {

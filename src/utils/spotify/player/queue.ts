@@ -41,6 +41,7 @@ export class SpotifyQueueService {
       );
 
       if (queuePosition === -1) {
+        this._queuedBy = null;
         this.spotify.events.trigger("track-changed", {
           track,
         });
@@ -58,6 +59,7 @@ export class SpotifyQueueService {
         return;
       }
 
+      this._queuedBy = cleanUsername(userQueue.queuedBy);
       this.spotify.events.trigger("track-changed", {
         track,
       });

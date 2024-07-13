@@ -46,6 +46,7 @@ export class SpotifyTrackService extends EventEmitter {
           positionMs: this._progressMs,
           position: formatMsToTimecode(this._progressMs),
           relativePosition: this._progressMs / this._trackSummary.durationMs,
+          queuedBy: this.spotify.player.queue.queuedBy ?? "",
         }
       : null;
   }
