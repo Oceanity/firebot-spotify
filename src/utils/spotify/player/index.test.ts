@@ -45,11 +45,7 @@ describe("Spotify - Player Service", () => {
       await player.playAsync();
 
       expect(spotify.api.fetch).toHaveBeenCalledTimes(1);
-      expect(spotify.api.fetch).toHaveBeenCalledWith(
-        "/me/player/play",
-        "PUT",
-        expect.any(Object)
-      );
+      expect(spotify.api.fetch).toHaveBeenCalledWith("/me/player/play", "PUT");
     });
 
     it("should not play if playing", async () => {
@@ -126,11 +122,7 @@ describe("Spotify - Player Service", () => {
       await player.pauseAsync();
 
       expect(spotify.api.fetch).toHaveBeenCalledTimes(1);
-      expect(spotify.api.fetch).toHaveBeenCalledWith(
-        "/me/player/pause",
-        "PUT",
-        expect.any(Object)
-      );
+      expect(spotify.api.fetch).toHaveBeenCalledWith("/me/player/pause", "PUT");
     });
 
     it("should not pause if paused", async () => {

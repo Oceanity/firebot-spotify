@@ -1,7 +1,6 @@
 import { logger } from "@utils/firebot";
 import { SpotifyApiService } from "./api";
 import SpotifyAuthService from "./auth";
-import { SpotifyDeviceService } from "./device";
 import { SpotifyEventService } from "./events";
 import SpotifyProfileService from "./user";
 import SpotifyPlayerService from "./player";
@@ -22,7 +21,6 @@ export class SpotifyService {
   public readonly api: SpotifyApiService;
   public readonly artist: SpotifyArtistService;
   public readonly auth: SpotifyAuthService;
-  public readonly device: SpotifyDeviceService;
   public readonly events: SpotifyEventService;
   public readonly user: SpotifyProfileService;
   public readonly player: SpotifyPlayerService;
@@ -32,7 +30,6 @@ export class SpotifyService {
     this.api = new SpotifyApiService(this);
     this.artist = new SpotifyArtistService(this);
     this.auth = new SpotifyAuthService(this);
-    this.device = new SpotifyDeviceService();
     this.events = new SpotifyEventService();
     this.user = new SpotifyProfileService(this);
     this.player = new SpotifyPlayerService(this);

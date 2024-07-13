@@ -32,6 +32,7 @@ describe("Spotify - Api Service", () => {
     global.fetch = jest.fn(() => ({
       ok: true,
       status: 200,
+      text: () => Promise.resolve(JSON.stringify(dummyData)),
       json: () => Promise.resolve(dummyData),
     }));
 

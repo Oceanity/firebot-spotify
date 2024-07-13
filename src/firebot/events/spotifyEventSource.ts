@@ -41,6 +41,12 @@ export const SpotifyEventSource = {
       cached: false,
     },
     {
+      id: "track-auto-skipped",
+      name: "Spotify Track Auto-Skipped",
+      description: "Spotify track was auto-skipped",
+      cached: false,
+    },
+    {
       id: "volume-changed",
       name: "Spotify Volume Changed",
       description:

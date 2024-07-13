@@ -1,4 +1,5 @@
 import { spotify } from "@/main";
+import { logger } from "@/utils/firebot";
 import { trackSummaryFromDetails } from "@/utils/spotify/player/track";
 import { getErrorMessage } from "@/utils/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
@@ -38,14 +39,23 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
             "Track information of the enqueued track if the procedure was successful, an error message if not.",
           defaultName: "spotifyResponse",
         },
+        {
+          label: "Position",
+          description:
+            "Position in the queue of the enqueued track if the procedure was successful, -1 if queue failed.",
+          defaultName: "position",
+        },
       ],
     },
 
     optionsTemplate: `
-        <!--<eos-container header="Queued By (Optional)" pad-top="true">
-          <p class="muted">Username of user who queued the track (for cancelling/skipping purposes)</p>
-          <input ng-model="effect.queuedBy" type="text" class="form-control" id="chat-text-setting" placeholder="Queued By" menu-position="under" replace-variables/>
-        </eos-container>-->
+        <eos-container header="Queued By (Optional)" pad-top="true">
+          <firebot-input 
+            input-title="Queued by"
+            model="effect.queuedBy" 
+            placeholder-text="Username of user who queued the track"
+            style="border-radius:8px;overflow:hidden;" />
+        </eos-container>
         <eos-container header="Track Info" pad-top="true">
           <firebot-input 
             input-title="Search"
@@ -87,25 +97,35 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
 
         const linkId = spotify.player.track.getIdFromTrackUrl(query);
 
-        const track = linkId
+        const spotifyResponse = linkId
           ? await spotify.getTrackAsync(linkId, searchOptions)
           : (await spotify.searchAsync(query, "track", searchOptions)).tracks
               .items[0];
 
-        if (!track) throw new Error("Track not found");
+        if (!spotifyResponse) throw new Error("Track not found");
 
-        await spotify.player.queue.pushAsync(track.uri, allowDuplicates);
+        const spotifyTrack = trackSummaryFromDetails(spotifyResponse);
 
-        track.queue_position = await spotify.player.queue.findIndexAsync(
-          track.uri
+        if (!spotifyTrack)
+          throw new Error("Could not convert response to summary");
+
+        logger.info(JSON.stringify(spotifyTrack));
+
+        await spotify.player.queue.pushAsync(
+          spotifyTrack,
+          queuedBy,
+          allowDuplicates
         );
+
+        const position = spotify.player.queue.userQueues.length;
 
         return {
           success: true,
           outputs: {
             trackWasEnqueued: true,
-            spotifyResponse: track,
-            spotifyTrack: trackSummaryFromDetails(track),
+            spotifyResponse,
+            spotifyTrack,
+            position,
           },
         };
       } catch (error) {
@@ -114,6 +134,7 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
           outputs: {
             trackWasEnqueued: false,
             error: getErrorMessage(error),
+            position: -1,
           },
         };
       }
