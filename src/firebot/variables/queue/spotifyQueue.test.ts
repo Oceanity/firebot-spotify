@@ -34,7 +34,7 @@ describe("Spotify - Queue Replace Variable", () => {
     });
   });
 
-  it("should return entire queue with expected number of tracks when not passed argument", async () => {
+  it("returns entire queue with expected number of tracks when not passed argument", async () => {
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       undefined
@@ -43,7 +43,7 @@ describe("Spotify - Queue Replace Variable", () => {
     expect(response).toHaveLength(5);
   });
 
-  it("should return single track from queue when passed index", async () => {
+  it("returns single track from queue when passed index", async () => {
     for (let i = 0; i < testQueue.length; i++) {
       const response = await SpotifyQueueVariable.evaluator(
         testTrigger,
@@ -53,7 +53,7 @@ describe("Spotify - Queue Replace Variable", () => {
     }
   });
 
-  it("should return field of single track from queue when passed index and field", async () => {
+  it("returns field of single track from queue when passed index and field", async () => {
     for (let i = 0; i < testQueue.length; i++) {
       const response = await SpotifyQueueVariable.evaluator(
         testTrigger,
@@ -63,12 +63,12 @@ describe("Spotify - Queue Replace Variable", () => {
     }
   });
 
-  it("should return null if index is less than 0", async () => {
+  it("returns null if index is less than 0", async () => {
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "-1");
     expect(response).toBe(null);
   });
 
-  it("should return null if index is out of bounds", async () => {
+  it("returns null if index is out of bounds", async () => {
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       `${testQueue.length}`
@@ -76,12 +76,12 @@ describe("Spotify - Queue Replace Variable", () => {
     expect(response).toBe(null);
   });
 
-  it("should return null if index is not a number", async () => {
+  it("returns null if index is not a number", async () => {
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "a");
     expect(response).toBe(null);
   });
 
-  it("should return empty string if passed invalid field", async () => {
+  it("returns empty string if passed invalid field", async () => {
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       "0.field"
@@ -89,7 +89,7 @@ describe("Spotify - Queue Replace Variable", () => {
     expect(response).toBe("");
   });
 
-  it("should return empty array if queue does not exist", async () => {
+  it("returns empty array if queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
       get: jest.fn(() => null),
       configurable: true,
@@ -101,7 +101,7 @@ describe("Spotify - Queue Replace Variable", () => {
     expect(response).toEqual([]);
   });
 
-  it("should return null if index passed when queue does not exist", async () => {
+  it("returns null if index passed when queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
       get: jest.fn(() => null),
       configurable: true,
@@ -110,7 +110,7 @@ describe("Spotify - Queue Replace Variable", () => {
     expect(response).toBe(null);
   });
 
-  it("should return empty string if index and field passed when queue does not exist", async () => {
+  it("returns empty string if index and field passed when queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
       get: jest.fn(() => null),
       configurable: true,

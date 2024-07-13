@@ -13,7 +13,7 @@ describe("Spotify - Device Service", () => {
   });
 
   describe("Getters", () => {
-    it("should have default getter values", () => {
+    it("has default getter values", () => {
       for (const [key, value] of Object.entries(defaults)) {
         expect(spotifyDevice[key as keyof SpotifyDeviceService]).toBe(value);
       }

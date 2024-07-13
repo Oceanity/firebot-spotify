@@ -25,7 +25,7 @@ describe("Spotify - Player Service", () => {
   });
 
   describe("Getters", () => {
-    it("should have default getter values", () => {
+    it("has default getter values", () => {
       expect(player.isPlaying).toBe(false);
       expect(player.volume).toBe(-1);
       expect(player.volumeWasManuallyChanged).toBe(false);

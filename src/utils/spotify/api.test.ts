@@ -42,7 +42,7 @@ describe("Spotify - Api Service", () => {
     expect(response.data).toEqual(dummyData);
   });
 
-  it("should return null if response is 204", async () => {
+  it("returns null if response is 204", async () => {
     // @ts-expect-error ts2322
     global.fetch = jest.fn(() => ({
       ok: true,

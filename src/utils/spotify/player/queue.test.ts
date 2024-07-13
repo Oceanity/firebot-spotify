@@ -56,7 +56,7 @@ describe("Spotify - Queue Service", () => {
       }
     });
 
-    it("should return -1 if not found", async () => {
+    it("returns -1 if not found", async () => {
       const response = await queue.findIndexAsync("not found");
       expect(response).toBe(-1);
     });
