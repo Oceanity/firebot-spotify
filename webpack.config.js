@@ -1,5 +1,6 @@
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const packageJson = require("./package.json");
 
 module.exports = {
@@ -15,6 +16,14 @@ module.exports = {
     path: path.resolve(__dirname, "./dist"),
     filename: `${packageJson.scriptOutputName}.js`,
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [{
+        from: path.resolve(__dirname, "src/tamperMonkey/lyricsGrabber.user.js"),
+        to: path.resolve(__dirname, "dist/lyricsGrabber.user.js"),
+      }],
+    }),
+  ],
   resolve: {
     extensions: [".ts", ".js"],
     alias: {
@@ -46,4 +55,4 @@ module.exports = {
       }),
     ],
   },
-};
+}
