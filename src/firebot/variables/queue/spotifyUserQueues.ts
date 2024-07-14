@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
+import { objectWalkPath } from "@/utils/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const SpotifyUserQueuesVariable: ReplaceVariable = {
@@ -24,8 +25,6 @@ export const SpotifyUserQueuesVariable: ReplaceVariable = {
 
     let queue = spotify.player.queue.getTracksQueuedByUser(username);
 
-    if (!key) return queue;
-
-    return queue;
+    return objectWalkPath(queue, key);
   },
 };

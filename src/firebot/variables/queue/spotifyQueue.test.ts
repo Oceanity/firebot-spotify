@@ -63,22 +63,22 @@ describe("Spotify - Queue Replace Variable", () => {
     }
   });
 
-  it("returns null if index is less than 0", async () => {
+  it("returns empty string if index is less than 0", async () => {
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "-1");
-    expect(response).toBe(null);
+    expect(response).toBe("");
   });
 
-  it("returns null if index is out of bounds", async () => {
+  it("returns empty string if index is out of bounds", async () => {
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       `${testQueue.length}`
     );
-    expect(response).toBe(null);
+    expect(response).toBe("");
   });
 
-  it("returns null if index is not a number", async () => {
+  it("returns empty string if index is not a number", async () => {
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "a");
-    expect(response).toBe(null);
+    expect(response).toBe("");
   });
 
   it("returns empty string if passed invalid field", async () => {
@@ -91,7 +91,7 @@ describe("Spotify - Queue Replace Variable", () => {
 
   it("returns empty array if queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => null),
+      get: jest.fn(() => []),
       configurable: true,
     });
     const response = await SpotifyQueueVariable.evaluator(
@@ -101,18 +101,18 @@ describe("Spotify - Queue Replace Variable", () => {
     expect(response).toEqual([]);
   });
 
-  it("returns null if index passed when queue does not exist", async () => {
+  it("returns empty string if index passed when queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => null),
+      get: jest.fn(() => []),
       configurable: true,
     });
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "0");
-    expect(response).toBe(null);
+    expect(response).toBe("");
   });
 
   it("returns empty string if index and field passed when queue does not exist", async () => {
     Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => null),
+      get: jest.fn(() => []),
       configurable: true,
     });
     const response = await SpotifyQueueVariable.evaluator(

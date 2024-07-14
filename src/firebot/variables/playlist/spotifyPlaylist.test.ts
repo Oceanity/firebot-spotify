@@ -89,20 +89,20 @@ describe("Spotify - Playlist Replace Variable", () => {
     }
   });
 
-  it("returns null when passed tracks and index less than 0", async () => {
+  it("returns empty string when passed tracks and index less than 0", async () => {
     const response = await SpotifyPlaylistVariable.evaluator(
       testTrigger,
       "tracks.-1"
     );
-    expect(response).toBe(null);
+    expect(response).toBe("");
   });
 
-  it("returns null when passed tracks and index out of bounds", async () => {
+  it("returns empty string when passed tracks and index out of bounds", async () => {
     const response = await SpotifyPlaylistVariable.evaluator(
       testTrigger,
       `tracks.${testPlaylist.tracks.length}`
     );
-    expect(response).toBe(null);
+    expect(response).toBe("");
   });
 
   it("returns track field when passed tracks, index and field", async () => {

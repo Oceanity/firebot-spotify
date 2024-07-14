@@ -14,3 +14,8 @@
 
 - Spotify Track Auto-Skipped
   - Will fire when track was auto-skipped, will not also fire Track Changed
+
+**New Variable**
+
+- spotifyUserQueues
+  - Array of details of user-added tracks to the queue, will not show playlist tracks of manually added tracks like spotifyQueue, but does include who queued the track and what position it is in
