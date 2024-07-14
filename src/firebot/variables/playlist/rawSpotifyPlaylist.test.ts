@@ -30,26 +30,26 @@ describe("Spotify - Playlist Replace Variable", () => {
     });
   });
 
-  it("should return all details on current playlist", async () => {
+  it("returns all details on current playlist", async () => {
     const response = await RawSpotifyPlaylistVariable.evaluator(testTrigger);
     expect(response).toEqual(testPlaylist);
   });
 
-  it("should return null when queue is undefined", async () => {
+  it("returns empty string when queue is undefined", async () => {
     Object.defineProperty(spotify.player.playlist, "raw", {
       get: jest.fn(() => undefined),
       configurable: true,
     });
     const response = await RawSpotifyPlaylistVariable.evaluator(testTrigger);
-    expect(response).toEqual(null);
+    expect(response).toEqual("");
   });
 
-  it("should return null when queue is null", async () => {
+  it("returns empty string when queue is null", async () => {
     Object.defineProperty(spotify.player.playlist, "raw", {
       get: jest.fn(() => null),
       configurable: true,
     });
     const response = await RawSpotifyPlaylistVariable.evaluator(testTrigger);
-    expect(response).toEqual(null);
+    expect(response).toEqual("");
   });
 });

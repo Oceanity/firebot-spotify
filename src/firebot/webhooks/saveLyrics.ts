@@ -1,12 +1,10 @@
-import { Request, Response } from "express";
-import { ApiEndpoint } from ".";
 import { spotify } from "@/main";
 import { LyricsHelpers } from "@/utils/spotify/player/lyrics";
 
 export const SaveLyricsEndpoint: ApiEndpoint = [
   "/lyrics/save",
   "POST",
-  async (req: Request, res: Response) => {
+  async (req: HttpRequest, res: HttpResponse) => {
     try {
       if (!req.body) {
         res.status(400).send({

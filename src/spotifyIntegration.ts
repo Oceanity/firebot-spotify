@@ -8,7 +8,7 @@ import {
   eventManager,
   httpServer,
 } from "@utils/firebot";
-import { integrationId, spotify } from "@/main";
+import { namespace, spotify } from "@/main";
 import { AllSpotifyEffects } from "./firebot/effects";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
 import { AllSpotifyWebhooks } from "./firebot/webhooks";
@@ -44,6 +44,8 @@ export class SpotifyIntegration extends EventEmitter {
 
     // Register Effects
     for (const effect of AllSpotifyEffects) {
+      effect.definition.id = `${namespace}:${effect.definition.id}`;
+
       effectManager.registerEffect(
         effect as Effects.EffectType<{ [key: string]: any }>
       );
@@ -55,12 +57,13 @@ export class SpotifyIntegration extends EventEmitter {
     }
 
     // Register Events
+    SpotifyEventSource.id = namespace;
     eventManager.registerEventSource(SpotifyEventSource);
 
     // Register Webhooks
     for (const webhook of AllSpotifyWebhooks) {
       const [path, method, handler] = webhook;
-      httpServer.registerCustomRoute(integrationId, path, method, handler);
+      httpServer.registerCustomRoute(namespace, path, method, handler);
     }
   }
 
@@ -143,7 +146,7 @@ export class SpotifyIntegration extends EventEmitter {
 export const generateSpotifyDefinition = (
   client: ClientCredentials
 ): IntegrationDefinition => ({
-  id: integrationId,
+  id: namespace,
   name: "Spotify (by Oceanity)",
   description:
     "Integrations with Spotify that can show now playing information and control your Spotify devices.",
@@ -151,7 +154,7 @@ export const generateSpotifyDefinition = (
   linkType: "auth",
   settingCategories: {},
   authProviderDetails: {
-    id: integrationId,
+    id: namespace,
     name: "Spotify",
     redirectUriHost: "localhost",
     client,
@@ -176,11 +179,10 @@ export let integration: SpotifyIntegration;
 
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
-  integrationManager.getIntegrationById(integrationId).definition.auth;
+  integrationManager.getIntegrationById(namespace).definition.auth;
 
 function updateIntegrationAuth(data: unknown) {
-  const currentIntegration =
-    integrationManager.getIntegrationById(integrationId);
+  const currentIntegration = integrationManager.getIntegrationById(namespace);
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }

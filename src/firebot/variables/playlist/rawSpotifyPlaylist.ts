@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
+import { objectWalkPath } from "@/utils/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const RawSpotifyPlaylistVariable: ReplaceVariable = {
@@ -11,5 +12,6 @@ export const RawSpotifyPlaylistVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.BOOLEAN],
   },
-  evaluator: async () => spotify.player.playlist.raw ?? null,
+  evaluator: async (_trigger, subject: string = "") =>
+    objectWalkPath(spotify.player.playlist.raw, subject),
 };

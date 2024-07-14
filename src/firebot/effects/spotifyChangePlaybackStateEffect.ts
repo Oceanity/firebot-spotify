@@ -2,20 +2,12 @@ import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import { getErrorMessage } from "@/utils/string";
 
-export enum SpotifyPlaybackState {
-  Play = "Play",
-  Pause = "Pause",
-  Toggle = "Toggle",
-}
+type EffectParams = { playbackState: string };
 
-export type SpotifyChangePlaybackStateOptions = {
-  playState: SpotifyPlaybackState;
-};
-
-export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<SpotifyChangePlaybackStateOptions> =
+export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> =
   {
     definition: {
-      id: "oceanity-spotify:change-playback-state",
+      id: "change-playback-state",
       name: "Spotify Premium: Change Playback State",
       description: "Changes playback state of active Spotify device",
       icon: "fab fa-spotify",
@@ -38,49 +30,35 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<SpotifyChangeP
     },
 
     optionsTemplate: `
-    <eos-container header="Playback State">
-        <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="list-effect-type">{{effect.playState ? effect.playState : 'Play'}}</span> <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li ng-click="effect.playState = 'Play'">
-                    <a href>Play</a>
-                </li>
-                <li ng-click="effect.playState = 'Pause'">
-                    <a href>Pause</a>
-                </li>
-                <li ng-click="effect.playState = 'Toggle'">
-                    <a href>Toggle</a>
-                </li>
-            </ul>
-        </div>
-    </eos-container>
-  `,
+      <eos-container header="Playback State" pad-top="true">
+        <dropdown-select options="playbackStateOptions" selected="effect.playbackState"></dropdown-select>
+      </eos-container>
+    `,
 
-    // @ts-expect-error ts6133: Variables must be named consistently
-    optionsController: ($scope: any, backendCommunicator: any, $q: any) => {},
+    optionsController: ($scope: EffectScope<EffectParams>) => {
+      $scope.playbackStateOptions = ["Play", "Pause", "Toggle"];
 
-    optionsValidator: (effect) => {
-      const errors = [];
-      if (!effect.playState) {
-        errors.push("Search Query is required!");
+      if ($scope.effect.playbackState == null) {
+        $scope.effect.playbackState = $scope.playbackStateOptions[0];
       }
-      return errors;
+    },
+
+    optionsValidator: () => {
+      return [];
     },
 
     onTriggerEvent: async (event) => {
-      const { playState } = event.effect;
-
       try {
-        switch (playState) {
-          case SpotifyPlaybackState.Play:
+        const { playbackState } = event.effect;
+
+        switch (playbackState) {
+          case "Play":
             await spotify.player.playAsync();
             break;
-          case SpotifyPlaybackState.Pause:
+          case "Pause":
             await spotify.player.pauseAsync();
             break;
-          case SpotifyPlaybackState.Toggle:
+          case "Toggle":
             await spotify.player.playPauseAsync();
             break;
         }

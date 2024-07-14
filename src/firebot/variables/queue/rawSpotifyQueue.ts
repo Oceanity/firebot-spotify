@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
+import { objectWalkPath } from "@/utils/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const RawSpotifyQueueVariable: ReplaceVariable = {
@@ -11,5 +12,6 @@ export const RawSpotifyQueueVariable: ReplaceVariable = {
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],
   },
-  evaluator: async () => spotify.player.queue.raw ?? null,
+  evaluator: async (_trigger, subject: string = "") =>
+    objectWalkPath(spotify.player.queue.raw, subject) ?? null,
 };

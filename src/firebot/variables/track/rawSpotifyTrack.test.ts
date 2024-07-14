@@ -30,14 +30,14 @@ describe("Spotify - Track Replace Variable", () => {
     });
   });
 
-  it("should return all details on current track", async () => {
+  it("returns all details on current track", async () => {
     const response = await RawSpotifyTrackVariable.evaluator(testTrigger);
     expect(response).toEqual(testTrack);
     expect(response.name).toEqual(name);
     expect(response.id).toEqual(id);
   });
 
-  it("should return null when queue is undefined", async () => {
+  it("returns null when queue is undefined", async () => {
     Object.defineProperty(spotify.player.track, "raw", {
       get: jest.fn(() => undefined),
       configurable: true,
@@ -46,7 +46,7 @@ describe("Spotify - Track Replace Variable", () => {
     expect(response).toEqual(null);
   });
 
-  it("should return null when queue is null", async () => {
+  it("returns null when queue is null", async () => {
     Object.defineProperty(spotify.player.track, "raw", {
       get: jest.fn(() => null),
       configurable: true,

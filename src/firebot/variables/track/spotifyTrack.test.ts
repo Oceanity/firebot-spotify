@@ -28,7 +28,7 @@ describe("Spotify - Track Replace Variable", () => {
     });
   });
 
-  it("should return currently playing track when not passed argument", async () => {
+  it("returns currently playing track when not passed argument", async () => {
     const response = await SpotifyTrackVariable.evaluator(
       testTrigger,
       undefined
@@ -36,12 +36,12 @@ describe("Spotify - Track Replace Variable", () => {
     expect(response).toEqual(testTrack);
   });
 
-  it("should return field of currently playing track when passed field", async () => {
+  it("returns field of currently playing track when passed field", async () => {
     const response = await SpotifyTrackVariable.evaluator(testTrigger, "title");
     expect(response).toEqual(testTrack.title);
   });
 
-  it("should return empty string when passed invalid field", async () => {
+  it("returns empty string when passed invalid field", async () => {
     const response = await SpotifyTrackVariable.evaluator(
       testTrigger,
       "invalid"
@@ -49,7 +49,7 @@ describe("Spotify - Track Replace Variable", () => {
     expect(response).toEqual("");
   });
 
-  it("should return empty string when passed field when track does not exist", async () => {
+  it("returns empty string when passed field when track does not exist", async () => {
     Object.defineProperty(spotify.player.track, "summary", {
       get: jest.fn(() => undefined),
       configurable: true,

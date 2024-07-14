@@ -2,11 +2,11 @@ import { spotify } from "@/main";
 import { getErrorMessage } from "@/utils/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 
-export const SpotifySeekToPositionEffect: Firebot.EffectType<{
-  seekPosition: number;
-}> = {
+type EffectParams = { seekPosition: number };
+
+export const SpotifySeekToPositionEffect: Firebot.EffectType<EffectParams> = {
   definition: {
-    id: "oceanity-spotify:seek-to-position",
+    id: "seek-to-position",
     name: "Spotify Premium: Seek To Position",
     description: "Seeks to position in track",
     icon: "fab fa-spotify",
@@ -28,14 +28,13 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<{
   },
 
   optionsTemplate: `
-    <eos-container header="Seek Position (ms)" pad-top="true">
-      <p class="muted">Seek Position (ms)</p>
-      <input ng-model="effect.seekPosition" type="text" class="form-control" id="chat-text-setting" placeholder="Seek position (ms)" menu-position="under" replace-variables/>
+    <eos-container header="Seek Position" pad-top="true">
+      <input ng-model="effect.seekPosition" class="form-control" type="text" placeholder="Seek position (Number in miliseconds)" replace-variables menu-position="below">
     </eos-container>
   `,
 
   // @ts-expect-error ts6133: Variables must be named consistently
-  optionsController: ($scope: any, backendCommunicator: any, $q: any) => {},
+  optionsController: ($scope: EffectScope<EffectParams>) => {},
 
   optionsValidator: (effect) => {
     const errors = [];

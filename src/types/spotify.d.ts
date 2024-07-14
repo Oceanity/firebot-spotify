@@ -210,6 +210,8 @@ type SpotifyTrackSummary = {
   duration: string;
   url: string;
   uri: string;
+  queuePosition?: number;
+  queuedBy?: string;
 };
 
 type SpotifyTrackSummaryWithPosition = SpotifyTrackSummary & {
@@ -268,13 +270,32 @@ type SpotifySearchCategory<T> = {
   items: T[];
 };
 
+type SpotifySearchResponseMap = {
+  track: SpotifyTrackDetails;
+  artist: SpotifyArtistDetails;
+  album: SpotifyAlbumDetails;
+  audiobook: SpotifyAudiobookDetails;
+  playlist: SpotifyPlaylistDetails;
+  show: SpotifyShowDetials;
+  episode: SpotifyEpisodeDetails;
+};
+
+type FilterReason = "explicit" | "duration";
+
+type FilteredSearchResult<T extends SpotifyContextType> = {
+  reason: FilterReason;
+  item: SpotifySearchResponseMap[T];
+};
+
 type SpotifySearchResponse = {
-  tracks: SpotifySearchCategory<SpotifyTrackDetails>;
-  artists: SpotifySearchCategory<SpotifyArtistDetails>;
-  albums: SpotifySearchCategory<SpotifyAlbumDetails>;
-  playlists: SpotifySearchCategory<SpotifyPlaylistDetails>;
-  shows: SpotifySearchCategory<SpotifyShowDetials>;
-  episodes: SpotifySearchCategory<SpotifyEpisodeDetails>;
-  audiobooks: SpotifySearchCategory<SpotifyAudiobookDetails>;
+  [K in keyof SpotifySearchResponseMap as `${K}s`]: SpotifySearchCategory<
+    SpotifySearchResponseMap[K]
+  >;
+} & {
+  filtered: {
+    [K in keyof SpotifySearchResponseMap as `filtered${Capitalize<K>}s`]?: FilteredSearchResult<
+      SpotifySearchResponseMap[K]
+    >[];
+  };
 };
 //#endregion

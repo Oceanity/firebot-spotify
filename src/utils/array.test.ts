@@ -3,7 +3,7 @@ import { getBiggestImageUrl } from "@utils/array";
 describe("Array Helpers", () => {
   //#region getBiggestImageUrl
   describe("getBiggestImageUrl", () => {
-    it("should return url of image with highest width", () => {
+    it("returns url of image with highest width", () => {
       const images: SpotifyImage[] = [
         { url: "small.jpg", width: 100, height: 100 },
         { url: "large.jpg", width: 300, height: 300 },
@@ -12,7 +12,7 @@ describe("Array Helpers", () => {
       expect(getBiggestImageUrl(images)).toBe("large.jpg");
     });
 
-    it("should return first url if multiple images with same width", () => {
+    it("returns first url if multiple images with same width", () => {
       const images: SpotifyImage[] = [
         { url: "large-image-1.jpg", width: 300, height: 300 },
         { url: "small.jpg", width: 100, height: 100 },
@@ -21,7 +21,7 @@ describe("Array Helpers", () => {
       expect(getBiggestImageUrl(images)).toBe("large-image-1.jpg");
     });
 
-    it("should return empty string if no images", () => {
+    it("returns empty string if no images", () => {
       const images: SpotifyImage[] = [];
 
       expect(getBiggestImageUrl(images)).toBe("");

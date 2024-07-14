@@ -3,13 +3,14 @@ import {
   generateSpotifyIntegration,
   generateSpotifyDefinition,
 } from "@/spotifyIntegration";
+import * as packageJson from "../package.json";
+
+export const { version, name: namespace } = packageJson;
 
 import { chatFeedAlert, initModules } from "@utils/firebot";
 import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
-export const integrationId = "oceanity-spotify";
-export const localVersion = "0.7.3a";
 export let spotify: SpotifyService;
 
 const script: Firebot.CustomScript<Params> = {
@@ -18,7 +19,7 @@ const script: Firebot.CustomScript<Params> = {
       name: "Firebot Spotify Integrations",
       description: "Let your viewers determine your taste in music",
       author: "Oceanity",
-      version: localVersion,
+      version,
       firebotVersion: "5",
     };
   },

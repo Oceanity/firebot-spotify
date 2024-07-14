@@ -45,10 +45,6 @@ export class SpotifyStateService extends EventEmitter {
         return this.updatePlaybackStateAsync();
       }
 
-      if (this.spotify.device.id !== state.device.id) {
-        this.spotify.device.updateId(state.device.id);
-      }
-
       if (this.spotify.player.isPlaying !== state.is_playing) {
         this.emit("is-playing-state-changed", state.is_playing);
       }
@@ -80,9 +76,6 @@ export class SpotifyStateService extends EventEmitter {
       // If track has changed, fire event
       if (this.spotify.player.track.uri != nextTrack?.uri) {
         this.emit("track-changed", nextTrack);
-        this.spotify.events.trigger("track-changed", {
-          track: nextTrack ?? null,
-        });
       }
       return this.tick(state.is_playing ? 1000 : 5000, startTime);
     } catch (error) {

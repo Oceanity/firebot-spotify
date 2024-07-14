@@ -37,6 +37,7 @@ export const testSearchResponse = {
   playlists: emptySearchCategory<SpotifyPlaylistDetails>(),
   shows: emptySearchCategory<SpotifyShowDetails>(),
   episodes: emptySearchCategory<SpotifyEpisodeDetails>(),
+  filtered: {},
 };
 
 const testArtist: SpotifyArtistDetails = {
@@ -122,12 +123,16 @@ export const testTrack: SpotifyTrackDetails = {
 
 export const getTestTrack = (
   name: string = "some track",
-  id: string = "123"
+  id: string = "123",
+  explicit: boolean = false,
+  durationMs: number = 0
 ): SpotifyTrackDetails => ({
   ...testTrack,
   name,
   id,
   uri: `spotify:track:${id}`,
+  explicit,
+  duration_ms: durationMs,
 });
 
 export const getTestTrackSummary = (

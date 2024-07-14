@@ -1,7 +1,14 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { trackSummaryFromDetails } from "./track";
-import { getErrorMessage } from "@/utils/string";
+import { cleanUsername, getErrorMessage } from "@/utils/string";
+
+export type SpotifyUserQueueEntry = {
+  position?: number;
+  queuedBy?: string;
+  track: SpotifyTrackSummary;
+  skip: boolean;
+};
 
 export class SpotifyQueueService {
   private readonly spotify: SpotifyService;
@@ -10,9 +17,13 @@ export class SpotifyQueueService {
   private _queue?: SpotifyQueueResponse;
   private _currentlyPlaying?: SpotifyTrackSummary | null;
   private _queueSummary?: SpotifyTrackSummary[];
+  private _userQueues: SpotifyUserQueueEntry[] = [];
+  private _queuedBy: string | null;
 
   constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
+
+    this._queuedBy = null;
   }
 
   public async init() {
@@ -22,8 +33,37 @@ export class SpotifyQueueService {
       await this.handleNextTick();
     });
 
-    this.spotify.player.state.on("track-changed", async () => {
+    this.spotify.player.state.on("track-changed", async (track) => {
       await this.updateQueueFromApi();
+
+      const queuePosition = this._userQueues.findIndex(
+        (queue) => queue.track.uri === track.uri
+      );
+
+      if (queuePosition === -1) {
+        this._queuedBy = null;
+        this.spotify.events.trigger("track-changed", {
+          track,
+        });
+        return;
+      }
+
+      // Splice out the track to check if it should be skipped
+      const [userQueue] = this._userQueues.splice(queuePosition, 1);
+
+      if (userQueue.skip) {
+        await this.spotify.player.nextAsync();
+        this.spotify.events.trigger("track-auto-skipped", {
+          track,
+        });
+        return;
+      }
+
+      this._queuedBy = cleanUsername(userQueue.queuedBy);
+      this.spotify.events.trigger("track-changed", {
+        track,
+      });
+
       this.tickCounter = 0;
     });
   }
@@ -38,6 +78,23 @@ export class SpotifyQueueService {
 
   public get summary(): SpotifyTrackSummary[] {
     return this._queueSummary ?? [];
+  }
+
+  public get userQueues(): SpotifyUserQueueEntry[] {
+    return this._userQueues
+      .filter((queue) => !queue.skip)
+      .map((queue, index) => ({
+        ...queue,
+        position: index + 1,
+      }));
+  }
+
+  public get trackWasUserQueued(): boolean {
+    return !!this._queuedBy;
+  }
+
+  public get queuedBy(): string | null {
+    return this._queuedBy;
   }
 
   public async getAsync(): Promise<SpotifyQueueResponse> {
@@ -55,16 +112,30 @@ export class SpotifyQueueService {
     }
   }
 
-  public async pushAsync(songUri: string, allowDuplicates: boolean = false) {
+  public getTracksQueuedByUser = (username?: string) =>
+    cleanUsername(username).length
+      ? this.userQueues.filter(
+          (queue) => queue.queuedBy === cleanUsername(username)
+        )
+      : this.userQueues;
+
+  public async pushAsync(
+    track: SpotifyTrackSummary,
+    username?: string,
+    allowDuplicates: boolean = false
+  ) {
+    const { uri } = track;
+
     try {
-      if (!allowDuplicates && (await this.findIndexAsync(songUri)) !== -1) {
+      if (!allowDuplicates && this.trackInQueue(track.uri)) {
         throw new Error("Song already exists in queue");
       }
+      await this.spotify.api.fetch(`/me/player/queue?uri=${uri}`, "POST");
 
-      await this.spotify.api.fetch(`/me/player/queue?uri=${songUri}`, "POST", {
-        body: {
-          device_id: this.spotify.device.id,
-        },
+      this._userQueues.push({
+        track,
+        queuedBy: cleanUsername(username),
+        skip: false,
       });
     } catch (error) {
       logger.error("Error pushing song to Spotify Queue", error);
@@ -78,6 +149,27 @@ export class SpotifyQueueService {
     return [response.currently_playing, ...response.queue].findIndex(
       (a) => a.uri === songUri
     );
+  }
+
+  public cancelUserQueues(
+    username?: string,
+    onlyLast: boolean = false
+  ): SpotifyTrackSummary[] {
+    const cleanedUsername = cleanUsername(username);
+    const output: SpotifyTrackSummary[] = [];
+
+    for (let i = this._userQueues.length - 1; i >= 0; i--) {
+      const { queuedBy, skip } = this._userQueues[i];
+
+      if ((username && queuedBy !== cleanedUsername) || skip) continue;
+
+      this._userQueues[i].skip = true;
+      output.push(this._userQueues[i].track);
+
+      if (onlyLast) break; // Only skip one match if onlyLast is true
+    }
+
+    return output;
   }
 
   private async handleNextTick() {
@@ -147,4 +239,7 @@ export class SpotifyQueueService {
 
     return queue1.queue.every((track, i) => track.uri === queue2.queue[i].uri);
   }
+
+  private trackInQueue = (trackUri: string) =>
+    this.userQueues.some((queue) => queue.track.uri === trackUri);
 }

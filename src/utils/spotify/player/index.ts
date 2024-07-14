@@ -141,9 +141,7 @@ export default class SpotifyPlayerService extends EventEmitter {
       if (this.isPlaying) return;
       this._playbackChangePending = true;
 
-      const response = await this.spotify.api.fetch("/me/player/play", "PUT", {
-        device_id: this.spotify.device.id,
-      });
+      const response = await this.spotify.api.fetch("/me/player/play", "PUT");
 
       if (!response.ok) {
         throw new ResponseError("Error resuming Spotify playback", response);
@@ -178,9 +176,7 @@ export default class SpotifyPlayerService extends EventEmitter {
       if (!this.isPlaying) return;
       this._playbackChangePending = true;
 
-      const response = await this.spotify.api.fetch("/me/player/pause", "PUT", {
-        device_id: this.spotify.device.id,
-      });
+      const response = await this.spotify.api.fetch("/me/player/pause", "PUT");
 
       if (!response.ok) {
         throw new ResponseError("Error pausing Spotify playback", response);
@@ -258,12 +254,7 @@ export default class SpotifyPlayerService extends EventEmitter {
 
       await this.spotify.api.fetch(
         `/me/player/seek?position_ms=${positionMS}`,
-        "PUT",
-        {
-          body: {
-            device_id: this.spotify.device.id,
-          },
-        }
+        "PUT"
       );
     } catch (error) {
       logger.error("Error seeking to position on Spotify", error);

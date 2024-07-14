@@ -2,6 +2,7 @@ import { chatFeedAlert, logger } from "@utils/firebot";
 import { SpotifyService } from ".";
 import ResponseError from "@/models/responseError";
 import { formatMsToTimecode, getErrorMessage } from "../string";
+import { mergeObjects } from "../object";
 
 type SpotifyRateLimits = {
   [endpoint: string]: number;
@@ -57,13 +58,18 @@ export class SpotifyApiService {
 
       const accessToken = await this.spotify.auth.accessToken;
 
-      const response = await fetch(this.getUrlFromPath(endpoint), {
-        method,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const url: string = this.getUrlFromPath(endpoint);
+
+      const request: RequestInit = mergeObjects(
+        {
+          method,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-        ...options,
-      });
+        options
+      );
+      const response = await fetch(url, request);
 
       if (!response.ok) {
         switch (response.status) {
@@ -91,10 +97,20 @@ export class SpotifyApiService {
         }
       }
 
+      if (response.status === 204 || method !== "GET") {
+        return {
+          status: response.status,
+          ok: response.ok,
+          data: null,
+        };
+      }
+
+      const data = await response.json();
+
       return {
         status: response.status,
         ok: response.ok,
-        data: response.status === 204 ? null : ((await response.json()) as T),
+        data,
       };
     } catch (error) {
       const message = getErrorMessage(error);

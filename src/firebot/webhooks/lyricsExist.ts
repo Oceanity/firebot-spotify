@@ -1,11 +1,9 @@
-import { Request, Response } from "express";
-import { ApiEndpoint } from ".";
 import { LyricsHelpers } from "@/utils/spotify/player/lyrics";
 
 export const LyricsExistEndpoint: ApiEndpoint = [
   "/lyrics/exists",
   "GET",
-  async (req: Request, res: Response) => {
+  async (req: HttpRequest, res: HttpResponse) => {
     try {
       let { id } = req.query;
 

@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
+import { objectWalkPath } from "@/utils/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const SpotifyQueueVariable: ReplaceVariable = {
@@ -23,17 +24,6 @@ export const SpotifyQueueVariable: ReplaceVariable = {
       },
     ],
   },
-  evaluator: async (_trigger, subject: string = "") => {
-    let queue = spotify.player.queue.summary ?? [];
-    const [index, key] = subject.split(".");
-
-    if (!index) return queue;
-
-    let indexNum = Number(index);
-    if (isNaN(indexNum) || indexNum < 0 || indexNum >= queue.length)
-      return key ? "" : null;
-
-    let track = queue[indexNum] as SpotifyTrackSummary;
-    return key ? track[key as keyof SpotifyTrackSummary] ?? "" : track;
-  },
+  evaluator: async (_trigger, subject?: string) =>
+    objectWalkPath(spotify.player.queue.summary, subject),
 };

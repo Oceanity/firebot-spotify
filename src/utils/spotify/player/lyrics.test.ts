@@ -31,7 +31,7 @@ describe("Spotify - Lyrics Service", () => {
   });
 
   describe("Getters", () => {
-    it("should have default getter values", async () => {
+    it("has default getter values", async () => {
       jest
         .spyOn(LyricsHelpers, "lyricsFileExistsAsync")
         .mockImplementation(() => Promise.resolve(false));
@@ -47,7 +47,7 @@ describe("Spotify - Lyrics Service", () => {
 
   describe("Helper Functions", () => {
     describe("lyricsFileExistsAsync", () => {
-      it("should return true if file exists if path check resolves true", async () => {
+      it("returns true if file exists if path check resolves true", async () => {
         const fileExists = await lyrics.trackHasLyricsFile;
         expect(fileExists).toBe(true);
       });

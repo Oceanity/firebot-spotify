@@ -34,7 +34,7 @@ describe("Spotify - Track Service", () => {
   });
 
   describe("Getters", () => {
-    it("should have default getter values", () => {
+    it("has default getter values", () => {
       for (const [key, value] of Object.entries(defaults)) {
         if (Array.isArray(value)) {
           expect(track[key as keyof SpotifyTrackService]).toEqual(value);
@@ -87,14 +87,14 @@ describe("Spotify - Track Service", () => {
   });
 
   describe("handleNextTick", () => {
-    it("should update position", () => {
+    it("updates position", () => {
       const position = 5000;
       track.handleNextTick(position);
       expect(track.positionMs).toBe(position);
       expect(track.position).toBe(formatMsToTimecode(position));
     });
 
-    it("should read -1 if passed null", () => {
+    it("sets positionMs to -1 if passed null", () => {
       track.handleNextTick(null);
       expect(track.positionMs).toBe(-1);
       expect(track.position).toBe("0:00");
@@ -102,47 +102,69 @@ describe("Spotify - Track Service", () => {
   });
 
   describe("isTrackUrl", () => {
-    it("should return true if track url with parameters", () => {
+    it("returns true if track url with parameters", () => {
       let goodUrl =
         "https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=ac674684a1d3410c";
 
       expect(track.isTrackUrl(goodUrl)).toBe(true);
     });
 
-    it("should return true if track url with no parameters", () => {
+    it("returns true if track url with no parameters", () => {
       let goodUrl = "https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8";
 
       expect(track.isTrackUrl(goodUrl)).toBe(true);
     });
 
-    it("should return true if track url with extraneous whitespace", () => {
+    it("returns true if track url with extraneous whitespace", () => {
       let goodUrl =
         "     https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=ac674684a1d3410c      ";
 
       expect(track.isTrackUrl(goodUrl)).toBe(true);
     });
 
-    it("should return true if track url with returns at end", () => {
+    it("returns true if track url with returns at end", () => {
       let goodUrl = "https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8\n\n";
 
       expect(track.isTrackUrl(goodUrl)).toBe(true);
     });
 
-    it("should return false if not a track url", () => {
+    it("returns false if not a track url", () => {
       let badUrl =
         "https://open.spotify.com/artist/0gxyHStUsqpMadRV0Di1Qt?si=CoN889-pQY-olEHDsrwYEw";
 
       expect(track.isTrackUrl(badUrl)).toBe(false);
     });
 
-    it("should return false if empty string", () => {
+    it("returns false if empty string", () => {
       let badUrl = "";
 
       expect(track.isTrackUrl(badUrl)).toBe(false);
     });
 
-    it("should return false if null string", () => {
+    it("returns false if null string", () => {
       expect(track.isTrackUrl(undefined)).toBe(false);
+    });
+  });
+
+  describe("getIdFromTrackUrl", () => {
+    it("returns id from track url", () => {
+      const id = "4PTG3Z6ehGkBFwjybzWkR8";
+      const url = `https://open.spotify.com/track/${id}`;
+
+      expect(track.getIdFromTrackUrl(url)).toBe(id);
+    });
+
+    it("returns null when url is not a track url", () => {
+      const id = "4PTG3Z6ehGkBFwjybzWkR8";
+      const url = `https://open.spotify.com/artist/${id}`;
+
+      expect(track.getIdFromTrackUrl(url)).toBe(null);
+    });
+
+    it("returns null if input is a non-Url string", () => {
+      const input = "this is not a url";
+
+      expect(track.getIdFromTrackUrl(input)).toBe(null);
     });
   });
 });

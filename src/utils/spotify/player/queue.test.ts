@@ -27,7 +27,7 @@ describe("Spotify - Queue Service", () => {
   });
 
   describe("getAsync", () => {
-    it("should get current queue", async () => {
+    it("gets current queue", async () => {
       const response = await queue.getAsync();
 
       expect(response.currently_playing.name).toBe(
@@ -42,21 +42,21 @@ describe("Spotify - Queue Service", () => {
   });
 
   describe("findIndexAsync", () => {
-    it("should get correct index of currently playing track", async () => {
+    it("gets correct index of currently playing track", async () => {
       const response = await queue.findIndexAsync(
         testQueue.currently_playing.uri
       );
       expect(response).toBe(0);
     });
 
-    it("should get correct index of queued tracks", async () => {
+    it("gets correct index of queued tracks", async () => {
       for (let i = 1; i <= testQueue.queue.length; i++) {
         const response = await queue.findIndexAsync(testQueue.queue[i - 1].uri);
         expect(response).toBe(i);
       }
     });
 
-    it("should return -1 if not found", async () => {
+    it("returns -1 if not found", async () => {
       const response = await queue.findIndexAsync("not found");
       expect(response).toBe(-1);
     });
