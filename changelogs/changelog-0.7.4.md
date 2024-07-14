@@ -4,10 +4,14 @@
 
 - Fixed bug introduced by a change in Spotify's API that would cause all effects to act as if they were failing
 
+**Optimizations**
+
+- Code for replace variable path walking (ie `$spotifyTrack[artists.0]`) heavily optimized
+
 **New Effect**
 
 - Cancel User Request
-  - Cancels either the last or all requests by the provided user
+  - Cancels either the last or all requests by the provided user (or from the queue if no user is provided)
   - Requires new "Queued by" to be filled in "Find and Enqueue Track" Effect
 
 **New Event**
