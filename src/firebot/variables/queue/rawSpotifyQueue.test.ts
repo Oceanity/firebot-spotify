@@ -25,26 +25,26 @@ describe("Spotify - Raw Queue Replace Variable", () => {
     });
   });
 
-  it("should return all details on current queue", async () => {
+  it("returns all details on current queue", async () => {
     const response = await RawSpotifyQueueVariable.evaluator(testTrigger);
     expect(response).toEqual(testQueue);
   });
 
-  it("should return null when queue is undefined", async () => {
+  it("returns empty string when queue is undefined", async () => {
     Object.defineProperty(spotify.player.queue, "raw", {
       get: jest.fn(() => undefined),
       configurable: true,
     });
     const response = await RawSpotifyQueueVariable.evaluator(testTrigger);
-    expect(response).toEqual(null);
+    expect(response).toEqual("");
   });
 
-  it("should return null when queue is null", async () => {
+  it("returns empty string when queue is null", async () => {
     Object.defineProperty(spotify.player.queue, "raw", {
       get: jest.fn(() => null),
       configurable: true,
     });
     const response = await RawSpotifyQueueVariable.evaluator(testTrigger);
-    expect(response).toEqual(null);
+    expect(response).toEqual("");
   });
 });

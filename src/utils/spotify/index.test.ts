@@ -22,13 +22,13 @@ describe("Spotify Service", () => {
   });
 
   describe("searchAsync", () => {
-    it("search returns search response", async () => {
+    it("returns search response", async () => {
       const response = await spotify.searchAsync("testing", "track");
 
       expect(response).toBe(testSearchResponse);
     });
 
-    it("search returns expected number of tracks", async () => {
+    it("returns expected number of tracks", async () => {
       testSearchResponse.tracks.items = [
         getTestTrack("track 1"),
         getTestTrack("track 2"),
@@ -39,6 +39,46 @@ describe("Spotify Service", () => {
       const response = await spotify.searchAsync("testing", "track");
 
       expect(response.tracks.items.length).toBe(5);
+    });
+
+    it("returns expected number of tracks when filtering explicit", async () => {
+      testSearchResponse.tracks.items = [
+        getTestTrack("track 1"),
+        getTestTrack("track 2"),
+        getTestTrack("track 3", "3", true),
+        getTestTrack("track 4", "4", true),
+        getTestTrack("track 5", "5", true),
+      ];
+      const response = await spotify.searchAsync("testing", "track", {
+        filterExplicit: true,
+      });
+
+      expect(response.tracks.items.length).toBe(2);
+      expect(response.filtered.filteredTracks!.length).toBe(3);
+
+      for (const filtered of response.filtered.filteredTracks!) {
+        expect(filtered.reason).toBe("explicit");
+      }
+    });
+
+    it("returns expected number of tracks when filtering duration", async () => {
+      testSearchResponse.tracks.items = [
+        getTestTrack("track 1"),
+        getTestTrack("track 2"),
+        getTestTrack("track 3", "3", false, 60000),
+        getTestTrack("track 4", "4", false, 60000),
+        getTestTrack("track 5", "5", false, 60000),
+      ];
+      const response = await spotify.searchAsync("testing", "track", {
+        maxLengthMinutes: 1,
+      });
+
+      expect(response.tracks.items.length).toBe(2);
+      expect(response.filtered.filteredTracks?.length).toBe(3);
+
+      for (const filtered of response.filtered.filteredTracks!) {
+        expect(filtered.reason).toBe("duration");
+      }
     });
 
     it("throws exception when search returns null", async () => {

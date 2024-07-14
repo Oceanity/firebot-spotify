@@ -38,7 +38,7 @@ describe("Spotify - Playlist Service", () => {
   });
 
   describe("Getters", () => {
-    it("should have default getter values", () => {
+    it("has default getter values", () => {
       for (const [key, value] of Object.entries(defaults)) {
         expect(playlist[key as keyof SpotifyPlaylistService]).toBe(value);
       }

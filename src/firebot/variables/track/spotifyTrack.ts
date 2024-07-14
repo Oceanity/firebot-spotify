@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
+import { objectWalkPath } from "@/utils/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const SpotifyTrackVariable: ReplaceVariable = {
@@ -60,14 +61,21 @@ export const SpotifyTrackVariable: ReplaceVariable = {
         description:
           "Outputs the relative position of the currently playing Spotify track as a value from 0.0 to 1.0 inclusive",
       },
+      {
+        usage: "spotifyTrack[url]",
+        description: "Outputs the url of the currently playing Spotify track",
+      },
+      {
+        usage: "spotifyTrack[uri]",
+        description: "Outputs the uri of the currently playing Spotify track",
+      },
+      {
+        usage: "spotifyTrack[queuedBy]",
+        description:
+          "Outputs the username of the user who queued the current track on Spotify",
+      },
     ],
   },
-  evaluator: async (_trigger, subject: string) => {
-    let track = spotify.player.track.summary ?? null;
-
-    if (!subject) return track;
-    if (!track) return "";
-
-    return track[subject as keyof SpotifyTrackSummaryWithPosition] ?? "";
-  },
+  evaluator: async (_trigger, subject?: string) =>
+    objectWalkPath(spotify.player.track.summary, subject),
 };

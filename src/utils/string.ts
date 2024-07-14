@@ -1,5 +1,3 @@
-import { logger } from "./firebot";
-
 export function formatMsToTimecode(
   ms: number,
   showHours: boolean = false
@@ -53,3 +51,6 @@ export const getTriggerSource = (trigger: Trigger): string => {
       return "Unknown Trigger Type";
   }
 };
+
+export const cleanUsername = (username?: string): string =>
+  username ? username.trim().replace(/^@/, "").toLowerCase() : "";
