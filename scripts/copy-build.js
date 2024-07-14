@@ -2,9 +2,6 @@
  *  Copies the built script .js to Firebot's scripts folder
  */
 const fs = require("fs").promises;
-const {
-  Console
-} = require("console");
 const path = require("path");
 
 const extractScriptName = () => {
@@ -66,7 +63,6 @@ const main = async () => {
   );
 
   await fs.copyFile(srcScriptFilePath, destScriptFilePath);
-  await fs.copyFile(path.resolve("./src/tamperMonkey/lyricsGrabber.user.js"), path.resolve("./dist/lyricsGrabber.user.js"));
 
   console.log(`Successfully copied ${scriptName} to Firebot scripts folder.`);
 };
