@@ -53,15 +53,13 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
           <firebot-input 
             input-title="Queued by"
             model="effect.queuedBy" 
-            placeholder-text="Username of user who queued the track"
-            style="border-radius:8px;overflow:hidden;" />
+            placeholder-text="Username of user who queued the track" />
         </eos-container>
         <eos-container header="Track Info" pad-top="true">
           <firebot-input 
             input-title="Search"
             model="effect.query" 
-            placeholder-text="Search query or link to track to add to your Spotify Queue"
-            style="border-radius:8px;overflow:hidden;" />
+            placeholder-text="Search query or link to track to add to your Spotify Queue" />
           <div style="display: flex; flex-direction: column; margin: 15px 0 0px;">
             <firebot-checkbox
               label="Exclude explicit tracks"

@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity <sub style="color:gray">v0.7.4</sub>
+# Spotify Integration by Oceanity <sub style="color:gray">v0.7.4a</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
@@ -107,10 +107,16 @@ This script adds the following features to Firebot
         - spotifyQueue[0.title]: `string`
         - spotifyQueue[0.artist]: `string`
         - etc.
+    - spotifyUserQueues: `object`
+      - spotifyQueue[0..inf]: `object`
+        - spotifyQueue[0.queuedBy]: `string`
+        - spotifyQueue[0.position]: `number`
+        - spotifyQueue[0.track]: `object` (same structure as spotifyTrack var)
 - Events
   - Lyrics Changed
   - Playback State Changed
   - Playlist Changed
   - Tick
   - Track Changed
+  - Track Auto-Skipped
   - Volume Changed
