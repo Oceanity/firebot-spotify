@@ -29,7 +29,11 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<EffectParams> = {
 
   optionsTemplate: `
     <eos-container header="Seek Position" pad-top="true">
-      <input ng-model="effect.seekPosition" class="form-control" type="text" placeholder="Seek position (Number in miliseconds)" replace-variables menu-position="below">
+      <firebot-input
+        model="effect.seekPosition"
+        input-title="Seek position"
+        placeholder-text="Enter position in miliseconds"
+        menu-position="under" />
     </eos-container>
   `,
 
