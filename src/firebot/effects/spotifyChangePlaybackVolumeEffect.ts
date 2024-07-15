@@ -33,8 +33,7 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams>
           <firebot-input 
             input-title="Volume"
             model="effect.volume" 
-            placeholder-text="Enter number between 0 - 100"
-            style="border-radius:8px;overflow:hidden;" />
+            placeholder-text="Enter number between 0 - 100" />
         </eos-container>
       `,
 
