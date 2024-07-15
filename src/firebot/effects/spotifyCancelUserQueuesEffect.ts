@@ -40,7 +40,8 @@ export const SpotifyCancelUserQueuesEffect: Firebot.EffectType<EffectParams> = {
         <firebot-input
           input=title="Username"
           model="effect.username"
-          placeholder-text="Username of user to cancel queues for, or blank to effect entire queue" />
+          placeholder-text="Username of user to cancel queues for, or blank to effect entire queue"
+          menu-position="under" />
       </eos-container>
       <eos-container header="Tracks to Cancel" pad-top="true">
         <dropdown-select options="amountOptions" selected="effect.amount"></dropdown-select>
