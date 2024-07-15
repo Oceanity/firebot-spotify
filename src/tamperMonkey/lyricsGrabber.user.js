@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Lyric Grabber
 // @namespace    https://oceanity.github.io
-// @version      0.7.4
+// @version      0.7.4a
 // @description  Sends Spotify lyrics to Firebot
 // @author       Oceanity
 // @match        https://open.spotify.com/*
@@ -16,7 +16,7 @@
     fetch: originalFetch
   } = window;
 
-  const version = "0.7.4";
+  const version = "0.7.4a";
 
   // Consts
   const lyricUrlRegex = /https:\/\/spclient\.wg\.spotify\.com\/color-lyrics\/v2\/track\/([a-zA-Z0-9]+)\/image\/.+/;
