@@ -107,10 +107,16 @@ This script adds the following features to Firebot
         - spotifyQueue[0.title]: `string`
         - spotifyQueue[0.artist]: `string`
         - etc.
+    - spotifyUserQueues: `object`
+      - spotifyQueue[0..inf]: `object`
+        - spotifyQueue[0.queuedBy]: `string`
+        - spotifyQueue[0.position]: `number`
+        - spotifyQueue[0.track]: `object` (same structure as spotifyTrack var)
 - Events
   - Lyrics Changed
   - Playback State Changed
   - Playlist Changed
   - Tick
   - Track Changed
+  - Track Auto-Skipped
   - Volume Changed
