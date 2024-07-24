@@ -1,6 +1,6 @@
 import { ScriptModules } from "@crowbartools/firebot-custom-scripts-types";
 import { HttpServerManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/http-server-manager";
-import { getErrorMessage } from "./string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 export let logger: ScriptModules["logger"];
 export let effectRunner: ScriptModules["effectRunner"];

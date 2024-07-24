@@ -8,7 +8,7 @@ import { SpotifyTrackService } from "./track";
 import { EventEmitter } from "events";
 import ResponseError from "@/models/responseError";
 import { randomUUID } from "crypto";
-import { getErrorMessage } from "@/utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 export default class SpotifyPlayerService extends EventEmitter {
   private readonly spotify: SpotifyService;

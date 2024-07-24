@@ -1,5 +1,5 @@
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "@utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { now } from "@utils/time";
 import { logger } from "@utils/firebot";
 

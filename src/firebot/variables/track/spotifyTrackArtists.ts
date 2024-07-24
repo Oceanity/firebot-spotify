@@ -1,7 +1,7 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
 import { chatFeedAlert } from "@/utils/firebot";
-import { getTriggerSource } from "@/utils/string";
+import { getTriggerSource } from "@oceanity/firebot-helpers/string";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 let hasAlerted = false;

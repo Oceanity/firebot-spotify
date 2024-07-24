@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { getErrorMessage } from "@/utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { logger } from "@/utils/firebot";
 
 type EffectParams = { username: string; amount: string };

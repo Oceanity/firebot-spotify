@@ -3,7 +3,7 @@ import { SpotifyService } from "@utils/spotify";
 import { testTrack } from "@/testData";
 import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyTrackService } from "./track";
-import { formatMsToTimecode } from "@/utils/string";
+import { formatMsToTimecode } from "@oceanity/firebot-helpers/string";
 
 describe("Spotify - Track Service", () => {
   let spotify: SpotifyService;

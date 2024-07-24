@@ -1,7 +1,10 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { trackSummaryFromDetails } from "./track";
-import { cleanUsername, getErrorMessage } from "@/utils/string";
+import {
+  cleanUsername,
+  getErrorMessage,
+} from "@oceanity/firebot-helpers/string";
 
 export type SpotifyUserQueueEntry = {
   position?: number;

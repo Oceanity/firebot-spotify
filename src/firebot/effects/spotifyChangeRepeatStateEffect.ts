@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { getErrorMessage } from "@/utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { chatFeedAlert } from "@/utils/firebot";
 
 type EffectParams = {

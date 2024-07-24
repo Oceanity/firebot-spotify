@@ -2,7 +2,7 @@ import { getBiggestImageUrl } from "@utils/array";
 import { decode } from "he";
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "@/utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { trackSummaryFromDetails } from "./track";
 
 export class SpotifyPlaylistService {

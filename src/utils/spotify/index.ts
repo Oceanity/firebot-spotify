@@ -4,7 +4,7 @@ import SpotifyAuthService from "./auth";
 import { SpotifyEventService } from "./events";
 import SpotifyProfileService from "./user";
 import SpotifyPlayerService from "./player";
-import { getErrorMessage } from "../string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import ResponseError from "@/models/responseError";
 import { SpotifySettingsService } from "./settings";
 import { SpotifyArtistService } from "./artist";

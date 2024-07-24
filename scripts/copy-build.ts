@@ -1,8 +1,8 @@
 /**
  *  Copies the built script .js to Firebot's scripts folder
  */
-const fs = require("fs").promises;
-const path = require("path");
+import * as fs from "fs/promises";
+import * as path from "path";
 
 const extractScriptName = () => {
   const packageJson = require("../package.json");
@@ -10,22 +10,24 @@ const extractScriptName = () => {
 };
 
 const getFirebotScriptsFolderPath = () => {
+  const home = process.env.HOME;
+
+  if (!home) {
+    throw new Error("Required Env var not set");
+  }
+
   // determine os app data folder
   let appDataFolderPath;
   if (process.platform === "win32") {
     appDataFolderPath = process.env.APPDATA;
   } else if (process.platform === "darwin") {
-    appDataFolderPath = path.join(
-      process.env.HOME,
-      "/Library/Application Support"
-    );
+    appDataFolderPath = path.resolve(home, "/Library/Application Support");
   } else if (process.platform === "linux") {
-    appDataFolderPath = path.join(
-      process.env.HOME,
-      "/.config"
-    );
-  } else {
-    throw new Error("Unsupported OS!");
+    appDataFolderPath = path.resolve(home, "/.config");
+  }
+
+  if (!appDataFolderPath) {
+    throw new Error("Unable to determine app data folder");
   }
 
   const firebotDataFolderPath = path.join(appDataFolderPath, "/Firebot/v5/");
@@ -57,7 +59,7 @@ const main = async () => {
   const scriptName = extractScriptName();
 
   const srcScriptFilePath = path.resolve(`./dist/${scriptName}`);
-  const destScriptFilePath = path.join(
+  const destScriptFilePath = path.resolve(
     firebotScriptsFolderPath,
     `${scriptName}`
   );

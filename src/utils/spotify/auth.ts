@@ -1,7 +1,7 @@
 import { integrationManager, logger } from "@utils/firebot";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "@/utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { now } from "@utils/time";
 import { namespace } from "@/main";
 

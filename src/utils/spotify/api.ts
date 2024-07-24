@@ -1,7 +1,10 @@
 import { chatFeedAlert, logger } from "@utils/firebot";
 import { SpotifyService } from ".";
 import ResponseError from "@/models/responseError";
-import { formatMsToTimecode, getErrorMessage } from "../string";
+import {
+  formatMsToTimecode,
+  getErrorMessage,
+} from "@oceanity/firebot-helpers/string";
 import { mergeObjects } from "../object";
 
 type SpotifyRateLimits = {
