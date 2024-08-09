@@ -7,7 +7,7 @@ export const SpotifyQueueVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyQueue",
     description:
-      "Gets an array containing the upcoming tracks in the active Spotify queue (up to 20)",
+      "Spotify Premium Only! Gets an array containing the upcoming tracks in the active Spotify queue (up to 20)",
     usage: "spotifyQueue",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],

@@ -8,7 +8,7 @@ export const RawSpotifyQueueVariable: ReplaceVariable = {
   definition: {
     handle: "rawSpotifyQueue",
     description:
-      "Gets an object containing all data returned from the Spotify API about the currently playing queue, see [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-queue) for details",
+      "Spotify Premium Only! Gets an object containing all data returned from the Spotify API about the currently playing queue, see [Response Sample](https://developer.spotify.com/documentation/web-api/reference/get-queue) for details",
     usage: "rawSpotifyQueue",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],
