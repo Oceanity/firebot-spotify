@@ -1,9 +1,7 @@
 import { logger } from "@utils/firebot";
 import { SpotifyService } from "@utils/spotify";
-import { trackSummaryFromDetails } from "./track";
 import {
   cleanUsername,
-  getErrorMessage,
 } from "@oceanity/firebot-helpers/string";
 
 export type SpotifyUserQueueEntry = {
@@ -15,7 +13,6 @@ export type SpotifyUserQueueEntry = {
 
 export class SpotifyQueueService {
   private readonly spotify: SpotifyService;
-  private tickCounter: number = 0;
 
   private _queue?: SpotifyQueueResponse;
   private _currentlyPlaying?: SpotifyTrackSummary | null;
@@ -30,15 +27,7 @@ export class SpotifyQueueService {
   }
 
   public async init() {
-    await this.updateQueueFromApi();
-
-    this.spotify.player.state.on("tick", async () => {
-      await this.handleNextTick();
-    });
-
     this.spotify.player.state.on("track-changed", async (track) => {
-      await this.updateQueueFromApi();
-
       const queuePosition = this._userQueues.findIndex(
         (queue) => queue.track.uri === track.uri
       );
@@ -66,8 +55,6 @@ export class SpotifyQueueService {
       this.spotify.events.trigger("track-changed", {
         track,
       });
-
-      this.tickCounter = 0;
     });
   }
 
@@ -115,12 +102,12 @@ export class SpotifyQueueService {
     }
   }
 
-  public getTracksQueuedByUser = (username?: string) =>
-    cleanUsername(username).length
-      ? this.userQueues.filter(
-          (queue) => queue.queuedBy === cleanUsername(username)
-        )
-      : this.userQueues;
+  public getTracksQueuedByUser(username?: string) {
+    const user = cleanUsername(username);
+    return this.userQueues.filter(
+      (queue) => !user.length || queue.queuedBy === user
+    );
+  }
 
   public async pushAsync(
     track: SpotifyTrackSummary,
@@ -173,74 +160,6 @@ export class SpotifyQueueService {
     }
 
     return output;
-  }
-
-  private async handleNextTick() {
-    try {
-      if (this.tickCounter++ % 15 !== 0) return;
-
-      const queueResponse = await this.getAsync();
-
-      this.updateQueueAsync(queueResponse);
-    } catch (error) {
-      logger.error(getErrorMessage(error), error);
-      throw error;
-    }
-  }
-
-  private async updateQueueFromApi() {
-    try {
-      const queue = await this.getAsync();
-
-      this.updateQueueAsync(queue);
-    } catch (error) {
-      logger.error(getErrorMessage(error), error);
-      throw error;
-    }
-  }
-
-  private updateQueueAsync(queueResponse?: SpotifyQueueResponse) {
-    try {
-      if (!this.queuesAreEqual(this._queue, queueResponse)) {
-        this._queue = queueResponse;
-
-        if (!queueResponse) return;
-
-        const { queue } = queueResponse;
-
-        let summary = queue
-          .map((track) => trackSummaryFromDetails(track))
-          .filter((n) => n) as SpotifyTrackSummary[];
-
-        if (summary.map((t) => t.uri) === queue.map((t) => t.uri)) return;
-
-        this._queueSummary = queue
-          .map((q) => trackSummaryFromDetails(q))
-          .filter((n) => n) as SpotifyTrackSummary[];
-
-        this.spotify.events.trigger("queue-changed", {
-          queue: this._queueSummary,
-        });
-      }
-    } catch (error) {
-      logger.error(getErrorMessage(error), error);
-      throw error;
-    }
-  }
-
-  private queuesAreEqual(
-    queue1?: SpotifyQueueResponse,
-    queue2?: SpotifyQueueResponse
-  ) {
-    if (!queue1 || !queue2) {
-      return queue1 === queue2;
-    }
-
-    if (queue1.queue.length !== queue2.queue.length) {
-      return false;
-    }
-
-    return queue1.queue.every((track, i) => track.uri === queue2.queue[i].uri);
   }
 
   private trackInQueue = (trackUri: string) =>

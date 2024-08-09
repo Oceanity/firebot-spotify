@@ -1,5 +1,9 @@
 import { spotify } from "@/main";
+import { chatFeedAlert } from "@/utils/firebot";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
+import { getTriggerSource } from "@oceanity/firebot-helpers/string";
+
+let hasAlerted = false;
 
 export const SpotifyTrackUriVariable: ReplaceVariable = {
   definition: {
@@ -9,5 +13,14 @@ export const SpotifyTrackUriVariable: ReplaceVariable = {
     usage: "spotifyTrackUri",
     possibleDataOutput: ["text"],
   },
-  evaluator: async () => spotify.player.track.uri,
+  evaluator: async (trigger: Trigger) => {
+    const source = getTriggerSource(trigger);
+    if (!hasAlerted) {
+      hasAlerted = true;
+      chatFeedAlert(
+        `Using deprecated variable \`$spotifyTrackUri\` in ${source}, use \`$spotifyTrack[uri]\` instead.`
+      );
+    }
+    return spotify.player.track.uri
+  }
 };
