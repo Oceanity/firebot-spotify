@@ -1,7 +1,7 @@
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { now } from "@utils/time";
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 
 export default class SpotifyProfileService {
   private readonly spotify: SpotifyService;

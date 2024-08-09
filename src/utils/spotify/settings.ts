@@ -1,5 +1,5 @@
 import { JsonDB } from "node-json-db";
-import { jsonDb } from "../firebot";
+import { jsonDb } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from ".";
 import { dirname, resolve } from "path";
 import { ensureDir } from "fs-extra";

@@ -1,4 +1,4 @@
-import { eventManager, logger } from "@utils/firebot";
+import { eventManager, logger } from "@oceanity/firebot-helpers/firebot";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 export class SpotifyEventService {

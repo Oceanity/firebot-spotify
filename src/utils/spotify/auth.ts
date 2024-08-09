@@ -1,4 +1,4 @@
-import { integrationManager, logger } from "@utils/firebot";
+import { integrationManager, logger } from "@oceanity/firebot-helpers/firebot";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";

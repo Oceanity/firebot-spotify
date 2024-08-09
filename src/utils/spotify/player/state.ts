@@ -1,4 +1,4 @@
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { delay, now } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";

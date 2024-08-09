@@ -1,4 +1,4 @@
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyApiService } from "./api";
 import SpotifyAuthService from "./auth";
 import { SpotifyEventService } from "./events";

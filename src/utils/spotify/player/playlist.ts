@@ -1,6 +1,6 @@
 import { getBiggestImageUrl } from "@utils/array";
 import { decode } from "he";
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { trackSummaryFromDetails } from "./track";

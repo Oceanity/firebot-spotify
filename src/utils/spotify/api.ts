@@ -1,4 +1,4 @@
-import { chatFeedAlert, logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from ".";
 import ResponseError from "@/models/responseError";
 import {
@@ -117,8 +117,6 @@ export class SpotifyApiService {
       };
     } catch (error) {
       const message = getErrorMessage(error);
-      chatFeedAlert(message);
-
       logger.error(message, error);
       throw error;
     }

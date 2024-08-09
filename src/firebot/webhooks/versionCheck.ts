@@ -1,6 +1,6 @@
 import { version as localVersion } from "@/main";
 import ResponseError from "@/models/responseError";
-import { logger } from "@/utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 
 export const VersionCheckEndpoint: ApiEndpoint = [
   "/version",

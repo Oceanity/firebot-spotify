@@ -1,4 +1,4 @@
-import { logger } from "./firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 
 // Redeclaring because performance.now() is readonly in github environment, can't mock
 export const now = (): number => performance.now();

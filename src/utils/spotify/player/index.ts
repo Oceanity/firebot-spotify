@@ -1,4 +1,4 @@
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyQueueService } from "./queue";
 import { SpotifyPlaylistService } from "./playlist";

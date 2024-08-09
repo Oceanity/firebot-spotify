@@ -1,6 +1,6 @@
 import "@/mocks/firebot";
 import { delay, now } from "@utils/time";
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 
 describe("Time Helpers", () => {
   describe("delay", () => {
