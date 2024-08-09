@@ -1,7 +1,10 @@
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "@utils/spotify";
+import {
+  cleanUsername,
+} from "@oceanity/firebot-helpers/string";
+import { now } from "@/utils/time";
 import { trackSummaryFromDetails } from "./track";
-import { cleanUsername, getErrorMessage } from "@/utils/string";
 
 export type SpotifyUserQueueEntry = {
   position?: number;
@@ -12,11 +15,8 @@ export type SpotifyUserQueueEntry = {
 
 export class SpotifyQueueService {
   private readonly spotify: SpotifyService;
-  private tickCounter: number = 0;
 
-  private _queue?: SpotifyQueueResponse;
   private _currentlyPlaying?: SpotifyTrackSummary | null;
-  private _queueSummary?: SpotifyTrackSummary[];
   private _userQueues: SpotifyUserQueueEntry[] = [];
   private _queuedBy: string | null;
 
@@ -27,15 +27,7 @@ export class SpotifyQueueService {
   }
 
   public async init() {
-    await this.updateQueueFromApi();
-
-    this.spotify.player.state.on("tick", async () => {
-      await this.handleNextTick();
-    });
-
     this.spotify.player.state.on("track-changed", async (track) => {
-      await this.updateQueueFromApi();
-
       const queuePosition = this._userQueues.findIndex(
         (queue) => queue.track.uri === track.uri
       );
@@ -63,21 +55,11 @@ export class SpotifyQueueService {
       this.spotify.events.trigger("track-changed", {
         track,
       });
-
-      this.tickCounter = 0;
     });
   }
 
   public get currentlyPlaying(): SpotifyTrackSummary | null {
     return this._currentlyPlaying ?? null;
-  }
-
-  public get raw(): SpotifyQueueResponse | null {
-    return this._queue ?? null;
-  }
-
-  public get summary(): SpotifyTrackSummary[] {
-    return this._queueSummary ?? [];
   }
 
   public get userQueues(): SpotifyUserQueueEntry[] {
@@ -97,27 +79,48 @@ export class SpotifyQueueService {
     return this._queuedBy;
   }
 
-  public async getAsync(): Promise<SpotifyQueueResponse> {
+  public async getAsync(): Promise<SpotifyQueueResponse | null> {
     try {
       const response = await this.spotify.api.fetch<SpotifyQueueResponse>(
         "/me/player/queue"
       );
+
       if (!response.data) {
-        throw new Error("No active Spotify player was found");
+        return null;
       }
+
       return response.data;
     } catch (error) {
       logger.error("Error getting Spotify Queue", error);
+      return null;
+    }
+  }
+
+  public async getSummaryAsync(): Promise<SpotifyTrackSummary[]> {
+    try {
+      const queue = await this.getAsync();
+
+      if (!queue) {
+        return [];
+      }
+
+      let summary: SpotifyTrackSummary[] = queue.queue
+        .map((track) => trackSummaryFromDetails(track))
+        .filter((summary): summary is SpotifyTrackSummary => !!summary);
+
+      return summary
+    } catch (error) {
+      logger.error("Error getting Spotify Queue Summary", error);
       throw error;
     }
   }
 
-  public getTracksQueuedByUser = (username?: string) =>
-    cleanUsername(username).length
-      ? this.userQueues.filter(
-          (queue) => queue.queuedBy === cleanUsername(username)
-        )
-      : this.userQueues;
+  public getTracksQueuedByUser(username?: string) {
+    const user = cleanUsername(username);
+    return this.userQueues.filter(
+      (queue) => !user.length || queue.queuedBy === user
+    );
+  }
 
   public async pushAsync(
     track: SpotifyTrackSummary,
@@ -144,9 +147,11 @@ export class SpotifyQueueService {
   }
 
   public async findIndexAsync(songUri: string) {
-    const response = await this.getAsync();
+    const queue = await this.getAsync();
 
-    return [response.currently_playing, ...response.queue].findIndex(
+    if (!queue) return -1;
+
+    return [queue.currently_playing, ...queue.queue].findIndex(
       (a) => a.uri === songUri
     );
   }
@@ -170,74 +175,6 @@ export class SpotifyQueueService {
     }
 
     return output;
-  }
-
-  private async handleNextTick() {
-    try {
-      if (this.tickCounter++ % 15 !== 0) return;
-
-      const queueResponse = await this.getAsync();
-
-      this.updateQueueAsync(queueResponse);
-    } catch (error) {
-      logger.error(getErrorMessage(error), error);
-      throw error;
-    }
-  }
-
-  private async updateQueueFromApi() {
-    try {
-      const queue = await this.getAsync();
-
-      this.updateQueueAsync(queue);
-    } catch (error) {
-      logger.error(getErrorMessage(error), error);
-      throw error;
-    }
-  }
-
-  private updateQueueAsync(queueResponse?: SpotifyQueueResponse) {
-    try {
-      if (!this.queuesAreEqual(this._queue, queueResponse)) {
-        this._queue = queueResponse;
-
-        if (!queueResponse) return;
-
-        const { queue } = queueResponse;
-
-        let summary = queue
-          .map((track) => trackSummaryFromDetails(track))
-          .filter((n) => n) as SpotifyTrackSummary[];
-
-        if (summary.map((t) => t.uri) === queue.map((t) => t.uri)) return;
-
-        this._queueSummary = queue
-          .map((q) => trackSummaryFromDetails(q))
-          .filter((n) => n) as SpotifyTrackSummary[];
-
-        this.spotify.events.trigger("queue-changed", {
-          queue: this._queueSummary,
-        });
-      }
-    } catch (error) {
-      logger.error(getErrorMessage(error), error);
-      throw error;
-    }
-  }
-
-  private queuesAreEqual(
-    queue1?: SpotifyQueueResponse,
-    queue2?: SpotifyQueueResponse
-  ) {
-    if (!queue1 || !queue2) {
-      return queue1 === queue2;
-    }
-
-    if (queue1.queue.length !== queue2.queue.length) {
-      return false;
-    }
-
-    return queue1.queue.every((track, i) => track.uri === queue2.queue[i].uri);
   }
 
   private trackInQueue = (trackUri: string) =>

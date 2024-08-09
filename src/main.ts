@@ -5,9 +5,10 @@ import {
 } from "@/spotifyIntegration";
 import * as packageJson from "../package.json";
 
-export const { version, name: namespace } = packageJson;
+export const { version, name: namespace, displayName: name, description, author } = packageJson;
 
-import { chatFeedAlert, initModules } from "@utils/firebot";
+import { initModules } from "@oceanity/firebot-helpers/firebot";
+import { chatFeedAlert } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 
@@ -16,9 +17,9 @@ export let spotify: SpotifyService;
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
     return {
-      name: "Firebot Spotify Integrations",
-      description: "Let your viewers determine your taste in music",
-      author: "Oceanity",
+      name,
+      description,
+      author,
       version,
       firebotVersion: "5",
     };

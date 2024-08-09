@@ -7,7 +7,9 @@ import { SpotifyService } from "@/utils/spotify";
 jest.mock("@/main", () => ({
   spotify: {
     player: {
-      queue: {},
+      queue: {
+        getSummaryAsync: jest.fn(),
+      },
     },
   },
 }));
@@ -17,8 +19,8 @@ describe("Spotify - Queue Replace Variable", () => {
   let testQueue: SpotifyTrackSummary[];
 
   beforeEach(() => {
-    // Access the mocked spotify from the mocked @/main module
     spotify = require("@/main").spotify;
+
     testQueue = [
       getTestTrackSummary("track 1"),
       getTestTrackSummary("track 2"),
@@ -27,11 +29,9 @@ describe("Spotify - Queue Replace Variable", () => {
       getTestTrackSummary("track 5"),
     ];
 
-    // Mock the summary getter on the queue object
-    Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => testQueue),
-      configurable: true,
-    });
+    jest
+      .spyOn(spotify.player.queue, "getSummaryAsync")
+      .mockResolvedValue(testQueue);
   });
 
   it("returns entire queue with expected number of tracks when not passed argument", async () => {
@@ -90,10 +90,10 @@ describe("Spotify - Queue Replace Variable", () => {
   });
 
   it("returns empty array if queue does not exist", async () => {
-    Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => []),
-      configurable: true,
-    });
+    jest
+      .spyOn(spotify.player.queue, "getSummaryAsync")
+      .mockResolvedValue([]);
+
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       undefined
@@ -102,19 +102,19 @@ describe("Spotify - Queue Replace Variable", () => {
   });
 
   it("returns empty string if index passed when queue does not exist", async () => {
-    Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => []),
-      configurable: true,
-    });
+    jest
+      .spyOn(spotify.player.queue, "getSummaryAsync")
+      .mockResolvedValue([]);
+
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "0");
     expect(response).toBe("");
   });
 
   it("returns empty string if index and field passed when queue does not exist", async () => {
-    Object.defineProperty(spotify.player.queue, "summary", {
-      get: jest.fn(() => []),
-      configurable: true,
-    });
+    jest
+      .spyOn(spotify.player.queue, "getSummaryAsync")
+      .mockResolvedValue([]);
+
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
       "0.title"

@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 
-jest.mock("@utils/firebot", () => ({
+jest.mock("@oceanity/firebot-helpers/firebot", () => ({
   logger: {
     info: jest.fn(),
     debug: jest.fn(),

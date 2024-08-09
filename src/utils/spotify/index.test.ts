@@ -2,7 +2,7 @@ import "@/mocks/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { jest } from "@jest/globals";
 import { getTestTrack, testSearchResponse } from "@/testData";
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 
 describe("Spotify Service", () => {
   let spotify: SpotifyService;

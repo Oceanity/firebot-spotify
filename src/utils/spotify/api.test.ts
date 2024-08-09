@@ -2,7 +2,7 @@ import "@/mocks/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyApiService } from "@utils/spotify/api";
 import { jest } from "@jest/globals";
-import { logger } from "../firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 
 type DummyDataType = {
   foo: string;

@@ -22,12 +22,6 @@ export const SpotifyEventSource = {
       cached: false,
     },
     {
-      id: "queue-changed",
-      name: "Spotify Queue Changed",
-      description: "Currently active Spotify Queue has changed",
-      cached: false,
-    },
-    {
       id: "tick",
       name: "Spotify Tick",
       description:

@@ -7,8 +7,8 @@ import {
   variableManager,
   eventManager,
   httpServer,
-} from "@utils/firebot";
-import { namespace, spotify } from "@/main";
+} from "@oceanity/firebot-helpers/firebot";
+import { namespace } from "@/main";
 import { AllSpotifyEffects } from "./firebot/effects";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
 import { AllSpotifyWebhooks } from "./firebot/webhooks";
