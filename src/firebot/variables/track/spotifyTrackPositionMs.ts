@@ -1,5 +1,5 @@
 import { spotify } from "@/main";
-import { chatFeedAlert } from "@/utils/firebot";
+import { chatFeedAlert } from "@oceanity/firebot-helpers/firebot"
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 import { getTriggerSource } from "@oceanity/firebot-helpers/string";
 

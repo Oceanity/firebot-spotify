@@ -8,7 +8,7 @@ import * as packageJson from "../package.json";
 export const { version, name: namespace } = packageJson;
 
 import { initModules } from "@oceanity/firebot-helpers/firebot";
-import { chatFeedAlert } from "@utils/firebot";
+import { chatFeedAlert } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "./utils/spotify/index";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
 

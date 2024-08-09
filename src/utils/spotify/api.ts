@@ -5,7 +5,7 @@ import {
   formatMsToTimecode,
   getErrorMessage,
 } from "@oceanity/firebot-helpers/string";
-import { mergeObjects } from "../object";
+import { mergeObjects } from "@oceanity/firebot-helpers/object";
 
 type SpotifyRateLimits = {
   [endpoint: string]: number;

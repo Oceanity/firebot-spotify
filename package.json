@@ -14,7 +14,7 @@
   "license": "GNU3",
   "devDependencies": {
     "@crowbartools/firebot-custom-scripts-types": "^5.60.1",
-    "@oceanity/firebot-helpers": "^1.0.17",
+    "@oceanity/firebot-helpers": "^1.1.1",
     "@types/express": "^4.17.21",
     "@types/fs-extra": "^11.0.4",
     "@types/he": "^1.2.3",

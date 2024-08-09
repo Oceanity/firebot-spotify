@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
-import { objectWalkPath } from "@/utils/object";
+import { objectWalkPath } from "@oceanity/firebot-helpers/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const SpotifyTrackVariable: ReplaceVariable = {
