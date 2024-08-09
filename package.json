@@ -1,19 +1,21 @@
 {
   "name": "oceanity-spotify",
+  "displayName": "Spotify (by Oceanity)",
   "scriptOutputName": "oceanitySpotifyIntegration",
-  "version": "0.7.4b",
-  "description": "Adds Spotify Song Requests to Firebot",
+  "version": "0.7.5",
+  "description": "Adds Spotify events, effects and variables to Firebot",
   "main": "",
   "scripts": {
     "build": "webpack",
     "build:dev": "npm run build && npm run copy",
-    "copy": "node ./scripts/copy-build.js",
+    "copy": "ts-node ./scripts/copy-build.ts",
     "test": "jest"
   },
   "author": "Oceanity",
   "license": "GNU3",
   "devDependencies": {
     "@crowbartools/firebot-custom-scripts-types": "^5.60.1",
+    "@oceanity/firebot-helpers": "^1.1.1",
     "@types/express": "^4.17.21",
     "@types/fs-extra": "^11.0.4",
     "@types/he": "^1.2.3",

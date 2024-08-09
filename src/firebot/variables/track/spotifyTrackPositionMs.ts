@@ -1,5 +1,9 @@
 import { spotify } from "@/main";
+import { chatFeedAlert } from "@oceanity/firebot-helpers/firebot"
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
+import { getTriggerSource } from "@oceanity/firebot-helpers/string";
+
+let hasAlerted = false;
 
 export const SpotifyTrackPositionMsVariable: ReplaceVariable = {
   definition: {
@@ -9,5 +13,14 @@ export const SpotifyTrackPositionMsVariable: ReplaceVariable = {
     usage: "spotifyTrackPositionMs",
     possibleDataOutput: ["number"],
   },
-  evaluator: async () => spotify.player.track.positionMs,
+  evaluator: async (trigger: Trigger) => {
+    const source = getTriggerSource(trigger);
+    if (!hasAlerted) {
+      hasAlerted = true;
+      chatFeedAlert(
+        `Using deprecated variable \`$spotifyTrackRelativePosition\` in ${source}, use \`$spotifyTrack[relativePosition]\` instead.`
+      );
+    }
+    return spotify.player.track.positionMs
+  }
 };

@@ -1,13 +1,13 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
-import { objectWalkPath } from "@/utils/object";
+import { objectWalkPath } from "@oceanity/firebot-helpers/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const SpotifyQueueVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyQueue",
     description:
-      "Gets an array containing the upcoming tracks in the active Spotify queue (up to 20)",
+      "Spotify Premium Only! Gets an array containing the upcoming tracks in the active Spotify queue (up to 20)",
     usage: "spotifyQueue",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],
@@ -24,6 +24,15 @@ export const SpotifyQueueVariable: ReplaceVariable = {
       },
     ],
   },
-  evaluator: async (_trigger, subject?: string) =>
-    objectWalkPath(spotify.player.queue.summary, subject),
+  evaluator: async (_trigger, subject?: string) => {
+    try {
+      const summary = await spotify.player.queue.getSummaryAsync();
+
+      const value = objectWalkPath(summary, subject) ?? "";
+  
+      return value;
+    } catch (e) {
+      return "";
+    }
+  }
 };

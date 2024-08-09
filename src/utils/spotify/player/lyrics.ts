@@ -1,10 +1,9 @@
-import DbService from "@utils/db";
-import { logger } from "@utils/firebot";
-import { getErrorMessage } from "@utils/string";
+import { logger } from "@oceanity/firebot-helpers/firebot";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { delay } from "@utils/time";
 import { SpotifyService } from "@utils/spotify";
 import { EventEmitter } from "events";
-import { ensureDir, pathExists, readFile } from "fs-extra";
+import { ensureDir, pathExists, readFile, writeFile } from "fs-extra";
 import { dirname, resolve } from "path";
 
 export const lyricsPath = "./lyrics";
@@ -71,9 +70,11 @@ export class SpotifyLyricsService extends EventEmitter {
     if (!id || !(await LyricsHelpers.lyricsFileExistsAsync(id))) return;
 
     const path = LyricsHelpers.lyricsFilePathFromId(id);
-    const db = new DbService(path, true, false);
 
-    const lyricsData = await db.getAsync<LyricsData>("/");
+    const lyricsFile = await readFile(path, "utf8").catch((error) => {
+      throw error;
+    });
+    const lyricsData = JSON.parse(lyricsFile) as LyricsData;
 
     this._lines = this.formatLines(lyricsData);
   }
@@ -90,16 +91,22 @@ export class SpotifyLyricsService extends EventEmitter {
   public async saveLyrics(id: string, lyricsData: LyricsData) {
     const filePath = LyricsHelpers.lyricsFilePathFromId(id);
 
-    const db = new DbService(filePath, true, false);
-    const response = await db.pushAsync(`/`, lyricsData);
+    try {
+      logger.info(`Saving lyrics to ${filePath}`);
 
-    // If current track, let's make it live
-    if (this._trackId === id) {
-      this.formatLines(lyricsData);
-      this.spotify.player.state.on("tick", this.tickHandler);
+      await ensureDir(dirname(filePath));
+      await writeFile(filePath, JSON.stringify(lyricsData));
+
+      // If current track, let's make it live
+      if (this._trackId === id) {
+        this.formatLines(lyricsData);
+        this.spotify.player.state.on("tick", this.tickHandler);
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
     }
-
-    return response;
   }
 
   private async handleNextTick(progressMs: number): Promise<void> {

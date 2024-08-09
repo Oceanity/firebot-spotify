@@ -1,8 +1,11 @@
-import { chatFeedAlert, logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from ".";
 import ResponseError from "@/models/responseError";
-import { formatMsToTimecode, getErrorMessage } from "../string";
-import { mergeObjects } from "../object";
+import {
+  formatMsToTimecode,
+  getErrorMessage,
+} from "@oceanity/firebot-helpers/string";
+import { mergeObjects } from "@oceanity/firebot-helpers/object";
 
 type SpotifyRateLimits = {
   [endpoint: string]: number;
@@ -114,8 +117,6 @@ export class SpotifyApiService {
       };
     } catch (error) {
       const message = getErrorMessage(error);
-      chatFeedAlert(message);
-
       logger.error(message, error);
       throw error;
     }

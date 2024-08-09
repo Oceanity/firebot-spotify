@@ -2,5 +2,15 @@
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-  "compile-hero.disable-compile-files-on-did-save-code": true
+  "compile-hero.disable-compile-files-on-did-save-code": true,
+  "cSpell.words": [
+    "Audiobook",
+    "audiobooks",
+    "crowbartools",
+    "firebot",
+    "isrc",
+    "oceanity",
+    "Timecode",
+    "Upsell"
+  ]
 }

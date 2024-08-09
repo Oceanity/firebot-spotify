@@ -1,13 +1,13 @@
 import { spotify } from "@/main";
 import { OutputDataType } from "@/shared/variable-constants";
-import { objectWalkPath } from "@/utils/object";
+import { objectWalkPath } from "@oceanity/firebot-helpers/object";
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 
 export const SpotifyPlaylistVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylist",
     description:
-      "Gets a specified field of the currently playing Spotify playlist, or the entire object if just called as $spoitfyPlaylist. See examples for all fields.",
+      "Gets a specified field of the currently playing Spotify playlist, or the entire object if just called as $spotifyPlaylist. See examples for all fields.",
     usage: "spotifyPlaylist[field]",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],

@@ -1,4 +1,4 @@
-import { logger } from "@utils/firebot";
+import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyQueueService } from "./queue";
 import { SpotifyPlaylistService } from "./playlist";
@@ -8,7 +8,7 @@ import { SpotifyTrackService } from "./track";
 import { EventEmitter } from "events";
 import ResponseError from "@/models/responseError";
 import { randomUUID } from "crypto";
-import { getErrorMessage } from "@/utils/string";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 export default class SpotifyPlayerService extends EventEmitter {
   private readonly spotify: SpotifyService;

@@ -30,13 +30,15 @@ describe("Spotify - Queue Service", () => {
     it("gets current queue", async () => {
       const response = await queue.getAsync();
 
-      expect(response.currently_playing.name).toBe(
+      expect(response).not.toBeNull();
+
+      expect(response?.currently_playing.name).toBe(
         testQueue.currently_playing.name
       );
-      expect(response.queue.length).toBe(testQueue.queue.length);
+      expect(response?.queue.length).toBe(testQueue.queue.length);
 
       for (let i = 0; i < testQueue.queue.length; i++) {
-        expect(response.queue[i].id).toBe(testQueue.queue[i].id);
+        expect(response?.queue[i].id).toBe(testQueue.queue[i].id);
       }
     });
   });

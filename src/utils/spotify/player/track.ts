@@ -1,4 +1,4 @@
-import { formatMsToTimecode } from "@/utils/string";
+import { formatMsToTimecode } from "@oceanity/firebot-helpers/string";
 import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyService } from "@utils/spotify";
 import { LargeNumberLike } from "crypto";
