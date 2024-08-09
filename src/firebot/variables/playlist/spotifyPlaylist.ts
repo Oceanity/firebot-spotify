@@ -7,7 +7,7 @@ export const SpotifyPlaylistVariable: ReplaceVariable = {
   definition: {
     handle: "spotifyPlaylist",
     description:
-      "Gets a specified field of the currently playing Spotify playlist, or the entire object if just called as $spoitfyPlaylist. See examples for all fields.",
+      "Gets a specified field of the currently playing Spotify playlist, or the entire object if just called as $spotifyPlaylist. See examples for all fields.",
     usage: "spotifyPlaylist[field]",
     //@ts-expect-error ts2322
     possibleDataOutput: [OutputDataType.OBJECT],

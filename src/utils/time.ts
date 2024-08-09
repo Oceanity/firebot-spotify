@@ -1,6 +1,6 @@
 import { logger } from "@oceanity/firebot-helpers/firebot";
 
-// Redeclaring because performance.now() is readonly in github environment, can't mock
+// Re-declaring because performance.now() is readonly in github environment, can't mock
 export const now = (): number => performance.now();
 
 export async function delay(ms: number, startTime?: number): Promise<void> {
