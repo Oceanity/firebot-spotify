@@ -1,8 +1,9 @@
 {
   "name": "oceanity-spotify",
+  "displayName": "Spotify (by Oceanity)",
   "scriptOutputName": "oceanitySpotifyIntegration",
-  "version": "0.7.4b",
-  "description": "Adds Spotify Song Requests to Firebot",
+  "version": "0.7.5",
+  "description": "Adds Spotify events, effects and variables to Firebot",
   "main": "",
   "scripts": {
     "build": "webpack",

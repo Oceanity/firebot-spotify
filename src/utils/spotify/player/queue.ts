@@ -3,6 +3,8 @@ import { SpotifyService } from "@utils/spotify";
 import {
   cleanUsername,
 } from "@oceanity/firebot-helpers/string";
+import { now } from "@/utils/time";
+import { trackSummaryFromDetails } from "./track";
 
 export type SpotifyUserQueueEntry = {
   position?: number;
@@ -14,9 +16,7 @@ export type SpotifyUserQueueEntry = {
 export class SpotifyQueueService {
   private readonly spotify: SpotifyService;
 
-  private _queue?: SpotifyQueueResponse;
   private _currentlyPlaying?: SpotifyTrackSummary | null;
-  private _queueSummary?: SpotifyTrackSummary[];
   private _userQueues: SpotifyUserQueueEntry[] = [];
   private _queuedBy: string | null;
 
@@ -62,14 +62,6 @@ export class SpotifyQueueService {
     return this._currentlyPlaying ?? null;
   }
 
-  public get raw(): SpotifyQueueResponse | null {
-    return this._queue ?? null;
-  }
-
-  public get summary(): SpotifyTrackSummary[] {
-    return this._queueSummary ?? [];
-  }
-
   public get userQueues(): SpotifyUserQueueEntry[] {
     return this._userQueues
       .filter((queue) => !queue.skip)
@@ -87,17 +79,38 @@ export class SpotifyQueueService {
     return this._queuedBy;
   }
 
-  public async getAsync(): Promise<SpotifyQueueResponse> {
+  public async getAsync(): Promise<SpotifyQueueResponse | null> {
     try {
       const response = await this.spotify.api.fetch<SpotifyQueueResponse>(
         "/me/player/queue"
       );
+
       if (!response.data) {
-        throw new Error("No active Spotify player was found");
+        return null;
       }
+
       return response.data;
     } catch (error) {
       logger.error("Error getting Spotify Queue", error);
+      return null;
+    }
+  }
+
+  public async getSummaryAsync(): Promise<SpotifyTrackSummary[]> {
+    try {
+      const queue = await this.getAsync();
+
+      if (!queue) {
+        return [];
+      }
+
+      let summary: SpotifyTrackSummary[] = queue.queue
+        .map((track) => trackSummaryFromDetails(track))
+        .filter((summary): summary is SpotifyTrackSummary => !!summary);
+
+      return summary
+    } catch (error) {
+      logger.error("Error getting Spotify Queue Summary", error);
       throw error;
     }
   }
@@ -134,9 +147,11 @@ export class SpotifyQueueService {
   }
 
   public async findIndexAsync(songUri: string) {
-    const response = await this.getAsync();
+    const queue = await this.getAsync();
 
-    return [response.currently_playing, ...response.queue].findIndex(
+    if (!queue) return -1;
+
+    return [queue.currently_playing, ...queue.queue].findIndex(
       (a) => a.uri === songUri
     );
   }

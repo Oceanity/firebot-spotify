@@ -24,6 +24,15 @@ export const SpotifyQueueVariable: ReplaceVariable = {
       },
     ],
   },
-  evaluator: async (_trigger, subject?: string) =>
-    objectWalkPath(spotify.player.queue.summary, subject),
+  evaluator: async (_trigger, subject?: string) => {
+    try {
+      const summary = await spotify.player.queue.getSummaryAsync();
+
+      const value = objectWalkPath(summary, subject) ?? "";
+  
+      return value;
+    } catch (e) {
+      return "";
+    }
+  }
 };
