@@ -1,13 +1,12 @@
 import { formatMsToTimecode } from "@oceanity/firebot-helpers/string";
 import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyService } from "@utils/spotify";
-import { LargeNumberLike } from "crypto";
 import { EventEmitter } from "events";
 
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
   private readonly urlRegex: RegExp =
-    /(?:https?:)\/\/open\.spotify\.com\/track\/(.+?)(?:\?.+)?(?:\W|$)/;
+    /(?:https?:)\/\/open\.spotify\.com\/(?:intl-[a-z]+\/)?track\/(.+?)(?:\?.+)?(?:\W|$)/;
 
   private _track?: SpotifyTrackDetails | null;
   private _trackSummary?: SpotifyTrackSummary;
