@@ -6,7 +6,7 @@ import { EventEmitter } from "events";
 export class SpotifyTrackService extends EventEmitter {
   private readonly spotify: SpotifyService;
   private readonly urlRegex: RegExp =
-    /(?:https?:)\/\/open\.spotify\.com\/track\/(?:intl-[a-z]+\/)?(.+?)(?:\?.+)?(?:\W|$)/;
+    /(?:https?:)\/\/open\.spotify\.com\/(?:intl-[a-z]+\/)?track\/(.+?)(?:\?.+)?(?:\W|$)/;
 
   private _track?: SpotifyTrackDetails | null;
   private _trackSummary?: SpotifyTrackSummary;

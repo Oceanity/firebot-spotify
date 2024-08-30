@@ -2,7 +2,7 @@
   "name": "oceanity-spotify",
   "displayName": "Spotify (by Oceanity)",
   "scriptOutputName": "oceanitySpotifyIntegration",
-  "version": "0.7.5",
+  "version": "0.7.5a",
   "description": "Adds Spotify events, effects and variables to Firebot",
   "main": "",
   "scripts": {

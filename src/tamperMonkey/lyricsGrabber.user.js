@@ -16,7 +16,7 @@
     fetch: originalFetch
   } = window;
 
-  const version = "0.7.5";
+  const version = "0.7.5a";
 
   // Consts
   const lyricUrlRegex = /https:\/\/spclient\.wg\.spotify\.com\/color-lyrics\/v2\/track\/([a-zA-Z0-9]+)\/image\/.+/;

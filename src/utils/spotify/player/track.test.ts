@@ -115,6 +115,12 @@ describe("Spotify - Track Service", () => {
       expect(track.isTrackUrl(goodUrl)).toBe(true);
     });
 
+    it("returns true if track url with international link", () => {
+      let goodUrl = "https://open.spotify.com/intl-ja/track/6EdXJoSUjYU3wotVjhDcKl?si=cce7b8dc26754566";
+
+      expect(track.isTrackUrl(goodUrl)).toBe(true);
+    });
+
     it("returns true if track url with extraneous whitespace", () => {
       let goodUrl =
         "     https://open.spotify.com/track/4PTG3Z6ehGkBFwjybzWkR8?si=ac674684a1d3410c      ";
@@ -151,6 +157,13 @@ describe("Spotify - Track Service", () => {
       const id = "4PTG3Z6ehGkBFwjybzWkR8";
       const url = `https://open.spotify.com/track/${id}`;
 
+      expect(track.getIdFromTrackUrl(url)).toBe(id);
+    });
+
+    it("returns id from track url with international link", () => {
+      const id = "4PTG3Z6ehGkBFwjybzWkR8";
+      const url = `https://open.spotify.com/intl-ja/track/${id}`;
+      
       expect(track.getIdFromTrackUrl(url)).toBe(id);
     });
 
