@@ -20,11 +20,9 @@ export const SpotifyUserQueuesVariable: ReplaceVariable = {
     ],
   },
 
-  evaluator: async (_trigger, subject: string = "") => {
-    const [username, key] = subject.split(",").map((s) => s.trim());
-
+  evaluator: async (_trigger, username: string = "", subject: string = "") => {
     let queue = spotify.player.queue.getTracksQueuedByUser(username);
 
-    return objectWalkPath(queue, key);
+    return objectWalkPath(queue, subject);
   },
 };
