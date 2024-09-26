@@ -3,7 +3,6 @@ import { SpotifyService } from "@utils/spotify";
 import {
   cleanUsername,
 } from "@oceanity/firebot-helpers/string";
-import { now } from "@/utils/time";
 import { trackSummaryFromDetails } from "./track";
 
 export type SpotifyUserQueueEntry = {
@@ -62,13 +61,10 @@ export class SpotifyQueueService {
     return this._currentlyPlaying ?? null;
   }
 
-  public get userQueues(): SpotifyUserQueueEntry[] {
+  public get userQueues(): SpotifyTrackSummary[] {
     return this._userQueues
       .filter((queue) => !queue.skip)
-      .map((queue, index) => ({
-        ...queue,
-        position: index + 1,
-      }));
+      .map((queue, index) => this.trackSummaryFromQueueEntry(queue, index));
   }
 
   public get trackWasUserQueued(): boolean {
@@ -78,6 +74,9 @@ export class SpotifyQueueService {
   public get queuedBy(): string | null {
     return this._queuedBy;
   }
+
+  public userHasQueuedTracks = (username?: string): boolean =>
+    !!username && this._userQueues.some((queue) => queue.queuedBy === cleanUsername(username));
 
   public async getAsync(): Promise<SpotifyQueueResponse | null> {
     try {
@@ -178,5 +177,15 @@ export class SpotifyQueueService {
   }
 
   private trackInQueue = (trackUri: string) =>
-    this.userQueues.some((queue) => queue.track.uri === trackUri);
+    this.userQueues.some((queue) => queue.uri === trackUri);
+
+  private trackSummaryFromQueueEntry = (
+    queue: SpotifyUserQueueEntry,
+    index: number
+  ): SpotifyTrackSummary => ({
+    ...queue.track,
+    queuedBy: queue.queuedBy,
+    queuePosition: index + 1,
+    skip: queue.skip,
+  });
 }
