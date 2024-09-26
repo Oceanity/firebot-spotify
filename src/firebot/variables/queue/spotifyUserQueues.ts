@@ -17,14 +17,35 @@ export const SpotifyUserQueuesVariable: ReplaceVariable = {
         description:
           "Gets an array containing the tracks queued by the specified user",
       },
+      {
+        usage: "spotifyUserQueues[$username, 0]",
+        description:
+          "Gets the first track queued by the specified user",
+      },
+      {
+        usage: "spotifyUserQueues[0]",
+        description:
+          "Gets the first track in the user queued tracks list",
+      }
     ],
   },
 
-  evaluator: async (_trigger, subject: string = "") => {
-    const [username, key] = subject.split(",").map((s) => s.trim());
+  evaluator: async (_trigger, username?: string, subject?: string) => {
+    if (!username) return objectWalkPath(spotify.player.queue.userQueues, subject);
+
+    const subjectRegex = /^(\d+)(\.\S+)*$/;
+    let swappedSubject = false;
+
+    // Check if username should be considered subject
+    if (!spotify.player.queue.userHasQueuedTracks(username) && !subject && subjectRegex.test(username)) {
+      subject = username;
+      username = undefined;
+
+      swappedSubject = true;
+    }
 
     let queue = spotify.player.queue.getTracksQueuedByUser(username);
 
-    return objectWalkPath(queue, key);
+    return objectWalkPath(queue, subject) ?? (!!subject || swappedSubject ? undefined : []);
   },
 };

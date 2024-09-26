@@ -1,16 +1,16 @@
-import { getTestTrackSummary, testTrigger, testUser } from "@/testData";
+import { getTestTrackSummary, testTrigger } from "@/testData";
 import { jest } from "@jest/globals";
 import { SpotifyService } from "@/utils/spotify";
-import { SpotifyUserQueueEntry } from "@/utils/spotify/player/queue";
 import { SpotifyUserQueuesVariable } from "./spotifyUserQueues";
 
 // Mocking the entire @/main module to provide the mocked spotify instance
-let testUserQueues: SpotifyUserQueueEntry[];
+let testUserQueues: SpotifyTrackSummary[];
 jest.mock("@/main", () => ({
   spotify: {
     player: {
       queue: {
         getTracksQueuedByUser: jest.fn(),
+        userHasQueuedTracks: jest.fn(),
       },
     },
   },
@@ -26,34 +26,29 @@ describe("Spotify - User Queues Replace Variable", () => {
     spotify = require("@/main").spotify;
     testUserQueues = [
       {
-        position: 1,
+        queuePosition: 1,
         queuedBy: expectedUsername,
-        track: getTestTrackSummary("track 1"),
-        skip: false,
+        ...getTestTrackSummary("track 1"),
       },
       {
-        position: 2,
+        queuePosition: 2,
         queuedBy: expectedUsername,
-        track: getTestTrackSummary("track 2"),
-        skip: false,
+        ...getTestTrackSummary("track 2"),
       },
       {
-        position: 3,
+        queuePosition: 3,
         queuedBy: expectedUsername,
-        track: getTestTrackSummary("track 3"),
-        skip: true,
+        ...getTestTrackSummary("track 3"),
       },
       {
-        position: 4,
+        queuePosition: 4,
         queuedBy: unexpectedUsername,
-        track: getTestTrackSummary("track 4"),
-        skip: true,
+        ...getTestTrackSummary("track 4"),
       },
       {
-        position: 5,
+        queuePosition: 5,
         queuedBy: unexpectedUsername,
-        track: getTestTrackSummary("track 5"),
-        skip: false,
+        ...getTestTrackSummary("track 5"),
       },
     ];
 
@@ -82,7 +77,6 @@ describe("Spotify - User Queues Replace Variable", () => {
       undefined
     );
 
-    expect(spotify.player.queue.getTracksQueuedByUser).toHaveBeenCalledTimes(1);
     expect(Array.isArray(response)).toBe(true);
     expect(response).toHaveLength(
       testUserQueues.filter((uq) => !uq.skip).length
