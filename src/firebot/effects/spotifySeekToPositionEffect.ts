@@ -32,7 +32,7 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<EffectParams> = {
       <firebot-input
         model="effect.seekPosition"
         input-title="Seek position"
-        placeholder-text="Enter position in miliseconds"
+        placeholder-text="Enter position in milliseconds"
         menu-position="under" />
     </eos-container>
   `,
