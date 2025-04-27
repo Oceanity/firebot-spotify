@@ -1,16 +1,21 @@
-import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import {
-  generateSpotifyIntegration,
   generateSpotifyDefinition,
+  generateSpotifyIntegration,
 } from "@/spotifyIntegration";
+import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import * as packageJson from "../package.json";
 
-export const { version, name: namespace, displayName: name, description, author } = packageJson;
+export const {
+  version,
+  name: namespace,
+  displayName: name,
+  description,
+  author,
+} = packageJson;
 
-import { initModules } from "@oceanity/firebot-helpers/firebot";
-import { chatFeedAlert } from "@oceanity/firebot-helpers/firebot";
-import { SpotifyService } from "./utils/spotify/index";
+import { chatFeedAlert, initModules } from "@oceanity/firebot-helpers/firebot";
 import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
+import { SpotifyService } from "./utils/spotify/index";
 
 export let spotify: SpotifyService;
 
@@ -28,6 +33,7 @@ const script: Firebot.CustomScript<Params> = {
     return {
       spotifyClientId: {
         type: "string",
+        title: "Spotify Client Id",
         default: "",
         description: "Spotify Client Id",
         secondaryDescription:
@@ -36,6 +42,7 @@ const script: Firebot.CustomScript<Params> = {
 
       spotifyClientSecret: {
         type: "string",
+        title: "Spotify Client Secret",
         default: "",
         description: "Spotify Client Secret",
         secondaryDescription:

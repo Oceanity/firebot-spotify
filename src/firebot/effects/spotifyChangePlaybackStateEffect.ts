@@ -12,7 +12,6 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> 
       description: "Changes playback state of active Spotify device",
       icon: "fab fa-spotify",
       categories: ["integrations"],
-      //@ts-expect-error ts2353
       outputs: [
         {
           label: "Playback state was changed",

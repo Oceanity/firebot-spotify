@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
-import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 type EffectParams = { volume: string };
 
@@ -12,7 +12,6 @@ export const SpotifyChangePlaybackVolumeEffect: Firebot.EffectType<EffectParams>
       description: "Changes playback volume of active Spotify device",
       icon: "fab fa-spotify",
       categories: ["integrations"],
-      //@ts-expect-error ts2353
       outputs: [
         {
           label: "Volume was changed",
