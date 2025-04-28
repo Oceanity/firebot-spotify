@@ -12,11 +12,6 @@ type ClientCredentials = {
   secret: string;
 };
 
-interface Params {
-  spotifyClientId: string;
-  spotifyClientSecret: string;
-}
-
 type IntegrationDefinition<Params extends FirebotParams = FirebotParams> = {
   id: string;
   name: string;

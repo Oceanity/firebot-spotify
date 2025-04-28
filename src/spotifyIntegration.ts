@@ -1,20 +1,20 @@
-import { EventEmitter } from "events";
+import { namespace } from "@/main";
+import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import ResponseError from "@models/responseError";
 import {
-  logger,
-  integrationManager,
   effectManager,
-  variableManager,
   eventManager,
   httpServer,
+  integrationManager,
+  logger,
+  variableManager,
 } from "@oceanity/firebot-helpers/firebot";
-import { namespace } from "@/main";
+import { now } from "@utils/time";
+import { EventEmitter } from "events";
 import { AllSpotifyEffects } from "./firebot/effects";
+import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
 import { AllSpotifyWebhooks } from "./firebot/webhooks";
-import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
-import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
-import { now } from "@utils/time";
 
 const spotifyScopes = [
   "app-remote-control",
@@ -144,7 +144,8 @@ export class SpotifyIntegration extends EventEmitter {
 }
 
 export const generateSpotifyDefinition = (
-  client: ClientCredentials
+  client: ClientCredentials,
+  redirectUriHost: string = "localhost"
 ): IntegrationDefinition => ({
   id: namespace,
   name: "Spotify (by Oceanity)",
@@ -156,7 +157,7 @@ export const generateSpotifyDefinition = (
   authProviderDetails: {
     id: namespace,
     name: "Spotify",
-    redirectUriHost: "localhost",
+    redirectUriHost,
     client,
     auth: {
       type: "code",

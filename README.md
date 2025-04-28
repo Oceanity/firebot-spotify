@@ -13,6 +13,7 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
   - App name and description can be whatever you want
   - Website is optional, also doesn't matter what you use here
   - Callback Url must be `http://localhost:7472/api/v1/auth/callback`
+    - Change `localhost` to your specified Callback Hostname if you changed that in the script settings
   - API/SDKs to use are Web API and Web Playback API
   - Click checkbox to agree with Spotify's TOS and Design Guidelines
 - Take note of the Client ID and Client Secret, these are required to use this script
