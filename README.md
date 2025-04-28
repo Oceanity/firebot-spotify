@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity <sub style="color:gray">0.7.8</sub>
+# Spotify Integration by Oceanity <sub style="color:gray">0.7.9</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
@@ -12,8 +12,7 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
 - Log in to your Spotify Account on https://developer.spotify.com/ and click "Create app"
   - App name and description can be whatever you want
   - Website is optional, also doesn't matter what you use here
-  - Callback Url must be `http://localhost:7472/api/v1/auth/callback`
-    - Change `localhost` to your specified Callback Hostname if you changed that in the script settings
+  - Callback Url must be `http://127.0.0.1:7472/api/v1/auth/callback`
   - API/SDKs to use are Web API and Web Playback API
   - Click checkbox to agree with Spotify's TOS and Design Guidelines
 - Take note of the Client ID and Client Secret, these are required to use this script

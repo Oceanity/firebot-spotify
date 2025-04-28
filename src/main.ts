@@ -56,9 +56,8 @@ const script: Firebot.CustomScript<Params> = {
       spotifyCallbackHostname: {
         type: "string",
         title: "Spotify Callback Hostname",
-        default: "localhost",
-        description:
-          "Callback Hostname for the Spotify API. If for some reason Spotify doesn't let you use `localhost`, try `127.0.0.1` instead.",
+        default: "127.0.0.1",
+        description: "Callback Hostname for the Spotify API.",
       },
     };
   },
@@ -91,7 +90,7 @@ const script: Firebot.CustomScript<Params> = {
     };
 
     const [definition, integration] = [
-      generateSpotifyDefinition(client),
+      generateSpotifyDefinition(client, spotifyCallbackHostname),
       generateSpotifyIntegration(client),
     ];
 
