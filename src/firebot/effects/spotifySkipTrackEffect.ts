@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
-import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 export enum SpotifySkipTarget {
   Previous = "Previous",
@@ -16,7 +16,6 @@ export const SpotifySkipTrackEffect: Firebot.EffectType<EffectParams> = {
     description: "Skip current track on active Spotify device",
     icon: "fab fa-spotify",
     categories: ["integrations"],
-    //@ts-expect-error ts2353
     outputs: [
       {
         label: "Track was skipped",
