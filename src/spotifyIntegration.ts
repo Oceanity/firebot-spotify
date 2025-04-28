@@ -145,7 +145,7 @@ export class SpotifyIntegration extends EventEmitter {
 
 export const generateSpotifyDefinition = (
   client: ClientCredentials,
-  redirectUriHost: string = "localhost"
+  redirectUriHost: string = "127.0.0.1"
 ): IntegrationDefinition => ({
   id: namespace,
   name: "Spotify (by Oceanity)",
