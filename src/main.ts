@@ -68,7 +68,7 @@ const script: Firebot.CustomScript<Params> = {
     const { integrationManager, logger } = runRequest.modules;
 
     const paramErrors = Object.entries(runRequest.parameters)
-      .filter(([_, value]) => !!value)
+      .filter(([_, value]) => !value)
       .map(([key]) =>
         key
           .replace(/([a-z])([A-Z])/g, "$1 $2")
