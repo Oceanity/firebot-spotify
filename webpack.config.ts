@@ -31,6 +31,15 @@ module.exports = {
               .replace(/\$PROJECT_VERSION/g, packageJson.version);
           },
         },
+        {
+          from: path.resolve(__dirname, "src/md/README.md"),
+          to: path.resolve(__dirname, "README.md"),
+          transform(content) {
+            return content
+              .toString()
+              .replace(/\$PROJECT_VERSION/g, packageJson.version);
+          },
+        },
       ],
     }),
   ],

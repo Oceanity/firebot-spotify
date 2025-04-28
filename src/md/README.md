@@ -1,4 +1,4 @@
-# Spotify Integration by Oceanity <sub style="color:gray">0.7.8</sub>
+# Spotify Integration by Oceanity <sub style="color:gray">$PROJECT_VERSION</sub>
 
 This is a Firebot Script that will allow you to integrate Spotify functionality and information into your Firebot setup. Due to very stict limits on Spotify's API, it does require that you make your own application in Spotify's developer portal and supply your own Client ID and Secret.
 
