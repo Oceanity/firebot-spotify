@@ -1,0 +1,3 @@
+bugfix: ["bugfix/*", "hotfix/*"]
+feature: ["feature/*"]
+housekeeping: ["housekeeping/*", "chore/*"]
