@@ -2,7 +2,7 @@
   "name": "oceanity-spotify",
   "displayName": "Spotify (by Oceanity)",
   "scriptOutputName": "oceanitySpotifyIntegration",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "Adds Spotify events, effects and variables to Firebot",
   "main": "",
   "scripts": {
@@ -14,7 +14,7 @@
   "author": "Oceanity",
   "license": "GNU3",
   "devDependencies": {
-    "@crowbartools/firebot-custom-scripts-types": "^5.60.1",
+    "@crowbartools/firebot-custom-scripts-types": "^5.63.2",
     "@oceanity/firebot-helpers": "^1.1.1",
     "@types/express": "^4.17.21",
     "@types/fs-extra": "^11.0.4",

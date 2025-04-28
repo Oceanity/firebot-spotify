@@ -14,7 +14,6 @@ export const SpotifyChangeRepeatStateEffect: Firebot.EffectType<EffectParams> =
       description: "Changes repeat mode of active Spotify device",
       icon: "fab fa-spotify",
       categories: ["integrations"],
-      //@ts-expect-error ts2353
       outputs: [
         {
           label: "Repeat mode was changed",

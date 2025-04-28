@@ -1,8 +1,8 @@
 import { spotify } from "@/main";
-import { logger } from "@oceanity/firebot-helpers/firebot";
 import { trackSummaryFromDetails } from "@/utils/spotify/player/track";
-import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { logger } from "@oceanity/firebot-helpers/firebot";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 type EffectParams = {
   query: string;
@@ -20,7 +20,6 @@ export const SpotifyFindAndEnqueueTrackEffect: Firebot.EffectType<EffectParams> 
       description: "Searches for a track to add to your Spotify queue",
       icon: "fab fa-spotify",
       categories: ["integrations"],
-      //@ts-expect-error ts2353
       outputs: [
         {
           label: "Track was enqueued",

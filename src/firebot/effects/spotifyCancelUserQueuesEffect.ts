@@ -1,7 +1,7 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { logger } from "@oceanity/firebot-helpers/firebot";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 type EffectParams = { username: string; amount: string };
 
@@ -13,7 +13,6 @@ export const SpotifyCancelUserQueuesEffect: Firebot.EffectType<EffectParams> = {
       "Skips the last or all queues made by provided user (or all tracks if no user is provided)",
     icon: "fab fa-spotify",
     categories: ["integrations"],
-    //@ts-expect-error ts2353
     outputs: [
       {
         label: "Track(s) were skipped",

@@ -1,6 +1,6 @@
 import { spotify } from "@/main";
-import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 type EffectParams = { seekPosition: number };
 
@@ -11,7 +11,6 @@ export const SpotifySeekToPositionEffect: Firebot.EffectType<EffectParams> = {
     description: "Seeks to position in track",
     icon: "fab fa-spotify",
     categories: ["integrations"],
-    //@ts-expect-error ts2353
     outputs: [
       {
         label: "Seek was successful",
