@@ -1,7 +1,7 @@
-const path = require("path");
-const TerserPlugin = require("terser-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const packageJson = require("./package.json");
+import * as CopyWebpackPlugin from "copy-webpack-plugin";
+import * as path from "path";
+import * as TerserPlugin from "terser-webpack-plugin";
+import * as packageJson from "./package.json";
 
 module.exports = {
   target: "node",
@@ -18,10 +18,20 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: [{
-        from: path.resolve(__dirname, "src/tamperMonkey/lyricsGrabber.user.js"),
-        to: path.resolve(__dirname, "dist/lyricsGrabber.user.js"),
-      }],
+      patterns: [
+        {
+          from: path.resolve(
+            __dirname,
+            "src/tamperMonkey/lyricsGrabber.user.js"
+          ),
+          to: path.resolve(__dirname, "dist/lyricsGrabber.user.js"),
+          transform(content) {
+            return content
+              .toString()
+              .replace(/\$PROJECT_VERSION/g, packageJson.version);
+          },
+        },
+      ],
     }),
   ],
   resolve: {
@@ -34,10 +44,12 @@ module.exports = {
     },
   },
   module: {
-    rules: [{
-      test: /\.ts$/,
-      loader: "ts-loader",
-    }, ],
+    rules: [
+      {
+        test: /\.ts$/,
+        loader: "ts-loader",
+      },
+    ],
   },
   optimization: {
     minimize: false,
@@ -55,4 +67,4 @@ module.exports = {
       }),
     ],
   },
-}
+};
