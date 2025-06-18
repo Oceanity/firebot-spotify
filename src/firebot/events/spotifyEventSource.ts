@@ -1,6 +1,8 @@
+import { SPOTIFY_INTEGRATION_ID, SPOTIFY_INTEGRATION_NAME } from "@/constants";
+
 export const SpotifyEventSource = {
-  id: "oceanity-spotify",
-  name: "Spotify by Oceanity",
+  id: SPOTIFY_INTEGRATION_ID,
+  name: SPOTIFY_INTEGRATION_NAME,
   description: "Events related to Oceanity's Spotify integration",
   events: [
     {

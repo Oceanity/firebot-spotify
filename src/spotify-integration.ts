@@ -1,22 +1,11 @@
 import { SPOTIFY_INTEGRATION_ID, SPOTIFY_SCOPES } from "@/constants";
-import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import ResponseError from "@models/responseError";
-import {
-  effectManager,
-  eventManager,
-  httpServer,
-  integrationManager,
-  logger,
-  variableManager,
-} from "@oceanity/firebot-helpers/firebot";
+import { integrationManager, logger } from "@oceanity/firebot-helpers/firebot";
 import { now } from "@utils/time";
-import { AllSpotifyEffects } from "./firebot/effects";
-import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
-import { AllSpotifyReplaceVariables } from "./firebot/variables";
-import { AllSpotifyWebhooks } from "./firebot/webhooks";
 
 import {
   IntegrationController,
+  IntegrationData,
   IntegrationEvents,
 } from "@crowbartools/firebot-custom-scripts-types";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -41,33 +30,8 @@ export class SpotifyIntegration
   async init() {
     logger.info("Initializing Spotify Integration...");
 
-    // Register Effects
-    for (const effect of AllSpotifyEffects) {
-      effect.definition.id = `${SPOTIFY_INTEGRATION_ID}:${effect.definition.id}`;
-
-      effectManager.registerEffect(
-        effect as Effects.EffectType<{ [key: string]: any }>
-      );
-    }
-
-    // Free Replace Variables
-    for (const variable of AllSpotifyReplaceVariables) {
-      variableManager.registerReplaceVariable(variable);
-    }
-
-    // Register Events
-    SpotifyEventSource.id = SPOTIFY_INTEGRATION_ID;
-    eventManager.registerEventSource(SpotifyEventSource);
-
-    // Register Webhooks
-    for (const webhook of AllSpotifyWebhooks) {
-      const [path, method, handler] = webhook;
-      httpServer.registerCustomRoute(
-        SPOTIFY_INTEGRATION_ID,
-        path,
-        method,
-        handler
-      );
+    if (!this.connected) {
+      this.connected = true;
     }
   }
 
@@ -79,6 +43,12 @@ export class SpotifyIntegration
 
   async unlink() {
     logger.info("Unlinking from Spotify Integration...");
+  }
+
+  async onUserSettingsUpdate(
+    integrationData: IntegrationData<SpotifyIntegrationSettings>
+  ) {
+    logger.info("Integration Data", integrationData);
   }
 
   async refreshToken(): Promise<AuthDefinition | null> {

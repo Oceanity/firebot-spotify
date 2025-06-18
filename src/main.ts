@@ -2,6 +2,7 @@ import {
   SPOTIFY_INTEGRATION_AUTHOR,
   SPOTIFY_INTEGRATION_DESCRIPTION,
   SPOTIFY_INTEGRATION_FIREBOT_VERSION,
+  SPOTIFY_INTEGRATION_ID,
   SPOTIFY_INTEGRATION_NAME,
   SPOTIFY_INTEGRATION_VERSION,
 } from "@/constants";
@@ -12,7 +13,12 @@ import {
 import { checkRemoteScriptVersionAsync } from "@/utils";
 import { SpotifyService } from "@/utils/spotify/index";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import { chatFeedAlert, initModules } from "@oceanity/firebot-helpers/firebot";
+import { AllSpotifyEffects } from "./firebot/effects";
+import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
+import { AllSpotifyReplaceVariables } from "./firebot/variables";
+import { AllSpotifyWebhooks } from "./firebot/webhooks";
 
 export let spotify: SpotifyService;
 
@@ -86,6 +92,48 @@ const script: Firebot.CustomScript<Params> = {
       secret: spotifyClientSecret,
     };
 
+    //@ts-expect-error ts2339
+    runRequest.modules.twitchChat.once("connected", async () => {
+      const updateResponse = await checkRemoteScriptVersionAsync();
+
+      if (!updateResponse.newVersionAvailable) return;
+
+      await chatFeedAlert(
+        `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
+      );
+    });
+
+    // Register Replace Variables
+    for (const variable of AllSpotifyReplaceVariables) {
+      runRequest.modules.replaceVariableManager.registerReplaceVariable(
+        variable
+      );
+    }
+
+    // Register Effects
+    for (const effect of AllSpotifyEffects) {
+      effect.definition.id = `${SPOTIFY_INTEGRATION_ID}:${effect.definition.id}`;
+
+      runRequest.modules.effectManager.registerEffect(
+        effect as Effects.EffectType<{ [key: string]: any }>
+      );
+    }
+
+    // Register Events
+    SpotifyEventSource.id = SPOTIFY_INTEGRATION_ID;
+    runRequest.modules.eventManager.registerEventSource(SpotifyEventSource);
+
+    // Register Webhooks
+    for (const webhook of AllSpotifyWebhooks) {
+      const [path, method, handler] = webhook;
+      runRequest.modules.httpServer.registerCustomRoute(
+        SPOTIFY_INTEGRATION_ID,
+        path,
+        method,
+        handler
+      );
+    }
+
     const [definition, integration] = [
       generateSpotifyDefinition(client, spotifyCallbackHostname),
       generateSpotifyIntegration(client),
@@ -95,17 +143,6 @@ const script: Firebot.CustomScript<Params> = {
     integrationManager.registerIntegration({
       definition,
       integration,
-    });
-
-    //@ts-expect-error ts2339
-    runRequest.modules.twitchChat.on("connected", async () => {
-      const updateResponse = await checkRemoteScriptVersionAsync();
-
-      if (!updateResponse.newVersionAvailable) return;
-
-      await chatFeedAlert(
-        `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
-      );
     });
 
     await spotify.init();
