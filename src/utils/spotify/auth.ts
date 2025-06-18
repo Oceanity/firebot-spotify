@@ -1,9 +1,9 @@
+import { SPOTIFY_INTEGRATION_ID as namespace } from "@/constants";
+import { integration } from "@/spotify-integration";
 import { integrationManager, logger } from "@oceanity/firebot-helpers/firebot";
-import { integration } from "@/spotifyIntegration";
-import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
+import { SpotifyService } from "@utils/spotify";
 import { now } from "@utils/time";
-import { namespace } from "@/main";
 
 export default class SpotifyAuthService {
   private spotify: SpotifyService;

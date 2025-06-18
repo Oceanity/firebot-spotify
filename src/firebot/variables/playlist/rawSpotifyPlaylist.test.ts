@@ -1,7 +1,7 @@
 import "@/mocks/firebot";
-import { testTrigger, testPlaylist } from "@/testData";
-import { jest } from "@jest/globals";
+import { testPlaylist, testTrigger } from "@/test-data";
 import { SpotifyService } from "@/utils/spotify";
+import { jest } from "@jest/globals";
 import { RawSpotifyPlaylistVariable } from "./rawSpotifyPlaylist";
 
 // Mocking the entire @/main module to provide the mocked spotify instance

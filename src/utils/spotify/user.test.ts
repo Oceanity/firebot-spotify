@@ -1,6 +1,6 @@
-import { SpotifyService } from "@utils/spotify";
+import { testSearchResponse, testUser } from "@/test-data";
 import { jest } from "@jest/globals";
-import { testSearchResponse, testUser } from "@/testData";
+import { SpotifyService } from "@utils/spotify";
 import SpotifyProfileService from "./user";
 
 describe("Spotify - Profile Service", () => {

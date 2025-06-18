@@ -1,11 +1,12 @@
-import { logger } from "@oceanity/firebot-helpers/firebot";
-import { SpotifyService } from ".";
+import { SPOTIFY_API_URL } from "@/constants";
 import ResponseError from "@/models/responseError";
+import { logger } from "@oceanity/firebot-helpers/firebot";
+import { mergeObjects } from "@oceanity/firebot-helpers/object";
 import {
   formatMsToTimecode,
   getErrorMessage,
 } from "@oceanity/firebot-helpers/string";
-import { mergeObjects } from "@oceanity/firebot-helpers/object";
+import { SpotifyService } from ".";
 
 type SpotifyRateLimits = {
   [endpoint: string]: number;
@@ -27,8 +28,7 @@ export class SpotifyApiService {
     this.spotify = spotifyService;
   }
 
-  public readonly baseUrl = "https://api.spotify.com/v1";
-  public getUrlFromPath = (path: string): string => `${this.baseUrl}${path}`;
+  public getUrlFromPath = (path: string): string => `${SPOTIFY_API_URL}${path}`;
 
   /**
    * Makes a request to the Spotify API.
@@ -94,7 +94,7 @@ export class SpotifyApiService {
             );
           default:
             throw new ResponseError(
-              `Spotify API ${endpoint} returned status ${response.status}`,
+              `Spotify API ${method} ${endpoint} returned status ${response.status}`,
               response
             );
         }

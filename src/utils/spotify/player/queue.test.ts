@@ -1,6 +1,6 @@
+import { testQueue } from "@/test-data";
 import { jest } from "@jest/globals";
 import { SpotifyService } from "@utils/spotify";
-import { testQueue } from "@/testData";
 import { SpotifyQueueService } from "./queue";
 
 describe("Spotify - Queue Service", () => {

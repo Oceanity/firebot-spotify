@@ -1,7 +1,7 @@
-import { getTestTrackSummary, testTrigger } from "@/testData";
-import { SpotifyQueueVariable } from "./spotifyQueue";
-import { jest } from "@jest/globals";
+import { getTestTrackSummary, testTrigger } from "@/test-data";
 import { SpotifyService } from "@/utils/spotify";
+import { jest } from "@jest/globals";
+import { SpotifyQueueVariable } from "./spotifyQueue";
 
 // Mocking the entire @/main module to provide the mocked spotify instance
 jest.mock("@/main", () => ({
@@ -90,9 +90,7 @@ describe("Spotify - Queue Replace Variable", () => {
   });
 
   it("returns empty array if queue does not exist", async () => {
-    jest
-      .spyOn(spotify.player.queue, "getSummaryAsync")
-      .mockResolvedValue([]);
+    jest.spyOn(spotify.player.queue, "getSummaryAsync").mockResolvedValue([]);
 
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,
@@ -102,18 +100,14 @@ describe("Spotify - Queue Replace Variable", () => {
   });
 
   it("returns empty string if index passed when queue does not exist", async () => {
-    jest
-      .spyOn(spotify.player.queue, "getSummaryAsync")
-      .mockResolvedValue([]);
+    jest.spyOn(spotify.player.queue, "getSummaryAsync").mockResolvedValue([]);
 
     const response = await SpotifyQueueVariable.evaluator(testTrigger, "0");
     expect(response).toBe("");
   });
 
   it("returns empty string if index and field passed when queue does not exist", async () => {
-    jest
-      .spyOn(spotify.player.queue, "getSummaryAsync")
-      .mockResolvedValue([]);
+    jest.spyOn(spotify.player.queue, "getSummaryAsync").mockResolvedValue([]);
 
     const response = await SpotifyQueueVariable.evaluator(
       testTrigger,

@@ -1,4 +1,5 @@
-import { namespace } from "@/main";
+import { SPOTIFY_INTEGRATION_ID, SPOTIFY_SCOPES } from "@/constants";
+import { IntegrationData } from "@crowbartools/firebot-custom-scripts-types";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import ResponseError from "@models/responseError";
 import {
@@ -15,18 +16,7 @@ import { AllSpotifyEffects } from "./firebot/effects";
 import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
 import { AllSpotifyWebhooks } from "./firebot/webhooks";
-
-const spotifyScopes = [
-  "app-remote-control",
-  "streaming",
-  "user-modify-playback-state",
-  "user-read-currently-playing",
-  "user-read-email",
-  "user-read-playback-position",
-  "user-read-playback-state",
-  "user-read-private",
-  "user-read-recently-played",
-];
+import { SpotifyIntegrationSettings } from "./types";
 
 let spotifyDefinition: IntegrationDefinition | null = null;
 
@@ -39,12 +29,15 @@ export class SpotifyIntegration extends EventEmitter {
     spotifyDefinition = generateSpotifyDefinition(client);
   }
 
-  async init() {
+  async init(
+    _linked: boolean,
+    _integrationData: IntegrationData<SpotifyIntegrationSettings>
+  ) {
     logger.info("Initializing Spotify Integration...");
 
     // Register Effects
     for (const effect of AllSpotifyEffects) {
-      effect.definition.id = `${namespace}:${effect.definition.id}`;
+      effect.definition.id = `${SPOTIFY_INTEGRATION_ID}:${effect.definition.id}`;
 
       effectManager.registerEffect(
         effect as Effects.EffectType<{ [key: string]: any }>
@@ -57,13 +50,18 @@ export class SpotifyIntegration extends EventEmitter {
     }
 
     // Register Events
-    SpotifyEventSource.id = namespace;
+    SpotifyEventSource.id = SPOTIFY_INTEGRATION_ID;
     eventManager.registerEventSource(SpotifyEventSource);
 
     // Register Webhooks
     for (const webhook of AllSpotifyWebhooks) {
       const [path, method, handler] = webhook;
-      httpServer.registerCustomRoute(namespace, path, method, handler);
+      httpServer.registerCustomRoute(
+        SPOTIFY_INTEGRATION_ID,
+        path,
+        method,
+        handler
+      );
     }
   }
 
@@ -147,15 +145,30 @@ export const generateSpotifyDefinition = (
   client: ClientCredentials,
   redirectUriHost: string = "127.0.0.1"
 ): IntegrationDefinition => ({
-  id: namespace,
+  id: SPOTIFY_INTEGRATION_ID,
   name: "Spotify (by Oceanity)",
   description:
     "Integrations with Spotify that can show now playing information and control your Spotify devices.",
   connectionToggle: false,
   linkType: "auth",
-  settingCategories: {},
+  settingCategories: {
+    general: [
+      {
+        id: "client_id",
+        name: "Client ID",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "client_secret",
+        name: "Client Secret",
+        type: "text",
+        required: true,
+      },
+    ],
+  },
   authProviderDetails: {
-    id: namespace,
+    id: SPOTIFY_INTEGRATION_ID,
     name: "Spotify",
     redirectUriHost,
     client,
@@ -166,8 +179,8 @@ export const generateSpotifyDefinition = (
       tokenHost: "https://accounts.spotify.com",
       tokenPath: "/api/token",
     },
-    autoRefreshToken: true,
-    scopes: spotifyScopes.join(" "),
+    autoRefreshToken: false,
+    scopes: SPOTIFY_SCOPES.join(" "),
   },
 });
 
@@ -180,10 +193,12 @@ export let integration: SpotifyIntegration;
 
 // #region Helper Functions
 const getSpotifyAuthFromIntegration = (): AuthDefinition =>
-  integrationManager.getIntegrationById(namespace).definition.auth;
+  integrationManager.getIntegrationById(SPOTIFY_INTEGRATION_ID).definition.auth;
 
 function updateIntegrationAuth(data: unknown) {
-  const currentIntegration = integrationManager.getIntegrationById(namespace);
+  const currentIntegration = integrationManager.getIntegrationById(
+    SPOTIFY_INTEGRATION_ID
+  );
   //@ts-expect-error ts2339
   integrationManager.saveIntegrationAuth(currentIntegration, data);
 }

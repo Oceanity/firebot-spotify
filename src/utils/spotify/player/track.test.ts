@@ -1,9 +1,9 @@
+import { testTrack } from "@/test-data";
 import { jest } from "@jest/globals";
-import { SpotifyService } from "@utils/spotify";
-import { testTrack } from "@/testData";
-import { getBiggestImageUrl } from "@utils/array";
-import { SpotifyTrackService } from "./track";
 import { formatMsToTimecode } from "@oceanity/firebot-helpers/string";
+import { getBiggestImageUrl } from "@utils/array";
+import { SpotifyService } from "@utils/spotify";
+import { SpotifyTrackService } from "./track";
 
 describe("Spotify - Track Service", () => {
   let spotify: SpotifyService;
@@ -116,7 +116,8 @@ describe("Spotify - Track Service", () => {
     });
 
     it("returns true if track url with international link", () => {
-      let goodUrl = "https://open.spotify.com/intl-ja/track/6EdXJoSUjYU3wotVjhDcKl?si=cce7b8dc26754566";
+      let goodUrl =
+        "https://open.spotify.com/intl-ja/track/6EdXJoSUjYU3wotVjhDcKl?si=cce7b8dc26754566";
 
       expect(track.isTrackUrl(goodUrl)).toBe(true);
     });
@@ -163,7 +164,7 @@ describe("Spotify - Track Service", () => {
     it("returns id from track url with international link", () => {
       const id = "4PTG3Z6ehGkBFwjybzWkR8";
       const url = `https://open.spotify.com/intl-ja/track/${id}`;
-      
+
       expect(track.getIdFromTrackUrl(url)).toBe(id);
     });
 
