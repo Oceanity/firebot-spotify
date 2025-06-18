@@ -1,6 +1,6 @@
-import { testLyricData } from "@/testData";
+import { testLyricData } from "@/test-data";
 import { SpotifyService } from "..";
-import { SpotifyLyricsService, LyricsHelpers } from "./lyrics";
+import { LyricsHelpers, SpotifyLyricsService } from "./lyrics";
 
 describe("Spotify - Lyrics Service", () => {
   let spotify: SpotifyService;

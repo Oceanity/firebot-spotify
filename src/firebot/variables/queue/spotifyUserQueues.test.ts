@@ -1,6 +1,6 @@
-import { getTestTrackSummary, testTrigger } from "@/testData";
-import { jest } from "@jest/globals";
+import { getTestTrackSummary, testTrigger } from "@/test-data";
 import { SpotifyService } from "@/utils/spotify";
+import { jest } from "@jest/globals";
 import { SpotifyUserQueuesVariable } from "./spotifyUserQueues";
 
 // Mocking the entire @/main module to provide the mocked spotify instance

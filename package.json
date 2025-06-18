@@ -46,5 +46,8 @@
   "volta": {
     "node": "18.18.2",
     "npm": "10.2.4"
+  },
+  "dependencies": {
+    "tiny-typed-emitter": "^2.1.0"
   }
 }

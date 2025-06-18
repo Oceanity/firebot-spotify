@@ -1,21 +1,18 @@
 import {
+  SPOTIFY_INTEGRATION_AUTHOR,
+  SPOTIFY_INTEGRATION_DESCRIPTION,
+  SPOTIFY_INTEGRATION_FIREBOT_VERSION,
+  SPOTIFY_INTEGRATION_NAME,
+  SPOTIFY_INTEGRATION_VERSION,
+} from "@/constants";
+import {
   generateSpotifyDefinition,
   generateSpotifyIntegration,
-} from "@/spotifyIntegration";
+} from "@/spotify-integration";
+import { checkRemoteScriptVersionAsync } from "@/utils";
+import { SpotifyService } from "@/utils/spotify/index";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import * as packageJson from "../package.json";
-
-export const {
-  version,
-  name: namespace,
-  displayName: name,
-  description,
-  author,
-} = packageJson;
-
 import { chatFeedAlert, initModules } from "@oceanity/firebot-helpers/firebot";
-import { checkRemoteVersionAsync } from "./firebot/webhooks/versionCheck";
-import { SpotifyService } from "./utils/spotify/index";
 
 export let spotify: SpotifyService;
 
@@ -28,11 +25,11 @@ type Params = {
 const script: Firebot.CustomScript<Params> = {
   getScriptManifest: () => {
     return {
-      name,
-      description,
-      author,
-      version,
-      firebotVersion: "5",
+      name: SPOTIFY_INTEGRATION_NAME,
+      description: SPOTIFY_INTEGRATION_DESCRIPTION,
+      author: SPOTIFY_INTEGRATION_AUTHOR,
+      version: SPOTIFY_INTEGRATION_VERSION,
+      firebotVersion: SPOTIFY_INTEGRATION_FIREBOT_VERSION,
     };
   },
   getDefaultParameters: () => {
@@ -102,7 +99,7 @@ const script: Firebot.CustomScript<Params> = {
 
     //@ts-expect-error ts2339
     runRequest.modules.twitchChat.on("connected", async () => {
-      const updateResponse = await checkRemoteVersionAsync();
+      const updateResponse = await checkRemoteScriptVersionAsync();
 
       if (!updateResponse.newVersionAvailable) return;
 

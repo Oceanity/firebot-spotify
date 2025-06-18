@@ -1,9 +1,9 @@
 import "@/mocks/firebot";
+import { testPlaylist } from "@/test-data";
 import { jest } from "@jest/globals";
+import { getBiggestImageUrl } from "@utils/array";
 import { SpotifyService } from "@utils/spotify";
 import { SpotifyPlaylistService } from "@utils/spotify/player/playlist";
-import { testPlaylist } from "@/testData";
-import { getBiggestImageUrl } from "@utils/array";
 
 describe("Spotify - Playlist Service", () => {
   let spotify: SpotifyService;
