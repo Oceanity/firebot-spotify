@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { EffectScope } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 type EffectParams = {

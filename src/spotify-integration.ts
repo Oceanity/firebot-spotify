@@ -1,5 +1,4 @@
 import { SPOTIFY_INTEGRATION_ID, SPOTIFY_SCOPES } from "@/constants";
-import { IntegrationData } from "@crowbartools/firebot-custom-scripts-types";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import ResponseError from "@models/responseError";
 import {
@@ -39,10 +38,7 @@ export class SpotifyIntegration
     spotifyDefinition = generateSpotifyDefinition(client);
   }
 
-  async init(
-    _linked: boolean,
-    _integrationData: IntegrationData<SpotifyIntegrationSettings>
-  ) {
+  async init() {
     logger.info("Initializing Spotify Integration...");
 
     // Register Effects
@@ -161,22 +157,7 @@ export const generateSpotifyDefinition = (
     "Integrations with Spotify that can show now playing information and control your Spotify devices.",
   connectionToggle: false,
   linkType: "auth",
-  settingCategories: {
-    general: [
-      {
-        id: "client_id",
-        name: "Client ID",
-        type: "text",
-        required: true,
-      },
-      {
-        id: "client_secret",
-        name: "Client Secret",
-        type: "text",
-        required: true,
-      },
-    ],
-  },
+  settingCategories: {},
   authProviderDetails: {
     id: SPOTIFY_INTEGRATION_ID,
     name: "Spotify",

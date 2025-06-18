@@ -1,9 +1,10 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { EffectScope } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import { logger } from "@oceanity/firebot-helpers/firebot";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
-type EffectParams = { username: string; amount: string };
+type EffectParams = { username: string; amount: "Last Added" | "All" };
 
 export const SpotifyCancelUserQueuesEffect: Firebot.EffectType<EffectParams> = {
   definition: {
@@ -51,7 +52,7 @@ export const SpotifyCancelUserQueuesEffect: Firebot.EffectType<EffectParams> = {
     $scope.amountOptions = ["Last Added", "All"];
 
     if ($scope.effect.amount == null) {
-      $scope.effect.amount = $scope.amountOptions[0];
+      $scope.effect.amount = "Last Added";
     }
   },
 

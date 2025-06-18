@@ -1,15 +1,12 @@
-import { SpotifyTrackAlbumVariable } from "./spotifyTrackAlbum";
-import { SpotifyTrackAlbumArtUrlVariable } from "./spotifyTrackAlbumArtUrl";
-import { SpotifyTrackIdVariable } from "./spotifyTrackId";
-import { SpotifyTrackUriVariable } from "./spotifyTrackUri";
-import { SpotifyTrackUrlVariable } from "./spotifyTrackUrl";
-import { SpotifyTrackDurationVariable } from "./spotifyTrackDuration";
-import { SpotifyTrackDurationMsVariable } from "./spotifyTrackDurationMs";
-import { SpotifyTrackPositionVariable } from "./spotifyTrackPosition";
-import { SpotifyTrackPositionMsVariable } from "./spotifyTrackPositionMs";
-import { SpotifyTrackRelativePositionVariable } from "./spotifyTrackRelativePosition";
 import { RawSpotifyTrackVariable } from "./rawSpotifyTrack";
 import { SpotifyTrackVariable } from "./spotifyTrack";
+import { SpotifyTrackAlbumVariable } from "./spotifyTrackAlbum";
+import { SpotifyTrackAlbumArtUrlVariable } from "./spotifyTrackAlbumArtUrl";
+import { SpotifyTrackDurationVariable } from "./spotifyTrackDuration";
+import { SpotifyTrackDurationMsVariable } from "./spotifyTrackDurationMs";
+import { SpotifyTrackIdVariable } from "./spotifyTrackId";
+import { SpotifyTrackPositionVariable } from "./spotifyTrackPosition";
+import { SpotifyTrackPositionMsVariable } from "./spotifyTrackPositionMs";
 
 export const AllSpotifyTrackVariables = [
   RawSpotifyTrackVariable,
@@ -17,11 +14,8 @@ export const AllSpotifyTrackVariables = [
   SpotifyTrackAlbumVariable,
   SpotifyTrackAlbumArtUrlVariable,
   SpotifyTrackIdVariable,
-  SpotifyTrackUriVariable,
-  SpotifyTrackUrlVariable,
   SpotifyTrackDurationVariable,
   SpotifyTrackDurationMsVariable,
   SpotifyTrackPositionVariable,
   SpotifyTrackPositionMsVariable,
-  SpotifyTrackRelativePositionVariable,
 ];

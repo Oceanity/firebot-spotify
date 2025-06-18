@@ -1,8 +1,9 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { EffectScope } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
-type EffectParams = { playbackState: string };
+type EffectParams = { playbackState: "Play" | "Pause" | "Toggle" };
 
 export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> =
   {
@@ -38,7 +39,7 @@ export const SpotifyChangePlaybackStateEffect: Firebot.EffectType<EffectParams> 
       $scope.playbackStateOptions = ["Play", "Pause", "Toggle"];
 
       if ($scope.effect.playbackState == null) {
-        $scope.effect.playbackState = $scope.playbackStateOptions[0];
+        $scope.effect.playbackState = "Play";
       }
     },
 

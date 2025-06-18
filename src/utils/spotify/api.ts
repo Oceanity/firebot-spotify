@@ -53,7 +53,7 @@ export class SpotifyApiService {
         now < this.rateLimits[sanitizedEndpoint]
       ) {
         throw new Error(
-          `API endpoint ${endpoint} Rate Limit Exceeded, will be able to use again after ${formatMsToTimecode(
+          `API endpoint ${SPOTIFY_API_URL}${endpoint} Rate Limit Exceeded, will be able to use again after ${formatMsToTimecode(
             this.rateLimits[sanitizedEndpoint] - now
           )}`
         );
@@ -78,7 +78,7 @@ export class SpotifyApiService {
         switch (response.status) {
           case 401:
             throw new ResponseError(
-              `Spotify API endpoint ${endpoint} responded Unauthorized, try unlinking and relinking Spotify to generate a new Access/Refresh token pair`,
+              `Spotify API endpoint ${SPOTIFY_API_URL}${endpoint} responded Unauthorized, try unlinking and relinking Spotify to generate a new Access/Refresh token pair`,
               response
             );
           case 429:
@@ -87,7 +87,7 @@ export class SpotifyApiService {
               performance.now() +
               (retryAfter ? parseInt(retryAfter) : 3600) * 1000;
             throw new ResponseError(
-              `Spotify API endpoint ${endpoint} responded Rate Limit Exceeded, will be able to use again after ${new Date(
+              `Spotify API endpoint ${SPOTIFY_API_URL}${endpoint} responded Rate Limit Exceeded, will be able to use again after ${new Date(
                 this.rateLimits[sanitizedEndpoint]
               ).toUTCString()}`,
               response

@@ -58,21 +58,3 @@ type Trigger = {
     [x: string]: unknown;
   };
 };
-
-type TriggerType =
-  | "command"
-  | "custom_script"
-  | "startup_script"
-  | "api"
-  | "event"
-  | "hotkey"
-  | "timer"
-  | "counter"
-  | "preset"
-  | "quick_action"
-  | "manual";
-
-type EffectScope<EffectParams> = {
-  effect: EffectParams;
-  [x: string]: any;
-};

@@ -1,5 +1,6 @@
 import { spotify } from "@/main";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
+import { EffectScope } from "@crowbartools/firebot-custom-scripts-types/types/effects";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 
 export enum SpotifySkipTarget {
@@ -7,7 +8,7 @@ export enum SpotifySkipTarget {
   Next = "Next",
 }
 
-type EffectParams = { target: string };
+type EffectParams = { target: SpotifySkipTarget };
 
 export const SpotifySkipTrackEffect: Firebot.EffectType<EffectParams> = {
   definition: {
@@ -33,7 +34,11 @@ export const SpotifySkipTrackEffect: Firebot.EffectType<EffectParams> = {
     `,
 
   optionsController: ($scope: EffectScope<EffectParams>) => {
-    $scope.targetOptions = ["Next", "Previous"];
+    $scope.targetOptions = [SpotifySkipTarget.Next, SpotifySkipTarget.Previous];
+
+    if ($scope.effect.target == null) {
+      $scope.effect.target = SpotifySkipTarget.Next;
+    }
   },
 
   optionsValidator: (effect) => {
