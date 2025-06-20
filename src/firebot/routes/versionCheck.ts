@@ -1,9 +1,11 @@
+import { ApiEndpoint } from "@/types/api";
 import { checkRemoteScriptVersionAsync } from "@/utils";
+import { Request, Response } from "express";
 
 export const VersionCheckEndpoint: ApiEndpoint = [
   "/version",
   "GET",
-  async (req: HttpRequest, res: HttpResponse) => {
+  async (req: Request, res: Response) => {
     try {
       const { v } = req.query;
 

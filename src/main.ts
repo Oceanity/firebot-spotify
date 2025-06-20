@@ -14,11 +14,12 @@ import { checkRemoteScriptVersionAsync } from "@/utils";
 import { SpotifyService } from "@/utils/spotify/index";
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
-import { chatFeedAlert, initModules } from "@oceanity/firebot-helpers/firebot";
+import { NotificationType } from "@crowbartools/firebot-custom-scripts-types/types/modules/notification-manager";
+import { initModules } from "@oceanity/firebot-helpers/firebot";
 import { AllSpotifyEffects } from "./firebot/effects";
 import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
+import { AllSpotifyCustomRoutes } from "./firebot/routes";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
-import { AllSpotifyWebhooks } from "./firebot/webhooks";
 
 export let spotify: SpotifyService;
 
@@ -67,7 +68,16 @@ const script: Firebot.CustomScript<Params> = {
   run: async (runRequest) => {
     const { spotifyClientId, spotifyClientSecret, spotifyCallbackHostname } =
       runRequest.parameters;
-    const { integrationManager, logger } = runRequest.modules;
+
+    const {
+      effectManager,
+      eventManager,
+      httpServer,
+      integrationManager,
+      logger,
+      replaceVariableManager,
+      notificationManager,
+    } = runRequest.modules;
 
     const paramErrors = Object.entries(runRequest.parameters)
       .filter(([_, value]) => !value)
@@ -92,41 +102,48 @@ const script: Firebot.CustomScript<Params> = {
       secret: spotifyClientSecret,
     };
 
-    //@ts-expect-error ts2339
-    runRequest.modules.twitchChat.once("connected", async () => {
-      const updateResponse = await checkRemoteScriptVersionAsync();
+    const updateResponse = await checkRemoteScriptVersionAsync();
+    if (updateResponse.newVersionAvailable) {
+      const notificationTitle = `${SPOTIFY_INTEGRATION_NAME} v${updateResponse.remoteVersion}`;
 
-      if (!updateResponse.newVersionAvailable) return;
+      // If they already have active notification, let's not spam them, but if they have one that's read and they didn't actually update, I mean... :3
+      if (
+        notificationManager
+          .getNotifications()
+          .some((n) => n.title === notificationTitle && n.read === false)
+      ) {
+        return;
+      }
 
-      await chatFeedAlert(
-        `A new update of Spotify Integration by Oceanity is available (${updateResponse.localVersion} -> ${updateResponse.remoteVersion})! Visit https://github.com/Oceanity/firebot-spotify/releases/latest to download it!`
-      );
-    });
+      notificationManager.addNotification({
+        type: "update" as NotificationType,
+        title: notificationTitle,
+        message: `A new update for **${SPOTIFY_INTEGRATION_NAME}** has been releaed: **v${updateResponse.localVersion} -> v${updateResponse.remoteVersion}**\n\n[Go here to grab the latest version!](https://github.com/Oceanity/firebot-spotify/releases/latest)`,
+      });
+    }
 
     // Register Replace Variables
     for (const variable of AllSpotifyReplaceVariables) {
-      runRequest.modules.replaceVariableManager.registerReplaceVariable(
-        variable
-      );
+      replaceVariableManager.registerReplaceVariable(variable);
     }
 
     // Register Effects
     for (const effect of AllSpotifyEffects) {
       effect.definition.id = `${SPOTIFY_INTEGRATION_ID}:${effect.definition.id}`;
 
-      runRequest.modules.effectManager.registerEffect(
+      effectManager.registerEffect(
         effect as Effects.EffectType<{ [key: string]: any }>
       );
     }
 
     // Register Events
     SpotifyEventSource.id = SPOTIFY_INTEGRATION_ID;
-    runRequest.modules.eventManager.registerEventSource(SpotifyEventSource);
+    eventManager.registerEventSource(SpotifyEventSource);
 
     // Register Webhooks
-    for (const webhook of AllSpotifyWebhooks) {
+    for (const webhook of AllSpotifyCustomRoutes) {
       const [path, method, handler] = webhook;
-      runRequest.modules.httpServer.registerCustomRoute(
+      httpServer.registerCustomRoute(
         SPOTIFY_INTEGRATION_ID,
         path,
         method,

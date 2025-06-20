@@ -1,7 +1,10 @@
+import { ApiEndpoint } from "@/types/api";
+import { Request, Response } from "express";
+
 export const PingLyricsEndpoint: ApiEndpoint = [
   "/lyrics/ping",
   "GET",
-  async (_req: HttpRequest, res: HttpResponse) => {
+  async (_req: Request, res: Response) => {
     try {
       res.status(204).send();
     } catch (error) {

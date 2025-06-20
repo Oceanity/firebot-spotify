@@ -27,15 +27,27 @@ export class SpotifyIntegration
     spotifyDefinition = generateSpotifyDefinition(client);
   }
 
-  async init() {
-    logger.info("Initializing Spotify Integration...");
+  async init(
+    linked: boolean,
+    integrationData: IntegrationData<SpotifyIntegrationSettings>
+  ): Promise<void> {
+    try {
+      logger.info("Initializing Spotify Integration...");
+      logger.info(
+        linked
+          ? "Spotify Integration is linked"
+          : "Spotify Integration is not linked"
+      );
+      logger.info(JSON.stringify(integrationData));
 
-    if (!this.connected) {
-      this.connected = true;
+      if (!this.connected) {
+        this.connected = true;
+      }
+    } catch (error) {
+      logger.error("Error initializing Spotify Integration:", error);
+      throw error;
     }
   }
-
-  async connect() {}
 
   async link() {
     logger.info("Linking to Spotify Integration...");

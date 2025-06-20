@@ -1,7 +1,9 @@
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
+import { Request, Response } from "express";
 
-type ApiEndpoint = [
+export type HttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+
+export type ApiEndpoint = [
   path: string,
   method: HttpMethod,
-  handler: (req: HttpRequest, res: HttpResponse) => Promise<void>
+  handler: (req: Request, res: Response) => Promise<void>
 ];
