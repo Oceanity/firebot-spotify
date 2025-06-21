@@ -1,4 +1,5 @@
 import {
+  SPOTIFY_EVENT_SOURCE,
   SPOTIFY_INTEGRATION_AUTHOR,
   SPOTIFY_INTEGRATION_DESCRIPTION,
   SPOTIFY_INTEGRATION_FIREBOT_VERSION,
@@ -17,7 +18,6 @@ import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effect
 import { NotificationType } from "@crowbartools/firebot-custom-scripts-types/types/modules/notification-manager";
 import { initModules } from "@oceanity/firebot-helpers/firebot";
 import { AllSpotifyEffects } from "./firebot/effects";
-import { SpotifyEventSource } from "./firebot/events/spotifyEventSource";
 import { AllSpotifyCustomRoutes } from "./firebot/routes";
 import { AllSpotifyReplaceVariables } from "./firebot/variables";
 
@@ -122,11 +122,6 @@ const script: Firebot.CustomScript<Params> = {
       });
     }
 
-    // Register Replace Variables
-    for (const variable of AllSpotifyReplaceVariables) {
-      replaceVariableManager.registerReplaceVariable(variable);
-    }
-
     // Register Effects
     for (const effect of AllSpotifyEffects) {
       effect.definition.id = `${SPOTIFY_INTEGRATION_ID}:${effect.definition.id}`;
@@ -137,8 +132,12 @@ const script: Firebot.CustomScript<Params> = {
     }
 
     // Register Events
-    SpotifyEventSource.id = SPOTIFY_INTEGRATION_ID;
-    eventManager.registerEventSource(SpotifyEventSource);
+    eventManager.registerEventSource(SPOTIFY_EVENT_SOURCE);
+
+    // Register Replace Variables
+    for (const variable of AllSpotifyReplaceVariables) {
+      replaceVariableManager.registerReplaceVariable(variable);
+    }
 
     // Register Webhooks
     for (const webhook of AllSpotifyCustomRoutes) {
