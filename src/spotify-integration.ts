@@ -1,4 +1,8 @@
-import { SPOTIFY_INTEGRATION_ID, SPOTIFY_SCOPES } from "@/constants";
+import {
+  SPOTIFY_INTEGRATION_ID,
+  SPOTIFY_INTEGRATION_NAME,
+  SPOTIFY_SCOPES,
+} from "@/constants";
 import ResponseError from "@models/responseError";
 import { integrationManager, logger } from "@oceanity/firebot-helpers/firebot";
 import { now } from "@utils/time";
@@ -27,10 +31,10 @@ export class SpotifyIntegration
     spotifyDefinition = generateSpotifyDefinition(client);
   }
 
-  async init(
+  init(
     linked: boolean,
     integrationData: IntegrationData<SpotifyIntegrationSettings>
-  ): Promise<void> {
+  ): void | PromiseLike<void> {
     try {
       logger.info("Initializing Spotify Integration...");
       logger.info(
@@ -40,8 +44,9 @@ export class SpotifyIntegration
       );
       logger.info(JSON.stringify(integrationData));
 
-      if (!this.connected) {
+      if (linked && !this.connected) {
         this.connected = true;
+        logger.info("Spotify Integration is now connected");
       }
     } catch (error) {
       logger.error("Error initializing Spotify Integration:", error);
@@ -62,6 +67,8 @@ export class SpotifyIntegration
   ) {
     logger.info("Integration Data", integrationData);
   }
+
+  private async initSpotifyIntegration() {}
 
   async refreshToken(): Promise<AuthDefinition | null> {
     try {
@@ -134,7 +141,7 @@ export const generateSpotifyDefinition = (
   redirectUriHost: string = "127.0.0.1"
 ): IntegrationDefinition => ({
   id: SPOTIFY_INTEGRATION_ID,
-  name: "Spotify (by Oceanity)",
+  name: SPOTIFY_INTEGRATION_NAME,
   description:
     "Integrations with Spotify that can show now playing information and control your Spotify devices.",
   connectionToggle: false,

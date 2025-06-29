@@ -12,7 +12,7 @@ export const LyricsExistEndpoint: ApiEndpoint = [
       if (!id) {
         res.status(400).send({
           status: 400,
-          message: "Missing id",
+          message: "Missing required query param: `id`",
         });
         return;
       }

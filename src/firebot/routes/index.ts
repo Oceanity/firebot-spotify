@@ -1,8 +1,8 @@
 import { ApiEndpoint } from "@/types/api";
-import { LyricsExistEndpoint } from "./lyricsExist";
-import { PingLyricsEndpoint } from "./pingLyrics";
-import { SaveLyricsEndpoint } from "./saveLyrics";
-import { VersionCheckEndpoint } from "./versionCheck";
+import { LyricsExistEndpoint } from "./lyrics-exist";
+import { PingLyricsEndpoint } from "./ping-lyrics";
+import { SaveLyricsEndpoint } from "./save-lyrics";
+import { VersionCheckEndpoint } from "./version-check";
 
 export const AllSpotifyCustomRoutes: ApiEndpoint[] = [
   LyricsExistEndpoint,
