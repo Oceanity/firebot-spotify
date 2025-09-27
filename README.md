@@ -23,6 +23,7 @@ This is a Firebot Script that will allow you to integrate Spotify functionality 
   - Click the "scripts folder" link to open the Scripts Folder and place `oceanitySpotifyIntegration.js` there
   - Refresh the list of scripts and pick `oceanitySpotifyIntegration.js` from the dropdown
   - In Client Id and Client Secret fields, copy in the two codes from earlier
+  - In the Spotify Callback Hostname field, put the base URL of what you used for the Callback Url when setting up your Spotify App, eg. `127.0.0.1` 
 - Go to Settings > Integrations and click Link next to Spotify (by Oceanity)
   - Log in and authorize on the page that pops up
 - You should now have the ability to use this script's Effects, Events and Replace Variables in Firebot
