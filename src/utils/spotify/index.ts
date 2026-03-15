@@ -57,7 +57,7 @@ export class SpotifyService {
       const params = new URLSearchParams({
         q: encodedQuery,
         type: types.join(","),
-        limit: String(options.limit ?? 50),
+        limit: String(options.limit ?? 10),
         offset: String(options.offset ?? 0),
       }).toString();
 
