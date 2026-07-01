@@ -52,10 +52,8 @@ export class SpotifyService {
         types = [types];
       }
 
-      const encodedQuery = encodeURIComponent(query);
-
       const params = new URLSearchParams({
-        q: encodedQuery,
+        q: query,
         type: types.join(","),
         limit: String(options.limit ?? 50),
         offset: String(options.offset ?? 0),
