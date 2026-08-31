@@ -1,7 +1,10 @@
 import { integrationManager, logger } from "@oceanity/firebot-helpers/firebot";
 import { integration } from "@/spotifyIntegration";
 import { SpotifyService } from "@utils/spotify";
-import { getErrorMessage } from "@oceanity/firebot-helpers/string";
+import {
+  formatMsToTimecode,
+  getErrorMessage,
+} from "@oceanity/firebot-helpers/string";
 import { now } from "@utils/time";
 import { namespace } from "@/main";
 
@@ -58,10 +61,11 @@ export default class SpotifyAuthService {
 
       this.expiresAt = now() + refreshResponse.expires_in * 1000;
 
+      // expiresAt is monotonic (performance.now based), not a wall clock epoch
       logger.info(
-        `Refreshed Spotify Token. New Token will expire at ${new Date(
-          this.expiresAt
-        ).toUTCString()}`
+        `Refreshed Spotify Token. New Token will expire in ${formatMsToTimecode(
+          this.expiresAt - now()
+        )}`
       );
 
       return refreshResponse.access_token;
