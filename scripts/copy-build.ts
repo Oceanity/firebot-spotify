@@ -21,9 +21,10 @@ const getFirebotScriptsFolderPath = () => {
   if (process.platform === "win32") {
     appDataFolderPath = process.env.APPDATA;
   } else if (process.platform === "darwin") {
-    appDataFolderPath = path.resolve(home, "/Library/Application Support");
+    // Leading slashes would make path.resolve discard the home directory
+    appDataFolderPath = path.resolve(home, "Library/Application Support");
   } else if (process.platform === "linux") {
-    appDataFolderPath = path.resolve(home, "/.config");
+    appDataFolderPath = path.resolve(home, ".config");
   }
 
   if (!appDataFolderPath) {
