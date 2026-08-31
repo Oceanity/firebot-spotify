@@ -9,6 +9,7 @@ import {
   logger,
   variableManager,
 } from "@oceanity/firebot-helpers/firebot";
+import { formatMsToTimecode } from "@oceanity/firebot-helpers/string";
 import { now } from "@utils/time";
 import { EventEmitter } from "events";
 import { AllSpotifyEffects } from "./firebot/effects";
@@ -128,8 +129,9 @@ export class SpotifyIntegration extends EventEmitter {
         data.refresh_token = auth.refresh_token;
 
         this.expiresAt = now() + data.expires_in * 1000;
+        // expiresAt is monotonic (performance.now based), not a wall clock epoch
         logger.info(
-          `New token expires at ${new Date(this.expiresAt).toUTCString()}`
+          `New token expires in ${formatMsToTimecode(this.expiresAt - now())}`
         );
 
         updateIntegrationAuth(data);
