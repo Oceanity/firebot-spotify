@@ -4,12 +4,20 @@ import { logger } from "@oceanity/firebot-helpers/firebot";
 import { SpotifyService } from "@utils/spotify";
 import { getErrorMessage } from "@oceanity/firebot-helpers/string";
 import { trackSummaryFromDetails } from "./track";
+import ResponseError from "@/models/responseError";
 
 export class SpotifyPlaylistService {
   private readonly spotify: SpotifyService;
 
   private _playlist: SpotifyPlaylistDetails | null = null;
   private _summary: SpotifyPlaylistSummary | null = null;
+
+  /**
+   * Playlists Spotify refuses to serve us, so we stop asking. Since November
+   * 2024 the Web API 404s on Spotify's own editorial and algorithmic playlists,
+   * and that is never going to start working on a retry.
+   */
+  private readonly _unavailableUris = new Set<string>();
 
   public constructor(spotifyService: SpotifyService) {
     this.spotify = spotifyService;
@@ -18,7 +26,15 @@ export class SpotifyPlaylistService {
   public async init() {
     this.spotify.player.state.on(
       "playlist-state-changed",
-      async (uri?) => await this.updateByUriAsync(uri)
+      (uri?: string | null) => {
+        // Handle here, an EventEmitter won't await this for us
+        this.updateByUriAsync(uri).catch((error) => {
+          logger.error(
+            `Error updating Spotify playlist: ${getErrorMessage(error)}`,
+            error
+          );
+        });
+      }
     );
   }
 
@@ -72,7 +88,7 @@ export class SpotifyPlaylistService {
   }
 
   public async updateByUriAsync(playlistUri?: string | null): Promise<void> {
-    if (!playlistUri) {
+    if (!playlistUri || this._unavailableUris.has(playlistUri)) {
       this.update(null);
       return;
     }
@@ -92,11 +108,35 @@ export class SpotifyPlaylistService {
 
     const id = this.spotify.getIdFromUri(playlistUri);
 
-    const response = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
-      `/playlists/${id}`
-    );
+    try {
+      const response = await this.spotify.api.fetch<SpotifyPlaylistDetails>(
+        `/playlists/${id}`
+      );
 
-    return response.data ?? null;
+      return response.data ?? null;
+    } catch (error) {
+      if (error instanceof ResponseError && error.data?.status === 404) {
+        this.markUnavailable(playlistUri);
+        return null;
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Records a playlist as one Spotify won't serve, so we only ever ask once.
+   */
+  private markUnavailable(playlistUri: string): void {
+    if (this._unavailableUris.has(playlistUri)) return;
+
+    this._unavailableUris.add(playlistUri);
+
+    logger.warn(
+      `Spotify returned 404 for playlist ${playlistUri}. Spotify no longer serves its own editorial and algorithmic playlists ` +
+        `(Discover Weekly, Daily Mix, Release Radar, Made For You, etc.) through the Web API, so playlist details will be ` +
+        `unavailable while this one is playing. No further requests will be made for it.`
+    );
   }
 
   private update(playlist: SpotifyPlaylistDetails | null): void {
